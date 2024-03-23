@@ -1,0 +1,1 @@
+ALTER TABLE "blocked_schedules" RENAME COLUMN "role" TO "type";
