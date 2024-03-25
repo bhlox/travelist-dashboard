@@ -23,8 +23,10 @@ export const metadata: Metadata = {
 
 export default async function RootLayoutHome({
   children,
+  modal,
 }: Readonly<{
   children: React.ReactNode;
+  modal: React.ReactNode;
 }>) {
   const user = await getUser();
   if (!user || !user.user) {
@@ -57,7 +59,10 @@ export default async function RootLayoutHome({
                   <div className="flex flex-col flex-1 w-full">
                     <Navbar />
                     <main className="h-screen overflow-y-auto">
-                      <div className="p-4">{children}</div>
+                      <div className="p-4">
+                        {modal}
+                        {children}
+                      </div>
                     </main>
                   </div>
                 </MainContainer>

@@ -24,3 +24,39 @@ export type InsertBlockedSchedule = InferInsertModel<typeof blockedSchedules>;
 export type UpdateBlockedSchedule = {
   id: InsertBlockedSchedule["id"];
 } & Partial<Omit<InsertBlockedSchedule, "id">>;
+
+export type ScheduleBlock = "day" | "time";
+
+export type ScheduleBlockInfo = {
+  date: Date;
+  timeRanges: string[];
+  type: ScheduleBlock;
+};
+
+export type ScheduleBlockInfoWithId = {
+  date: Date;
+  timeRanges: string[];
+  type: ScheduleBlock;
+  id: number;
+};
+
+export type UpdateScheduleFormProps = {
+  blockedSchedules: ScheduleBlockInfo[];
+  submitType: "create" | "update";
+  editId?: string;
+  toBeEditedBlockedSchedule?: ScheduleBlockInfo;
+  isModal?: boolean;
+} & (
+  | {
+      submitType: "create";
+      editId?: string;
+      toBeEditedBlockedSchedule?: ScheduleBlockInfo;
+      isModal?: boolean;
+    }
+  | {
+      submitType: "update";
+      editId: string;
+      toBeEditedBlockedSchedule: ScheduleBlockInfo;
+      isModal: boolean;
+    }
+);

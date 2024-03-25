@@ -11,6 +11,5 @@ export default async function SchedulePage() {
     type: day.type,
     id: day.id,
   }));
-  // .flat();
   return <ScheduleClient blockedSchedules={mappedData} />;
 }
