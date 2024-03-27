@@ -34,8 +34,8 @@ export default async function RootLayoutHome({
     return redirect("/login");
   }
   return (
-    <html lang="en">
-      <body className={inter.className} suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
+      <body className={inter.className}>
         <NextTopLoader showSpinner={false} />
         <ThemeProvider
           defaultTheme="system"

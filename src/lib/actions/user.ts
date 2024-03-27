@@ -23,19 +23,30 @@ export const updateUserDetails = async ({ update }: { update: UpdateUser }) => {
         where: (user, { eq }) => eq(user.id, update.id),
         columns: { hashedPassword: true },
       });
-      const isPasswordSame = await new Argon2id().verify(
+      const verifyPassword = await new Argon2id().verify(
         hash?.hashedPassword!,
         update.password
       );
-      if (!isPasswordSame) {
-        throw new Error("Password is not same");
+      if (!verifyPassword) {
+        throw new Error("Incorrect password");
+      }
+      if (!update.hashedPassword) {
+        throw new Error("Pls provide a password");
+      }
+      const isNewPasswordSameWithOld = await new Argon2id().verify(
+        hash?.hashedPassword!,
+        update.hashedPassword
+      );
+      if (isNewPasswordSameWithOld) {
+        throw new Error("New password cannot be same as old password");
       }
     }
     if (!update.hashedPassword) {
-      throw new Error("pls provide your new password");
+      throw new Error("Pls provide a password");
     }
     update.hashedPassword = await new Argon2id().hash(update.hashedPassword);
   }
+
   const { id, password, ...values } = update;
   await db.update(user).set(values).where(eq(user.id, update.id));
   revalidatePath("/");

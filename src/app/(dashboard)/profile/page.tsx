@@ -1,6 +1,6 @@
 "use client";
 import { useUserDetailsContext } from "@/components/providers/user-details-provider";
-import React from "react";
+import React, { useEffect } from "react";
 import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -55,8 +55,8 @@ export default function ProfilePage() {
           id: userID,
           username: updates.username || username,
           role: updates.userRole,
-          password: updates.password,
-          hashedPassword: updates.newPassword,
+          password: updates.password?.trim() || undefined,
+          hashedPassword: updates.newPassword?.trim() || undefined,
         },
       });
       toast.success(
@@ -66,7 +66,7 @@ export default function ProfilePage() {
       // #TODO improve toast error message
       console.error(error);
       toast.error(
-        <ToastContent title="something went wrong" description={undefined} />
+        <ToastContent title={error.message} description={undefined} />
       );
     }
   };
@@ -98,18 +98,25 @@ export default function ProfilePage() {
           <FormField
             control={form.control}
             name="password"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Password</FormLabel>
-                <FormControl>
-                  <PasswordInput
-                    onChange={field.onChange}
-                    placeholder="enter current password"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            render={({ field }) => {
+              return (
+                <FormItem>
+                  <FormLabel>Password</FormLabel>
+                  <FormControl>
+                    <PasswordInput
+                      onChange={(e) => {
+                        if (!e.target.value.trim()) {
+                          return field.onChange(undefined);
+                        }
+                        field.onChange(e.target.value.trim());
+                      }}
+                      placeholder="enter current password"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              );
+            }}
           />
           <FormField
             control={form.control}
@@ -119,7 +126,12 @@ export default function ProfilePage() {
                 <FormLabel>New Password</FormLabel>
                 <FormControl>
                   <PasswordInput
-                    onChange={field.onChange}
+                    onChange={(e) => {
+                      if (!e.target.value.trim()) {
+                        return field.onChange(undefined);
+                      }
+                      field.onChange(e.target.value);
+                    }}
                     placeholder="enter new password"
                   />
                 </FormControl>

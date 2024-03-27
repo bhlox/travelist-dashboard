@@ -17,6 +17,9 @@ export const bookings = pgTable("bookings", {
   phoneNumber: varchar("phone_number", { length: 20 }).notNull(),
   personInCharge: varchar("person_in_charge", { length: 100 }).notNull(),
   customerName: varchar("customer_name", { length: 100 }).notNull(),
+  status: text("status")
+    .$type<"pending" | "overdue" | "cancelled" | "complete">()
+    .default("pending"),
   bookedAt: timestamp("booked_at", { withTimezone: true, mode: "string" })
     .defaultNow()
     .notNull(),

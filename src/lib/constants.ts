@@ -56,3 +56,10 @@ export const disableWeekends: Matcher = (date) => {
 };
 
 //   const disableDays: Matcher = [new Date(2024, 2, 26), new Date(2024, 2, 28)];
+
+export const bookingStatuses = [
+  "pending",
+  "overdue",
+  "cancelled",
+  "complete",
+] as const;

@@ -88,10 +88,9 @@ export const loginUser = async ({
 
   const user = await findUser({ username });
   if (!user || !(await new Argon2id().verify(user.hashedPassword, password))) {
-    return {
-      error: "Invalid username or password",
-    };
+    throw new Error("Invalid credentials");
   }
+
   const session = await lucia.createSession(user.id, {});
   const sessionCookie = lucia.createSessionCookie(session.id);
   cookies().set(
@@ -99,7 +98,7 @@ export const loginUser = async ({
     sessionCookie.value,
     sessionCookie.attributes
   );
-  console.log("redirecting to home group pages");
+  // console.log("redirecting to home group pages")  ;
   // return redirect("/");
 };
 
@@ -130,8 +129,6 @@ export const getUser = async () => {
   }
   return { user, session };
 };
-
-
 
 export const logoutUser = async () => {
   const result = await getUser();

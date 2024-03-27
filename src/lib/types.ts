@@ -1,5 +1,6 @@
-import { blockedSchedules, user } from "@/db/schema";
+import { blockedSchedules, bookings, user } from "@/db/schema";
 import { InferInsertModel, InferSelectModel } from "drizzle-orm";
+import { bookingStatuses } from "./constants";
 
 export interface DatabaseUserAttributes {
   username: string;
@@ -11,6 +12,12 @@ export interface ISidebarContext {
   closeSidebar: () => void;
   toggleSidebar: () => void;
 }
+
+export type SelectBooking = InferSelectModel<typeof bookings>;
+export type InsertBooking = InferInsertModel<typeof bookings>;
+export type UpdateBooking = {
+  id: SelectBooking["id"];
+} & Partial<Omit<InsertBooking, "id">>;
 
 export type SelectUser = InferSelectModel<typeof user>;
 export type InsertUser = InferInsertModel<typeof user>;
@@ -60,3 +67,11 @@ export type UpdateScheduleFormProps = {
       isModal: boolean;
     }
 );
+
+export type BookingStatus = (typeof bookingStatuses)[number];
+
+export type DialogEditStatusProps = {
+  currentStatus: BookingStatus | undefined;
+  name: string | undefined;
+  id: number | undefined;
+};

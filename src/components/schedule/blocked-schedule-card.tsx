@@ -18,8 +18,7 @@ import ToastContent from "@/components/toast/content";
 import LoadingSpinner from "@/components/svg/loader";
 import Link from "next/link";
 import { ScheduleBlockInfo } from "@/lib/types";
-import { getCustomersForDate } from "@/lib/actions/customers";
-
+import { getBookingsForDate } from "@/lib/actions/bookings";
 
 export default function BlockedScheduleCard({
   blockedSchedule,
@@ -50,7 +49,7 @@ export default function BlockedScheduleCard({
   const { data, isFetching, isError } = useQuery({
     queryKey: ["customers", blockedSchedule.date],
     queryFn: () =>
-      getCustomersForDate(lightFormat(blockedSchedule.date, "yyyy-MM-dd")),
+      getBookingsForDate(lightFormat(blockedSchedule.date, "yyyy-MM-dd")),
     staleTime: Infinity,
   });
 
@@ -135,4 +134,3 @@ export default function BlockedScheduleCard({
     </div>
   );
 }
-
