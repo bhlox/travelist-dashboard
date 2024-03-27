@@ -1,6 +1,7 @@
 import { blockedSchedules, bookings, user } from "@/db/schema";
 import { InferInsertModel, InferSelectModel } from "drizzle-orm";
 import { bookingStatuses } from "./constants";
+import { ColumnDef, Table } from "@tanstack/react-table";
 
 export interface DatabaseUserAttributes {
   username: string;
@@ -75,3 +76,19 @@ export type DialogEditStatusProps = {
   name: string | undefined;
   id: number | undefined;
 };
+
+export interface DataTablePaginationProps<TData> {
+  table: Table<TData>;
+}
+
+export interface DataTableProps<TData, TValue> {
+  columns: ColumnDef<TData, TValue>[];
+  data: TData[];
+}
+
+export interface IAdvancedSearchForm {
+  name?: string;
+  phone?: string;
+  date?: Date;
+  status?: BookingStatus;
+}
