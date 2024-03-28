@@ -1,11 +1,15 @@
+import { useUserDetailsContext } from "@/components/providers/user-details-provider";
 import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 import { Table } from "@tanstack/react-table";
 import React from "react";
 import { FaChevronRight } from "react-icons/fa";
@@ -16,15 +20,24 @@ export default function PaginationControls<TData>({
 }: {
   table: Table<TData>;
 }) {
+  const { role } = useUserDetailsContext();
   return (
-    <div className="flex items-center justify-between px-2">
-      <div className="flex-1 text-sm text-muted-foreground">
+    <div
+      className={cn("flex items-start px-2", null, {
+        "justify-between": role !== "staff",
+        "justify-end": role === "staff",
+      })}
+    >
+      <div
+        className={cn("flex-1 text-sm text-muted-foreground", null, {
+          hidden: role === "staff",
+        })}
+      >
         {table.getFilteredSelectedRowModel().rows.length} of{" "}
-        {table.getFilteredRowModel().rows.length} row(s) selected.
+        {table.getFilteredRowModel().rows.length} row(s) selected
       </div>
       <div className="flex items-center space-x-6 lg:space-x-8">
         <div className="flex items-center space-x-2">
-          <p className="text-sm font-medium">Rows per page</p>
           <Select
             value={`${table.getState().pagination.pageSize}`}
             onValueChange={(value) => {
@@ -35,11 +48,14 @@ export default function PaginationControls<TData>({
               <SelectValue placeholder={table.getState().pagination.pageSize} />
             </SelectTrigger>
             <SelectContent side="top">
-              {[10, 20, 30, 40, 50].map((pageSize) => (
-                <SelectItem key={pageSize} value={`${pageSize}`}>
-                  {pageSize}
-                </SelectItem>
-              ))}
+              <SelectGroup>
+                <SelectLabel>Rows per page</SelectLabel>
+                {[10, 20, 30, 40, 50].map((pageSize) => (
+                  <SelectItem key={pageSize} value={`${pageSize}`}>
+                    {pageSize}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
             </SelectContent>
           </Select>
         </div>

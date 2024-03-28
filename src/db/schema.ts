@@ -1,3 +1,4 @@
+import { BookingStatus, UserRoles } from "@/lib/types";
 import {
   pgTable,
   pgEnum,
@@ -17,9 +18,7 @@ export const bookings = pgTable("bookings", {
   phoneNumber: varchar("phone_number", { length: 20 }).notNull(),
   personInCharge: varchar("person_in_charge", { length: 100 }).notNull(),
   customerName: varchar("customer_name", { length: 100 }).notNull(),
-  status: text("status")
-    .$type<"pending" | "overdue" | "cancelled" | "complete">()
-    .default("pending"),
+  status: text("status").$type<BookingStatus>().default("pending"),
   bookedAt: timestamp("booked_at", { withTimezone: true, mode: "string" })
     .defaultNow()
     .notNull(),
@@ -29,7 +28,7 @@ export const user = pgTable("user", {
   id: text("id").primaryKey(),
   username: text("username").notNull().unique(),
   hashedPassword: text("hashed_password").notNull(),
-  role: text("role").$type<"admin" | "staff" | "owner">().default("staff"),
+  role: text("role").$type<UserRoles>().default("staff"),
 });
 
 export const session = pgTable("session", {

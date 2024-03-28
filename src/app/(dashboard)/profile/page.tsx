@@ -1,7 +1,6 @@
 "use client";
 import { useUserDetailsContext } from "@/components/providers/user-details-provider";
 import React, { useEffect } from "react";
-import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -39,6 +38,8 @@ const FormSchema = z.object({
   password: z.string().optional(),
   newPassword: z.string().optional(),
 });
+
+// #TODO changing of auth roles can only be done by an admin or owner. here are the current rules. Only developer or owner can change other people's user role. developer can have a sub role to change to any role just to test auth roles.
 
 export default function ProfilePage() {
   const { role, id: userID, username } = useUserDetailsContext();

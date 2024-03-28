@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   flexRender,
   ColumnFiltersState,
@@ -10,6 +10,7 @@ import {
   SortingState,
   getSortedRowModel,
   VisibilityState,
+  ColumnDef,
 } from "@tanstack/react-table";
 import {
   Table,
@@ -23,19 +24,25 @@ import {
   BookingStatus,
   DataTableProps,
   DialogEditStatusProps,
+  SelectBooking,
 } from "@/lib/types";
 import { cn, fuzzyFilter } from "@/lib/utils";
 import PaginationControls from "./pagination-controls";
 import FilterViewControls from "./filter-view-controls";
 import DialogEditStatus from "./dialog/edit-status";
 import DialogAdvancedFilter from "./dialog/advanced-filter";
+import { useUserDetailsContext } from "@/components/providers/user-details-provider";
+import { generateBookingsColumns } from "./columns";
 
-// #TODO add admin actions and UI.
+// #TODO FUTURE fix width of time column
 
-export default function DateTable<TData, TValue>({
-  columns,
-  data,
-}: DataTableProps<TData, TValue>) {
+export default function DateTable<TData>({ data }: DataTableProps<TData>) {
+  const { role } = useUserDetailsContext();
+
+  const bookingsColumns: ColumnDef<SelectBooking>[] = useMemo(() => {
+    return generateBookingsColumns({ role });
+  }, [role]);
+
   const [editStatusDialog, setEditStatusDialog] =
     useState<DialogEditStatusProps | null>(null);
   const [showAdvancedFilter, setShowAdvancedFilter] = useState(false);
@@ -46,6 +53,7 @@ export default function DateTable<TData, TValue>({
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [globalFilter, setGlobalFilter] = React.useState("");
+  const [rowSelection, setRowSelection] = React.useState({});
 
   const handleEditStatusDialog = (data: {
     currentStatus: BookingStatus;
@@ -57,7 +65,7 @@ export default function DateTable<TData, TValue>({
 
   const table = useReactTable({
     data,
-    columns,
+    columns: bookingsColumns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     onSortingChange: setSorting,
@@ -66,15 +74,22 @@ export default function DateTable<TData, TValue>({
     onColumnVisibilityChange: setColumnVisibility,
     getFilteredRowModel: getFilteredRowModel(),
     onGlobalFilterChange: setGlobalFilter,
+    onRowSelectionChange: setRowSelection,
     globalFilterFn: fuzzyFilter,
     filterFns: {
       fuzzy: fuzzyFilter,
     },
     state: {
-      columnVisibility: { id: false, ...columnVisibility },
+      columnVisibility: {
+        id: false,
+        ...columnVisibility,
+        handler: role === "staff" ? false : columnVisibility.handler,
+        select: role !== "staff",
+      },
       sorting,
       columnFilters,
       globalFilter,
+      rowSelection,
     },
     meta: {
       handleEditStatusDialog: (data: {
@@ -92,7 +107,7 @@ export default function DateTable<TData, TValue>({
         setShowAdvancedFilter={setShowAdvancedFilter}
         table={table}
       />
-      <div className="rounded-md border">
+      <div className="rounded-md border mb-4">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -132,7 +147,7 @@ export default function DateTable<TData, TValue>({
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={columns.length}
+                  colSpan={bookingsColumns.length}
                   className="h-24 text-center"
                 >
                   No results.

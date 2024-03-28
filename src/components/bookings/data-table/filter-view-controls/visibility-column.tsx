@@ -1,21 +1,28 @@
 import { Table } from "@tanstack/react-table";
 import React from "react";
 import {
-    DropdownMenu,
-    DropdownMenuCheckboxItem,
-    DropdownMenuContent,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-  } from "@/components/ui/dropdown-menu";
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { MdDisplaySettings } from "react-icons/md";
 
-export default function VisibilityColumn<TData>({table}:{table:Table<TData>}) {
+export default function VisibilityColumn<TData>({
+  table,
+}: {
+  table: Table<TData>;
+}) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" className="ml-auto flex gap-2">
+        <Button
+          variant="outline"
+          className="text-sm md:text-base flex gap-2 w-[7.5rem] md:w-auto items-center justify-center"
+        >
           <MdDisplaySettings className="text-xl" /> View
         </Button>
       </DropdownMenuTrigger>

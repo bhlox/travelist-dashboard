@@ -27,7 +27,7 @@ export const sideBarItems = [
   },
 ];
 
-export const userRoles = ["owner", "admin", "staff"];
+export const userRoles = ["owner", "admin", "staff"] as const;
 
 // export const openingHours = [
 //   { day: "Monday", from: "10:00", to: "18:00" },

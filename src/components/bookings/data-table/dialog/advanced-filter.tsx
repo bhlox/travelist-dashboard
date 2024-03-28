@@ -27,8 +27,6 @@ import {
   FormLabel,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import PhoneInput from "react-phone-input-2";
-import "react-phone-input-2/lib/style.css";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -39,6 +37,7 @@ import { cn } from "@/lib/utils";
 import { CalendarIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { bookingStatuses } from "@/lib/constants";
+import CustomPhoneInput from "@/components/ui/phone-input";
 
 export default function DialogAdvancedFilter<TData>({
   setShowAdvancedFilter,
@@ -106,11 +105,6 @@ export default function DialogAdvancedFilter<TData>({
                         <Input
                           placeholder="Name"
                           onChange={field.onChange}
-                          // onChange={(event) =>
-                          //   table
-                          //     .getColumn("customerName")
-                          //     ?.setFilterValue(event.target.value)
-                          // }
                           className="max-w-sm"
                         />
                       </FormControl>
@@ -130,7 +124,7 @@ export default function DialogAdvancedFilter<TData>({
                     <FormItem>
                       <FormLabel>Phone number</FormLabel>
                       <FormControl>
-                        <PhoneInput
+                        <CustomPhoneInput
                           value={field.value}
                           disableDropdown
                           countryCodeEditable={false}
@@ -140,7 +134,7 @@ export default function DialogAdvancedFilter<TData>({
                             field.onChange(value);
                           }}
                           inputClass={cn(
-                            "dark:bg-black bg-white dark:border-gray-300 border-gray-400 border-2 w-48",
+                            "dark:bg-black bg-red-800 dark:border-gray-300 border-gray-400 border-2 w-48",
                             null,
                             {
                               "dark:border-red-600 border-red-600":

@@ -1,6 +1,6 @@
 import { blockedSchedules, bookings, user } from "@/db/schema";
 import { InferInsertModel, InferSelectModel } from "drizzle-orm";
-import { bookingStatuses } from "./constants";
+import { bookingStatuses, userRoles } from "./constants";
 import { ColumnDef, Table } from "@tanstack/react-table";
 
 export interface DatabaseUserAttributes {
@@ -81,8 +81,8 @@ export interface DataTablePaginationProps<TData> {
   table: Table<TData>;
 }
 
-export interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
+export interface DataTableProps<TData> {
+  // columns?: ColumnDef<TData, TValue>[];
   data: TData[];
 }
 
@@ -92,3 +92,5 @@ export interface IAdvancedSearchForm {
   date?: Date;
   status?: BookingStatus;
 }
+
+export type UserRoles = (typeof userRoles)[number]

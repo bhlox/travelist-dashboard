@@ -21,3 +21,26 @@ export const updateBooking = async (data: UpdateBooking) => {
   await db.update(bookings).set(data).where(eq(bookings.id, data.id));
   revalidatePath("/bookings");
 };
+
+export const updateBookings = async (data: UpdateBooking[]) => {
+  for (const booking of data) {
+    if (!booking.id) {
+      console.error("no booking id found");
+      continue;
+    }
+    await db.update(bookings).set(booking).where(eq(bookings.id, booking.id));
+  }
+  revalidatePath("/bookings");
+};
+
+export const deleteBooking = async (id: number) => {
+  await db.delete(bookings).where(eq(bookings.id, id));
+  revalidatePath("/bookings");
+};
+
+export const deleteBookings = async (ids: number[]) => {
+  for (const id of ids) {
+    await db.delete(bookings).where(eq(bookings.id, id));
+  }
+  revalidatePath("/bookings");
+};
