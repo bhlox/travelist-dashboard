@@ -13,6 +13,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { ScheduleBlockInfoWithId } from "@/lib/types";
 
+// #TODO add admin level actions for this page. current UI is only setup for staff level auth role. as for any level other level, a search bar input or select input or will display the all staff level. once pick,the blockschedulesection component will then be rendered. no actions can be done to the blocked schedule though.
+
 export default function ScheduleClient({
   blockedSchedules,
 }: {
@@ -90,16 +92,16 @@ function ConflictAlert() {
             You have conflicting schedules with your customers
           </DialogTitle>
           <DialogDescription className="space-y-4">
-            <p>
+            <span className="block">
               Please adjust the necessary timeslots or inform your customers
               that you are not available.
-            </p>
+            </span>
 
-            <div className="flex justify-center">
+            <span className="flex justify-center w-full">
               <Button type="button" onClick={() => setOpen(false)}>
                 Okay
               </Button>
-            </div>
+            </span>
           </DialogDescription>
         </DialogHeader>
       </DialogContent>

@@ -45,7 +45,19 @@ export const generateBookingsColumns = ({
       enableSorting: false,
       enableHiding: false,
     },
-    { accessorKey: "id", header: "ID", enableHiding: false },
+    {
+      accessorKey: "id",
+      header: "ID",
+      id: "ID",
+      // had to add this filterFn because id has a type of number. so we have to convert both filterValue and row value to string to make it work
+      filterFn: (row, columnId, filterValue: string) => {
+        const search = filterValue?.toLowerCase();
+        let value = row.getValue(columnId) as string;
+        if (typeof value === "number") value = String(value);
+        return value?.toLowerCase().includes(search);
+      },
+      enableHiding: false,
+    },
     { accessorKey: "customerName", header: "Name", id: "name" },
     {
       accessorKey: "phoneNumber",

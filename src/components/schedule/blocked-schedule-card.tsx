@@ -97,12 +97,12 @@ export default function BlockedScheduleCard({
                 <ul className="list-disc list-inside flex flex-col">
                   {conflictList?.map((cust) => (
                     <Link
-                      href={`/customers/${cust.id}`}
+                      href={`/bookings?ID=${cust.id}`}
                       key={`conflict-${cust.id}`}
-                      className="inline-block"
+                      className="inline-block text-blue-800 dark:text-blue-800 hover:opacity-80 underline max-w-max underline-offset-4"
                     >
                       <li>
-                        {cust.customerName} - booked at {cust.selectedTime}
+                        {cust.customerName} - {cust.selectedTime}
                       </li>
                     </Link>
                   ))}

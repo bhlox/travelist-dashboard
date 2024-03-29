@@ -10,7 +10,7 @@
     "db:introspect": "drizzle-kit introspect:pg",
     "db:generate": "drizzle-kit generate:pg",
     "db:push": "drizzle-kit push:pg",
-    "db:studio": "yarn drizzle-kit studio --port 3000 --verbose"
+    "db:studio": "yarn drizzle-kit studio --port 3001 --verbose"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.3.4",

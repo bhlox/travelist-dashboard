@@ -6,6 +6,8 @@ export const UserDetailsContext = createContext<User>({
   id: "",
   role: "staff",
   username: "",
+  displayname: "",
+  testRole: undefined,
 });
 
 export const UserDetailsProvider = ({
@@ -15,6 +17,12 @@ export const UserDetailsProvider = ({
   children: React.ReactNode;
   details: User;
 }) => {
+  // const { testRole, ...others } = details;
+  // const formattedDetails = {
+  //   ...others,
+  //   role: testRole ?? details.role,
+  // };
+  details.role = details.testRole ?? details.role;
   return (
     <UserDetailsContext.Provider value={details}>
       {children}

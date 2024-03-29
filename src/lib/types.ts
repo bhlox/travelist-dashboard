@@ -5,7 +5,9 @@ import { ColumnDef, Table } from "@tanstack/react-table";
 
 export interface DatabaseUserAttributes {
   username: string;
-  role: "staff" | "admin" | "owner";
+  displayname: string;
+  role: UserRoles;
+  testRole?: UserRoles;
 }
 
 export interface ISidebarContext {
@@ -93,4 +95,4 @@ export interface IAdvancedSearchForm {
   status?: BookingStatus;
 }
 
-export type UserRoles = (typeof userRoles)[number]
+export type UserRoles = (typeof userRoles)[number];

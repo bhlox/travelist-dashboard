@@ -2,12 +2,11 @@ import { IAdvancedSearchForm } from "@/lib/types";
 import { Table } from "@tanstack/react-table";
 import { useWindowSize } from "@uidotdev/usehooks";
 import { format, lightFormat } from "date-fns";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -38,6 +37,7 @@ import { CalendarIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { bookingStatuses } from "@/lib/constants";
 import CustomPhoneInput from "@/components/ui/phone-input";
+import { useSearchParams } from "next/navigation";
 
 export default function DialogAdvancedFilter<TData>({
   setShowAdvancedFilter,
@@ -48,6 +48,7 @@ export default function DialogAdvancedFilter<TData>({
   setShowAdvancedFilter: React.Dispatch<React.SetStateAction<boolean>>;
   table: Table<TData>;
 }) {
+  const searchParams = useSearchParams();
   const [calendarOpen, setCalendarOpen] = useState(false);
   const { width } = useWindowSize();
   const [disableBtns, setDisableBtns] = useState(false);
@@ -81,6 +82,15 @@ export default function DialogAdvancedFilter<TData>({
     form.reset();
     setShowAdvancedFilter(false);
   };
+
+  useEffect(() => {
+    searchParams.forEach((value, key) => {
+      if (key && value) {
+        table.getColumn(key)?.setFilterValue(value);
+      }
+    });
+  }, [searchParams, table]);
+
   return (
     <>
       <Dialog open={showAdvancedFilter} onOpenChange={setShowAdvancedFilter}>

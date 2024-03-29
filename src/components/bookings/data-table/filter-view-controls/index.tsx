@@ -30,16 +30,22 @@ export default function FilterViewControls<TData>({
   setGlobalFilter: (value: React.SetStateAction<string>) => void;
 }) {
   const selectedRows = table.getFilteredSelectedRowModel().rows.length;
+  const activeFilters = table
+    .getState()
+    .columnFilters.map((filter) => filter.id);
   return (
     <div className="flex items-start py-4 justify-between gap-6">
       <div className="flex flex-col md:flex-row gap-4">
-        <Input
-          placeholder="Search"
-          // value={globalFilter}
-          onChange={(event) => setGlobalFilter(event.target.value)}
-          className="max-w-xs"
-        />
-        <ActiveFiltersList table={table} />
+        {activeFilters.length ? (
+          <ActiveFiltersList table={table} activeFilters={activeFilters} />
+        ) : (
+          <Input
+            placeholder="Search"
+            // value={globalFilter}
+            onChange={(event) => setGlobalFilter(event.target.value)}
+            className="max-w-xs"
+          />
+        )}
       </div>
       <div className="flex flex-col-reverse md:flex-row gap-2">
         {selectedRows ? <MultiRowAction table={table} /> : null}

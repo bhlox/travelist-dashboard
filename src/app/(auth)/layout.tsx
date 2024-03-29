@@ -27,7 +27,6 @@ export default function RootLayoutAuth({
           attribute="class"
           disableTransitionOnChange
         >
-          <p>dashboard group pages</p>
           {children}
         </ThemeProvider>
       </body>

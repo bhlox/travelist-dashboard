@@ -1,4 +1,4 @@
-import { FaHome, FaAddressBook } from "react-icons/fa";
+import { FaHome, FaAddressBook, FaUsers } from "react-icons/fa";
 import { BsPersonFillGear } from "react-icons/bs";
 import { IoIosTime } from "react-icons/io";
 import { DateAfter, DateBefore, Matcher } from "react-day-picker";
@@ -21,13 +21,18 @@ export const sideBarItems = [
     icon: IoIosTime,
   },
   {
+    name: "Users",
+    href: "/users",
+    icon: FaUsers,
+  },
+  {
     name: "Profile",
     href: "/profile",
     icon: BsPersonFillGear,
   },
 ];
 
-export const userRoles = ["owner", "admin", "staff"] as const;
+export const userRoles = ["owner", "admin", "staff", "developer"] as const;
 
 // export const openingHours = [
 //   { day: "Monday", from: "10:00", to: "18:00" },

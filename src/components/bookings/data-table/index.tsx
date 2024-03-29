@@ -81,7 +81,7 @@ export default function DateTable<TData>({ data }: DataTableProps<TData>) {
     },
     state: {
       columnVisibility: {
-        id: false,
+        ID: false,
         ...columnVisibility,
         handler: role === "staff" ? false : columnVisibility.handler,
         select: role !== "staff",

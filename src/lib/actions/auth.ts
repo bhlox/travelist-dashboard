@@ -98,8 +98,6 @@ export const loginUser = async ({
     sessionCookie.value,
     sessionCookie.attributes
   );
-  // console.log("redirecting to home group pages")  ;
-  // return redirect("/");
 };
 
 // we should be able to wrap this with `cache()` but given the issues. this won't yet be implemented till it is fix. issue thread: https://github.com/vercel/next.js/issues/62926, https://github.com/vercel/next.js/pull/62821

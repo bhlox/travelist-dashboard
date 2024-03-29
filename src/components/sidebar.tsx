@@ -16,6 +16,9 @@ import Link from "next/link";
 import { sideBarItems } from "@/lib/constants";
 import { useWindowSize } from "@uidotdev/usehooks";
 import { usePathname } from "next/navigation";
+import { useUserDetailsContext } from "./providers/user-details-provider";
+import { TbLogout2 } from "react-icons/tb";
+import { logoutUser } from "@/lib/actions/auth";
 
 export default function SideBar() {
   return (
@@ -41,10 +44,10 @@ function Mobile() {
   return (
     <>
       <Sheet open={isSidebarOpen} onOpenChange={toggleSidebar}>
-        <SheetContent side="left">
+        <SheetContent className="h-full" side="left">
           <SheetHeader>
             <SheetTitle className="text-3xl font-bold">Overview</SheetTitle>
-            <SheetDescription>
+            <SheetDescription className="h-full">
               <Content />
             </SheetDescription>
           </SheetHeader>
@@ -57,30 +60,40 @@ function Mobile() {
 function Content() {
   const size = useWindowSize();
   const { toggleSidebar } = useSideBarContext();
+  const { role } = useUserDetailsContext();
   const pathname = usePathname();
+  const mappedSideBar = sideBarItems.filter((item) => {
+    if (item.name === "Users" && role !== "owner") return false;
+    return true;
+  });
   return (
-    <ul className="border-t-2">
-      {sideBarItems.map((item) => (
-        <li
-          key={`sidebar-item-${item.name}`}
-          className={cn("", null, {
-            "bg-gray-200 dark:bg-slate-800": pathname === item.href,
-          })}
-        >
-          <Link
-            onClick={() => {
-              if (size.width && size?.width < 1024) toggleSidebar();
-            }}
-            href={item.href}
-            className={cn(
-              "flex items-center gap-2 text-2xl font-bold p-4",
-              null
-            )}
+    <div className="flex flex-col justify-between h-full">
+      <ul className="border-t-2">
+        {mappedSideBar.map((item) => (
+          <li
+            key={`sidebar-item-${item.name}`}
+            className={cn("", null, {
+              "bg-gray-200 dark:bg-slate-800": pathname === item.href,
+            })}
           >
-            <item.icon /> {item.name}
-          </Link>
-        </li>
-      ))}
-    </ul>
+            <Link
+              onClick={() => {
+                if (size.width && size?.width < 1024) toggleSidebar();
+              }}
+              href={item.href}
+              className={cn(
+                "flex items-center gap-2 text-2xl font-bold p-4",
+                null
+              )}
+            >
+              <item.icon /> {item.name}
+            </Link>
+          </li>
+        ))}
+      </ul>
+      <Button onClick={() => logoutUser()}>
+        <TbLogout2 /> logout
+      </Button>
+    </div>
   );
 }

@@ -27,8 +27,10 @@ export const bookings = pgTable("bookings", {
 export const user = pgTable("user", {
   id: text("id").primaryKey(),
   username: text("username").notNull().unique(),
+  displayname: text("display_name").notNull().default("person"),
   hashedPassword: text("hashed_password").notNull(),
   role: text("role").$type<UserRoles>().default("staff"),
+  testRole: text("test_role").$type<UserRoles>(),
 });
 
 export const session = pgTable("session", {

@@ -179,7 +179,6 @@ export default function UpdateScheduleForm({
   //   queryFn: async () => {
   //     const data = await getSchedules({ username, isTime: true });
   //     //   const mappedDays = data.map((day) => new Date(day.date));
-  //     //   console.log({ mappedDays });
   //     //   disableDays = mappedDays;
   //     form.setValue("startTime", "");
   //     form.setValue("endTime", "");

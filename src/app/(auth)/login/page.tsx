@@ -40,7 +40,7 @@ export default function Login() {
       await loginUser({ password, username });
       router.replace("/");
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
   return (
