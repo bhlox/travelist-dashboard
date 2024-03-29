@@ -23,6 +23,10 @@ export type UpdateBooking = {
 } & Partial<Omit<InsertBooking, "id">>;
 
 export type SelectUser = InferSelectModel<typeof user>;
+export type GlobalSearchUser = { role: "admin" | "staff" } & Omit<
+  SelectUser,
+  "hashedPassword" | "testRole" | "role"
+>;
 export type InsertUser = InferInsertModel<typeof user>;
 export type UpdateUser = {
   id: InsertUser["id"];

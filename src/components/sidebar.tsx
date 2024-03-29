@@ -19,6 +19,9 @@ import { usePathname } from "next/navigation";
 import { useUserDetailsContext } from "./providers/user-details-provider";
 import { TbLogout2 } from "react-icons/tb";
 import { logoutUser } from "@/lib/actions/auth";
+import { useMutation } from "@tanstack/react-query";
+import LoadingSpinner from "./svg/loader";
+import { toast } from "react-toastify";
 
 export default function SideBar() {
   return (
@@ -66,6 +69,7 @@ function Content() {
     if (item.name === "Users" && role !== "owner") return false;
     return true;
   });
+
   return (
     <div className="flex flex-col justify-between h-full">
       <ul className="border-t-2">
@@ -91,9 +95,33 @@ function Content() {
           </li>
         ))}
       </ul>
-      <Button onClick={() => logoutUser()}>
-        <TbLogout2 /> logout
-      </Button>
+      <LogoutBtn />
     </div>
+  );
+}
+
+function LogoutBtn() {
+  const { mutate, isPending } = useMutation({
+    mutationKey: ["logout"],
+    mutationFn: () => logoutUser(),
+    onError: (err) => {
+      console.error(err);
+      toast.error(err.message);
+    },
+  });
+  return (
+    <Button
+      disabled={isPending}
+      className="m-2 flex items-center gap-2"
+      onClick={() => mutate()}
+    >
+      {isPending ? (
+        <LoadingSpinner />
+      ) : (
+        <>
+          <TbLogout2 className="text-xl" /> <span>Logout</span>
+        </>
+      )}
+    </Button>
   );
 }

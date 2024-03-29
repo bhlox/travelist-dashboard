@@ -1,9 +1,9 @@
 "use server";
 import { db } from "@/db";
-import { InsertUser, UpdateUser } from "../types";
+import { GlobalSearchUser, InsertUser, SelectUser, UpdateUser } from "../types";
 import { revalidatePath } from "next/cache";
 import { user } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { Argon2id } from "oslo/password";
 import { lucia } from "@/auth";
 import { generateId } from "lucia";
@@ -93,4 +93,27 @@ export const updateUserDetails = async ({ update }: { update: UpdateUser }) => {
   const { id, password, ...values } = update;
   await db.update(user).set(values).where(eq(user.id, update.id));
   revalidatePath("/");
+};
+
+export const globalSearchUser = async (searchTerm: string) => {
+  if (!searchTerm) return [];
+  const query = sql`SELECT ${user.id}, ${user.username}, ${
+    user.displayname
+  } AS displayname, ${user.role} FROM ${user} WHERE ${
+    user.username
+  } ILIKE ${`%${searchTerm}%`} OR ${
+    user.displayname
+  } ILIKE ${`%${searchTerm}%`}`;
+
+  const result: GlobalSearchUser[] = await db.execute(query);
+  return result;
+};
+
+export const deleteUser = async (id: string) => {
+  const deletedUser = await db
+    .delete(user)
+    .where(eq(user.id, id))
+    .returning({ username: user.username });
+  revalidatePath("/");
+  return deletedUser[0].username;
 };

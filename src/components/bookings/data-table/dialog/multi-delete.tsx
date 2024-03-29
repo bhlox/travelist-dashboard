@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { useMutation } from "@tanstack/react-query";
 import { Table } from "@tanstack/react-table";
 import { deleteBookings } from "@/lib/actions/bookings";
+import LoadingSpinner from "@/components/svg/loader";
 
 export default function DialogMultiDelete<TData>({
   dialogDelete,
@@ -77,7 +78,7 @@ export default function DialogMultiDelete<TData>({
             Cancel
           </Button>
           <Button disabled={isPending} type="button" onClick={() => mutate()}>
-            Confirm
+            {isPending ? <LoadingSpinner /> : "Confirm"}
           </Button>
         </DialogFooter>
       </DialogContent>

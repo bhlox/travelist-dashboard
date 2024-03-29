@@ -1,6 +1,8 @@
 import { getUser } from "@/lib/actions/auth";
 import { redirect } from "next/navigation";
 import React from "react";
+import ClientUsersPage from "./client";
+import { findUser } from "@/lib/actions/user";
 
 export default async function UsersPage() {
   const user = await getUser();
@@ -9,5 +11,5 @@ export default async function UsersPage() {
   if (!isAuthorized) {
     redirect("/");
   }
-  return <div>UsersPage</div>;
+  return <ClientUsersPage />;
 }
