@@ -37,7 +37,7 @@ export default function DialogDeleteUser({
     },
   });
   return (
-    <Dialog defaultOpen>
+    <Dialog defaultOpen onOpenChange={setDeleteUserDialog}>
       <DialogContent
         onInteractOutside={(e) => e.preventDefault()}
         className="sm:max-w-md w-11/12 rounded-lg"

@@ -29,8 +29,8 @@ import {
 import { cn, fuzzyFilter } from "@/lib/utils";
 import PaginationControls from "./pagination-controls";
 import FilterViewControls from "./filter-view-controls";
-import DialogEditStatus from "./dialog/edit-status";
-import DialogAdvancedFilter from "./dialog/advanced-filter";
+import DialogEditStatus from "../../dialog/edit-status";
+import DialogAdvancedFilter from "../../dialog/advanced-filter";
 import { useUserDetailsContext } from "@/components/providers/user-details-provider";
 import { generateBookingsColumns } from "./columns";
 

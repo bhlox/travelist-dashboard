@@ -14,7 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { bookingStatuses } from "@/lib/constants";
-import DialogMultiDelete from "../dialog/multi-delete";
+import DialogMultiDelete from "../../../dialog/multi-delete";
 import { useMutation } from "@tanstack/react-query";
 import { BookingStatus, SelectBooking } from "@/lib/types";
 import { toast } from "react-toastify";

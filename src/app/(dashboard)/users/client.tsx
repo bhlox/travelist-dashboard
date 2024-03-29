@@ -25,7 +25,7 @@ import { useDebounce } from "@uidotdev/usehooks";
 import LoadingSpinner from "@/components/svg/loader";
 import { useIsFirstRender } from "@uidotdev/usehooks";
 import { toast } from "react-toastify";
-import DialogDeleteUser from "@/components/bookings/data-table/dialog/delete-user";
+import DialogDeleteUser from "@/components/dialog/delete-user";
 
 export default function ClientUsersPage() {
   const isFirstRender = useIsFirstRender();
