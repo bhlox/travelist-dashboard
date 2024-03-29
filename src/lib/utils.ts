@@ -52,3 +52,7 @@ const fuzzySort: SortingFn<any> = (rowA, rowB, columnId) => {
   // Provide an alphanumeric fallback for when the item ranks are equal
   return dir === 0 ? sortingFns.alphanumeric(rowA, rowB, columnId) : dir;
 };
+
+export const randomIndexNumber = (length: number) => {
+  return Math.floor(Math.random() * length);
+};

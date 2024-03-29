@@ -27,7 +27,7 @@ import { toast } from "react-toastify";
 import ToastContent from "@/components/toast/content";
 import { updateUserDetails } from "@/lib/actions/user";
 import { PasswordInput } from "@/components/ui/password-input";
-import { ProfileFormSchema } from "@/lib/schema";
+import { ProfileFormSchema } from "@/lib/forms-schema";
 
 export default function ClientProfilePage({ isDev }: { isDev: boolean }) {
   const {
@@ -66,6 +66,10 @@ export default function ClientProfilePage({ isDev }: { isDev: boolean }) {
       );
     }
   };
+
+  if (form.formState.errors) {
+    console.log(form.formState.errors);
+  }
 
   return (
     <div className="space-y-4">

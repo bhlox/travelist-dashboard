@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { openingHours, userRoles } from "./constants";
+import { openingHours, userRoles } from "../constants";
 
 export const dateSchema = z.object({
   selectedDate: z.date({
@@ -27,7 +27,26 @@ export const ProfileFormSchema = z.object({
     .enum(userRoles, {
       invalid_type_error: "Invalid user role",
     })
+    .nullable()
     .optional(),
   password: z.string().optional(),
   newPassword: z.string().optional(),
+});
+
+export const loginFormSchema = z.object({
+  username: z.string().min(4).max(50),
+  password: z.string().min(6).max(254),
+});
+
+export const signupFormSchema = z.object({
+  username: z
+    .string()
+    .min(4, { message: "Username must be at least 4 characters" })
+    .max(50),
+  displayname: z.string().optional(),
+  email: z.string().email().optional(),
+  password: z
+    .string()
+    .min(3, { message: "Password must be at least 3 characters" })
+    .max(254),
 });

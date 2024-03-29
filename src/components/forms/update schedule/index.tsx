@@ -42,7 +42,7 @@ import {
   disableWeekends,
   openingHours,
 } from "@/lib/constants";
-import { dateSchema, timeSchema } from "@/lib/schema";
+import { dateSchema, timeSchema } from "@/lib/forms-schema";
 import { ScheduleBlock, UpdateScheduleFormProps } from "@/lib/types";
 import BtnsChangeFormShema from "./btns-change-schema";
 

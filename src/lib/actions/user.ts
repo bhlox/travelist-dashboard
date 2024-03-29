@@ -1,15 +1,58 @@
 "use server";
 import { db } from "@/db";
-import { UpdateUser } from "../types";
+import { InsertUser, UpdateUser } from "../types";
 import { revalidatePath } from "next/cache";
 import { user } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { Argon2id } from "oslo/password";
+import { lucia } from "@/auth";
+import { generateId } from "lucia";
+import { cookies } from "next/headers";
 
 export const findUser = async ({ username }: { username: string }) => {
   return await db.query.user.findFirst({
     where: (user, { eq }) => eq(user.username, username),
   });
+};
+
+export const createUser = async (userDetails: Omit<InsertUser, "id">) => {
+  // if (
+  //   typeof username !== "string" ||
+  //   username.length < 3 ||
+  //   username.length > 31 ||
+  //   !/^[a-z0-9_-]+$/.test(username)
+  // ) {
+  //   return {
+  //     error: "Invalid username",
+  //   };
+  // }
+  // if (
+  //   typeof password !== "string" ||
+  //   password.length < 6 ||
+  //   password.length > 255
+  // ) {
+  //   return {
+  //     error: "Invalid password",
+  //   };
+  // }
+
+  const hashedPassword = await new Argon2id().hash(userDetails.hashedPassword);
+  const userId = generateId(15);
+
+  await db.insert(user).values({
+    id: userId,
+    username: userDetails.username,
+    hashedPassword,
+    displayname: userDetails.displayname,
+  });
+
+  const session = await lucia.createSession(userId, {});
+  const sessionCookie = lucia.createSessionCookie(session.id);
+  cookies().set(
+    sessionCookie.name,
+    sessionCookie.value,
+    sessionCookie.attributes
+  );
 };
 
 export const updateUserDetails = async ({ update }: { update: UpdateUser }) => {

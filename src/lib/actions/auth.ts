@@ -1,5 +1,4 @@
 "use server";
-
 import { lucia } from "@/auth";
 import { db } from "@/db";
 import { user } from "@/db/schema";
@@ -9,55 +8,51 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { Argon2id } from "oslo/password";
 import { cache } from "react";
-import { UpdateUser } from "../types";
+import { InsertUser, UpdateUser } from "../types";
 import { eq } from "drizzle-orm";
 import { findUser } from "./user";
 
-export const signupUser = async ({
-  password,
-  username,
-}: {
-  username: string;
-  password: string;
-}): Promise<{ error: string }> => {
-  if (
-    typeof username !== "string" ||
-    username.length < 3 ||
-    username.length > 31 ||
-    !/^[a-z0-9_-]+$/.test(username)
-  ) {
-    return {
-      error: "Invalid username",
-    };
-  }
-  if (
-    typeof password !== "string" ||
-    password.length < 6 ||
-    password.length > 255
-  ) {
-    return {
-      error: "Invalid password",
-    };
-  }
+// export const signupUser = async (
+//   userDetails: InsertUser
+// ): Promise<{ error: string }> => {
+//   // if (
+//   //   typeof username !== "string" ||
+//   //   username.length < 3 ||
+//   //   username.length > 31 ||
+//   //   !/^[a-z0-9_-]+$/.test(username)
+//   // ) {
+//   //   return {
+//   //     error: "Invalid username",
+//   //   };
+//   // }
+//   // if (
+//   //   typeof password !== "string" ||
+//   //   password.length < 6 ||
+//   //   password.length > 255
+//   // ) {
+//   //   return {
+//   //     error: "Invalid password",
+//   //   };
+//   // }
 
-  const hashedPassword = await new Argon2id().hash(password);
-  const userId = generateId(15);
+//   const hashedPassword = await new Argon2id().hash(password);
+//   const userId = generateId(15);
 
-  await db.insert(user).values({
-    id: userId,
-    username,
-    hashedPassword,
-  });
+//   await db.insert(user).values({
+//     id: userId,
+//     username,
+//     hashedPassword,
+//   });
 
-  const session = await lucia.createSession(userId, {});
-  const sessionCookie = lucia.createSessionCookie(session.id);
-  cookies().set(
-    sessionCookie.name,
-    sessionCookie.value,
-    sessionCookie.attributes
-  );
-  return redirect("/");
-};
+//   const session = await lucia.createSession(userId, {});
+//   const sessionCookie = lucia.createSessionCookie(session.id);
+//   cookies().set(
+//     sessionCookie.name,
+//     sessionCookie.value,
+//     sessionCookie.attributes
+//   );
+//   return redirect("/");
+// };
 
 export const loginUser = async ({
   password,

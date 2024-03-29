@@ -4,7 +4,7 @@ import { Button } from "./ui/button";
 import { cn } from "@/lib/utils";
 import { useSideBarContext } from "./providers/sidebar-provider";
 import { GiHamburgerMenu } from "react-icons/gi";
-import ThemeToggler from "./theme-toggler";
+import ThemeToggler from "./ui/theme-toggler";
 import { useUserDetailsContext } from "./providers/user-details-provider";
 
 export default function Navbar() {
