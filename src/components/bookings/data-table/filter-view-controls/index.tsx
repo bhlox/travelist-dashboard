@@ -19,6 +19,7 @@ import { useMutation } from "@tanstack/react-query";
 import { BookingStatus, SelectBooking } from "@/lib/types";
 import { toast } from "react-toastify";
 import { updateBookings } from "@/lib/actions/bookings";
+import { GrDocumentUpdate } from "react-icons/gr";
 
 export default function FilterViewControls<TData>({
   table,
@@ -35,18 +36,19 @@ export default function FilterViewControls<TData>({
     .columnFilters.map((filter) => filter.id);
   return (
     <div className="flex items-start py-4 justify-between gap-6">
-      <div className="flex flex-col md:flex-row gap-4">
-        {activeFilters.length ? (
+      {activeFilters.length ? (
+        <div className="flex flex-col md:flex-row gap-4">
           <ActiveFiltersList table={table} activeFilters={activeFilters} />
-        ) : (
-          <Input
-            placeholder="Search"
-            // value={globalFilter}
-            onChange={(event) => setGlobalFilter(event.target.value)}
-            className="max-w-xs"
-          />
-        )}
-      </div>
+        </div>
+      ) : (
+        <Input
+          placeholder="Search"
+          // value={globalFilter}
+          onChange={(event) => setGlobalFilter(event.target.value)}
+          className="max-w-lg w-full flex-1 block"
+        />
+      )}
+
       <div className="flex flex-col-reverse md:flex-row gap-2">
         {selectedRows ? <MultiRowAction table={table} /> : null}
         <Button
@@ -104,9 +106,10 @@ function MultiRowAction<TData>({ table }: { table: Table<TData> }) {
         <DropdownMenuTrigger asChild>
           <Button
             disabled={isPending}
-            variant="outline"
-            className="text-sm md:text-base flex gap-2 w-[7.5rem] md:w-auto items-center justify-center"
+            variant="default"
+            className="text-sm md:text-base flex gap-2 w-[7.5rem] md:w-auto items-center justify-center bg-blue-800 dark:bg-blue-400"
           >
+            <GrDocumentUpdate />
             Action
           </Button>
         </DropdownMenuTrigger>

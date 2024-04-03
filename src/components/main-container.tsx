@@ -11,7 +11,7 @@ export default function MainContainer({
   const { isSidebarOpen } = useSideBarContext();
   return (
     <div
-      className={cn("flex h-[100dvh]", null, {
+      className={cn("flex h-[100dvh] ", null, {
         "overflow-hidden": isSidebarOpen,
       })}
     >

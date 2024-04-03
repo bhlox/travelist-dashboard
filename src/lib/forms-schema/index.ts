@@ -5,6 +5,7 @@ export const dateSchema = z.object({
   selectedDate: z.date({
     required_error: "A date of birth is required.",
   }),
+  comment: z.string().optional(),
 });
 export const timeSchema = z.object({
   selectedDate: z.date({
@@ -16,6 +17,7 @@ export const timeSchema = z.object({
   endTime: z.string().refine((time) => openingHours.includes(time), {
     message: "End time must be within opening hours.",
   }),
+  comment: z.string().optional(),
 });
 
 export const ProfileFormSchema = z.object({

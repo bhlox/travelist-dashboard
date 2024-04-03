@@ -50,4 +50,5 @@ export const blockedSchedules = pgTable("blocked_schedules", {
   type: text("type").$type<"day" | "time">().notNull(),
   date: date("date").notNull(),
   timeRanges: json("time_ranges"),
+  comment: text("comment"),
 });

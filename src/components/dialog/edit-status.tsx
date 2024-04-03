@@ -23,17 +23,14 @@ import {
 import { bookingStatuses } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import LoadingSpinner from "@/components/svg/loader";
+import { useRouter } from "next/navigation";
 
 export default function DialogEditStatus({
   currentStatus,
   name,
   id,
-  setEditStatusDialog,
-}: DialogEditStatusProps & {
-  setEditStatusDialog: React.Dispatch<
-    React.SetStateAction<DialogEditStatusProps | null>
-  >;
-}) {
+}: DialogEditStatusProps) {
+  const router = useRouter();
   const { width } = useWindowSize();
   const [editStatus, setEditStatus] = useState<BookingStatus | undefined>(
     currentStatus
@@ -61,17 +58,17 @@ export default function DialogEditStatus({
           description={`from ${currentStatus} to ${editStatus}`}
         />
       );
-      setEditStatusDialog(null);
+      // router.replace(`/bookings/${id}`);
+      router.back();
     },
     onError: (err) => {
       console.error(err);
       toast.error(err.message);
-      setEditStatusDialog(null);
     },
   });
 
   return (
-    <Dialog open={Boolean(id)} onOpenChange={() => setEditStatusDialog(null)}>
+    <Dialog defaultOpen onOpenChange={() => router.back()}>
       <DialogContent
         onInteractOutside={(e) => e.preventDefault()}
         className="sm:max-w-md w-11/12 rounded-lg"
@@ -102,7 +99,7 @@ export default function DialogEditStatus({
           <Button
             disabled={isPending || disableBtns}
             variant="outline"
-            onClick={() => setEditStatusDialog(null)}
+            onClick={() => router.back()}
             type="button"
           >
             Cancel

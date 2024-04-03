@@ -39,38 +39,30 @@ export type UpdateBlockedSchedule = {
   id: InsertBlockedSchedule["id"];
 } & Partial<Omit<InsertBlockedSchedule, "id">>;
 
-export type ScheduleBlock = "day" | "time";
+export type ScheduleBlockType = "day" | "time";
 
-export type ScheduleBlockInfo = {
-  date: Date;
-  timeRanges: string[];
-  type: ScheduleBlock;
-};
-
-export type ScheduleBlockInfoWithId = {
-  date: Date;
-  timeRanges: string[];
-  type: ScheduleBlock;
-  id: number;
-};
+export type ScheduleBlockData = { timeRanges: string[]; date: Date } & Omit<
+  SelectBlockedSchedule,
+  "personnel" | "timeRanges" | "date"
+>;
 
 export type UpdateScheduleFormProps = {
-  blockedSchedules: ScheduleBlockInfo[];
+  blockedSchedules: ScheduleBlockData[];
   submitType: "create" | "update";
   editId?: string;
-  toBeEditedBlockedSchedule?: ScheduleBlockInfo;
+  toBeEditedBlockedSchedule?: ScheduleBlockData;
   isModal?: boolean;
 } & (
   | {
       submitType: "create";
       editId?: string;
-      toBeEditedBlockedSchedule?: ScheduleBlockInfo;
+      toBeEditedBlockedSchedule?: ScheduleBlockData;
       isModal?: boolean;
     }
   | {
       submitType: "update";
       editId: string;
-      toBeEditedBlockedSchedule: ScheduleBlockInfo;
+      toBeEditedBlockedSchedule: ScheduleBlockData;
       isModal: boolean;
     }
 );
@@ -100,3 +92,17 @@ export interface IAdvancedSearchForm {
 }
 
 export type UserRoles = (typeof userRoles)[number];
+
+export type BookingsSlugAction = "edit" | "delete";
+
+export type DeleteDialogConfirmationProps = {
+  idToBeDeleted: number | string;
+  sucessMsg: { title: string; description: string | undefined };
+  errorMsg: string;
+  setDeleteDialog?: React.Dispatch<React.SetStateAction<boolean>> | undefined;
+  setUserDeletionSuccess?: React.Dispatch<React.SetStateAction<boolean>>;
+  dialogTitle: string;
+  dialogDescription: React.ReactNode;
+  deleteFn: (id: any) => Promise<void>;
+  redirectTo?: string | null;
+};

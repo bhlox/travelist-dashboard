@@ -2,9 +2,6 @@
 import React, { useEffect, useState } from "react";
 import { format, compareAsc, lightFormat, isSameDay } from "date-fns";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import { deleteSchedule } from "@/lib/actions/schedule";
-import { toast } from "react-toastify";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import {
   Card,
@@ -14,37 +11,29 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import ToastContent from "@/components/toast/content";
-import LoadingSpinner from "@/components/svg/loader";
 import Link from "next/link";
-import { ScheduleBlockInfo } from "@/lib/types";
+import { ScheduleBlockData } from "@/lib/types";
 import { getBookingsForDate } from "@/lib/actions/bookings";
+import { Separator } from "../ui/separator";
+import { MdEditSquare } from "react-icons/md";
+import { FaTrash } from "react-icons/fa";
+import DialogDeleteConfirmation from "../dialog/delete-confirmation";
+import { deleteSchedule } from "@/lib/actions/schedule";
 
 export default function BlockedScheduleCard({
   blockedSchedule,
   setConflictsDetected,
 }: {
-  blockedSchedule: { id: number } & ScheduleBlockInfo;
+  blockedSchedule: ScheduleBlockData;
   setConflictsDetected: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
+  const [deleteDialog, setDeleteDialog] = useState(false);
   const formattedDate = format(blockedSchedule.date, "MMMM dd, yyyy");
   const formattedTimeRange =
     blockedSchedule.type === "time"
       ? `From ${blockedSchedule.timeRanges[0]} to 
     ${blockedSchedule.timeRanges.at(-1)}`
       : "";
-
-  const { mutate, isPending } = useMutation({
-    mutationFn: () => deleteSchedule(blockedSchedule.id),
-    onSuccess: () => {
-      toast.success(
-        <ToastContent
-          title="Schedule deleted"
-          description={`${formattedDate} ${formattedTimeRange}`}
-        />
-      );
-    },
-  });
 
   const { data, isFetching, isError } = useQuery({
     queryKey: ["customers", blockedSchedule.date],
@@ -74,63 +63,85 @@ export default function BlockedScheduleCard({
   }, [conflictList?.length, setConflictsDetected]);
 
   return (
-    <div className="p-4">
-      <Card>
-        <CardHeader>
-          <CardTitle>{formattedDate}</CardTitle>
-          {blockedSchedule.type === "time" ? (
-            <CardDescription>{formattedTimeRange}</CardDescription>
-          ) : null}
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <p>Can edit or add description here.</p>
+    <>
+      <div className="p-4">
+        <Card className="2xl:max-w-[324px] h-full">
+          <CardHeader>
+            <CardTitle className="flex justify-between">
+              {formattedDate}
+              <button
+                onClick={() => setDeleteDialog(true)}
+                className="inline text-base hover:scale-110 transition-transform duration-200 ease-in-out"
+              >
+                <FaTrash />
+              </button>
+            </CardTitle>
+            {blockedSchedule.type === "time" ? (
+              <CardDescription>{formattedTimeRange}</CardDescription>
+            ) : null}
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-sm whitespace-pre-wrap">
+              {blockedSchedule.comment || "No comment"}
+            </p>
 
-          <div>
-            <h4>Conflicts</h4>
-
-            {isFetching ? (
-              <p>Loading...</p>
-            ) : isError ? (
-              <p>Error</p>
-            ) : conflictList?.length > 0 ? (
-              <>
-                <ul className="list-disc list-inside flex flex-col">
-                  {conflictList?.map((cust) => (
-                    <Link
-                      href={`/bookings?ID=${cust.id}`}
-                      key={`conflict-${cust.id}`}
-                      className="inline-block text-blue-800 dark:text-blue-800 hover:opacity-80 underline max-w-max underline-offset-4"
-                    >
-                      <li>
-                        {cust.customerName} - {cust.selectedTime}
-                      </li>
-                    </Link>
-                  ))}
-                </ul>
-              </>
-            ) : (
-              <p>No conflicts</p>
-            )}
-          </div>
-        </CardContent>
-        <CardFooter className="flex gap-2">
-          <Button
-            disabled={isPending}
-            variant="destructive"
-            onClick={() => mutate()}
-            className={cn(null, null, {
-              "w-32": isPending,
-            })}
-          >
-            {isPending ? <LoadingSpinner /> : "Cancel schedule"}
-          </Button>
-          <Button disabled={isPending} asChild>
-            <Link scroll={false} href={`/schedule/edit/${blockedSchedule.id}`}>
-              Edit Schedule
-            </Link>
-          </Button>
-        </CardFooter>
-      </Card>
-    </div>
+            <Separator />
+            <div>
+              <h4>Conflicts</h4>
+              {isFetching ? (
+                <p>Loading...</p>
+              ) : isError ? (
+                <p>Error</p>
+              ) : conflictList?.length > 0 ? (
+                <>
+                  <ul className="list-disc list-inside flex flex-col">
+                    {conflictList?.map((cust) => (
+                      <Link
+                        href={`/bookings?ID=${cust.id}`}
+                        key={`conflict-${cust.id}`}
+                        className="inline-block text-blue-800 dark:text-blue-400 hover:opacity-80 underline max-w-max underline-offset-4"
+                      >
+                        <li>
+                          {cust.customerName} - {cust.selectedTime}
+                        </li>
+                      </Link>
+                    ))}
+                  </ul>
+                </>
+              ) : (
+                <p>No conflicts</p>
+              )}
+            </div>
+          </CardContent>
+          <CardFooter className="flex flex-col sm:flex-row gap-2">
+            <Button
+              className="w-full text-center flex gap-2 items-center bg-yellow-700 "
+              asChild
+            >
+              <Link
+                scroll={false}
+                href={`/schedule/edit/${blockedSchedule.id}`}
+              >
+                <MdEditSquare className="text-lg" /> Edit Schedule
+              </Link>
+            </Button>
+          </CardFooter>
+        </Card>
+      </div>
+      {deleteDialog && (
+        <DialogDeleteConfirmation
+          deleteFn={deleteSchedule}
+          dialogDescription={`You are about to delete this blocked schedule (${formattedDate} ${formattedTimeRange})`}
+          dialogTitle="Confirm Schedule Block deletion"
+          idToBeDeleted={blockedSchedule.id}
+          errorMsg="Failed to delete schedule"
+          sucessMsg={{
+            title: "Schedule deleted",
+            description: `${formattedDate} ${formattedTimeRange}`,
+          }}
+          setDeleteDialog={setDeleteDialog}
+        />
+      )}
+    </>
   );
 }

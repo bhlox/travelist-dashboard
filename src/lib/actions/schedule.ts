@@ -22,7 +22,7 @@ export const getSchedules = async ({}: {
   // }[];
   // if (all) {
   return await db.query.blockedSchedules.findMany({
-    columns: { date: true, timeRanges: true, type: true, id: true },
+    columns: { personnel: false },
   });
   // }
   // if (isTime) {

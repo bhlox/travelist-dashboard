@@ -19,13 +19,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { FaTrash } from "react-icons/fa";
-import { globalSearchUser, updateUserDetails } from "@/lib/actions/user";
+import {
+  deleteUser,
+  globalSearchUser,
+  updateUserDetails,
+} from "@/lib/actions/user";
 import { useMutation } from "@tanstack/react-query";
 import { useDebounce } from "@uidotdev/usehooks";
 import LoadingSpinner from "@/components/svg/loader";
 import { useIsFirstRender } from "@uidotdev/usehooks";
 import { toast } from "react-toastify";
-import DialogDeleteUser from "@/components/dialog/delete-user";
+import DialogDeleteConfirmation from "@/components/dialog/delete-confirmation";
 
 export default function ClientUsersPage() {
   const isFirstRender = useIsFirstRender();
@@ -92,6 +96,8 @@ export default function ClientUsersPage() {
   );
 }
 
+// #TODO add a link to redirect to bookings page with handler query parameter
+
 function SearchedUserCard({
   details,
   setUserDeletionSuccess,
@@ -156,10 +162,17 @@ function SearchedUserCard({
         </CardContent>
       </Card>
       {deleteUserDialog && (
-        <DialogDeleteUser
-          id={details.id}
-          username={details.username}
-          setDeleteUserDialog={setDeleteUserDialog}
+        <DialogDeleteConfirmation
+          idToBeDeleted={details.id}
+          setDeleteDialog={setDeleteUserDialog}
+          deleteFn={deleteUser}
+          dialogTitle="Confirm User deletion"
+          dialogDescription={`Are you sure you want to delete ${details.username} from your users?`}
+          sucessMsg={{
+            title: "User deleted",
+            description: `User ${details.username} deleted`,
+          }}
+          errorMsg="Failed to delete user"
           setUserDeletionSuccess={setUserDeletionSuccess}
         />
       )}

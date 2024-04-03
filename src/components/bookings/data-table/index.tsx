@@ -1,5 +1,5 @@
 "use client";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   flexRender,
   ColumnFiltersState,
@@ -33,18 +33,19 @@ import DialogEditStatus from "../../dialog/edit-status";
 import DialogAdvancedFilter from "../../dialog/advanced-filter";
 import { useUserDetailsContext } from "@/components/providers/user-details-provider";
 import { generateBookingsColumns } from "./columns";
+import { useWindowSize } from "@uidotdev/usehooks";
 
-// #TODO FUTURE fix width of time column
+// #TODO FUTURE fix width of time column. Sort by today forwards then by today backwards. fix UI
 
 export default function DateTable<TData>({ data }: DataTableProps<TData>) {
   const { role } = useUserDetailsContext();
+  const { width } = useWindowSize();
 
   const bookingsColumns: ColumnDef<SelectBooking>[] = useMemo(() => {
-    return generateBookingsColumns({ role });
-  }, [role]);
+    return generateBookingsColumns({ role, windowWidth: width || 0 });
+  }, [role, width]);
 
-  const [editStatusDialog, setEditStatusDialog] =
-    useState<DialogEditStatusProps | null>(null);
+  const [editStatusDialog, setEditStatusDialog] = useState(false);
   const [showAdvancedFilter, setShowAdvancedFilter] = useState(false);
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -55,13 +56,13 @@ export default function DateTable<TData>({ data }: DataTableProps<TData>) {
   const [globalFilter, setGlobalFilter] = React.useState("");
   const [rowSelection, setRowSelection] = React.useState({});
 
-  const handleEditStatusDialog = (data: {
-    currentStatus: BookingStatus;
-    name: string;
-    id: number;
-  }) => {
-    setEditStatusDialog({ ...data });
-  };
+  // const handleEditStatusDialog = (data: {
+  //   currentStatus: BookingStatus;
+  //   name: string;
+  //   id: number;
+  // }) => {
+  //   setEditStatusDialog({ ...data });
+  // };
 
   const table = useReactTable({
     data,
@@ -91,14 +92,46 @@ export default function DateTable<TData>({ data }: DataTableProps<TData>) {
       globalFilter,
       rowSelection,
     },
-    meta: {
-      handleEditStatusDialog: (data: {
-        currentStatus: BookingStatus;
-        name: string;
-        id: number;
-      }) => handleEditStatusDialog(data),
-    },
+    // meta: {
+    //   handleEditStatusDialog: (data: {
+    //     currentStatus: BookingStatus;
+    //     name: string;
+    //     id: number;
+    //   }) => handleEditStatusDialog(data),
+    // },
   });
+
+  useEffect(() => {
+    if (width && width > 640 && width < 768) {
+      setColumnVisibility((c) => {
+        return {
+          ...c,
+          phone: false,
+          handler: false,
+        };
+      });
+    } else if (width && width < 640) {
+      setColumnVisibility((c) => {
+        return {
+          ...c,
+          phone: false,
+          handler: false,
+          time: false,
+          status: false,
+        };
+      });
+    } else {
+      setColumnVisibility((c) => {
+        return {
+          ...c,
+          phone: true,
+          time: true,
+          status: true,
+          handler: role === "staff" ? false : columnVisibility.handler,
+        };
+      });
+    }
+  }, [columnVisibility.handler, role, table, width]);
 
   return (
     <>
@@ -113,8 +146,12 @@ export default function DateTable<TData>({ data }: DataTableProps<TData>) {
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
+                  // console.log(header.id, header.getSize());
                   return (
-                    <TableHead key={header.id}>
+                    <TableHead
+                      key={header.id}
+                      style={{ width: `${header.getSize()}px` }}
+                    >
                       {header.isPlaceholder
                         ? null
                         : flexRender(
@@ -156,13 +193,13 @@ export default function DateTable<TData>({ data }: DataTableProps<TData>) {
             )}
           </TableBody>
         </Table>
-        <DialogEditStatus
+        {/* <DialogEditStatus
           key={`edit-status-${editStatusDialog?.id}`}
-          setEditStatusDialog={setEditStatusDialog}
+          // setEditStatusDialog={setEditStatusDialog}
           currentStatus={editStatusDialog?.currentStatus}
           id={editStatusDialog?.id}
           name={editStatusDialog?.name}
-        />
+        /> */}
         <DialogAdvancedFilter
           showAdvancedFilter={showAdvancedFilter}
           setShowAdvancedFilter={setShowAdvancedFilter}

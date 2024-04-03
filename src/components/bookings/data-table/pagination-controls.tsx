@@ -29,14 +29,18 @@ export default function PaginationControls<TData>({
       })}
     >
       <div
-        className={cn("flex-1 text-sm text-muted-foreground", null, {
-          hidden: role === "staff",
-        })}
+        className={cn(
+          "flex-1 text-xs sm:text-sm text-muted-foreground text-blance",
+          null,
+          {
+            hidden: role === "staff",
+          }
+        )}
       >
         {table.getFilteredSelectedRowModel().rows.length} of{" "}
         {table.getFilteredRowModel().rows.length} row(s) selected
       </div>
-      <div className="flex items-center space-x-6 lg:space-x-8">
+      <div className="flex items-center space-x-2 sm:space-x-6 lg:space-x-8">
         <div className="flex items-center space-x-2">
           <Select
             value={`${table.getState().pagination.pageSize}`}
@@ -44,7 +48,7 @@ export default function PaginationControls<TData>({
               table.setPageSize(Number(value));
             }}
           >
-            <SelectTrigger className="h-8 w-[70px]">
+            <SelectTrigger className="h-8 sm:w-[70px]">
               <SelectValue placeholder={table.getState().pagination.pageSize} />
             </SelectTrigger>
             <SelectContent side="top">
@@ -59,14 +63,14 @@ export default function PaginationControls<TData>({
             </SelectContent>
           </Select>
         </div>
-        <div className="flex w-[100px] items-center justify-center text-sm font-medium">
+        <div className="flex sm:w-[100px] items-center justify-center text-xs sm:text-sm font-medium">
           Page {table.getState().pagination.pageIndex + 1} of{" "}
           {table.getPageCount()}
         </div>
         <div className="flex items-center space-x-2">
           <Button
             variant="outline"
-            className="hidden h-8 w-8 p-0 lg:flex"
+            className="hidden size-8 p-0 lg:flex"
             onClick={() => table.setPageIndex(0)}
             disabled={!table.getCanPreviousPage()}
           >
@@ -75,12 +79,12 @@ export default function PaginationControls<TData>({
           </Button>
           <Button
             variant="outline"
-            className="h-8 w-8 p-0"
+            className="size-8 p-0"
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
           >
             <span className="sr-only">Go to previous page</span>
-            <FaChevronLeft className="h-4 w-4" />
+            <FaChevronLeft className="size-4" />
           </Button>
           <Button
             variant="outline"
@@ -89,16 +93,16 @@ export default function PaginationControls<TData>({
             disabled={!table.getCanNextPage()}
           >
             <span className="sr-only">Go to next page</span>
-            <FaChevronRight className="h-4 w-4" />
+            <FaChevronRight className="size-4" />
           </Button>
           <Button
             variant="outline"
-            className="hidden h-8 w-8 p-0 lg:flex"
+            className="hidden size-8 p-0 lg:flex"
             onClick={() => table.setPageIndex(table.getPageCount() - 1)}
             disabled={!table.getCanNextPage()}
           >
             <span className="sr-only">Go to last page</span>
-            <FaAnglesRight className="h-4 w-4" />
+            <FaAnglesRight className="size-4" />
           </Button>
         </div>
       </div>

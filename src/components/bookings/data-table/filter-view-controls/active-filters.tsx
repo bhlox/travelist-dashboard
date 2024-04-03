@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Table } from "@tanstack/react-table";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import React from "react";
-
+import { ImCross } from "react-icons/im";
 export default function ActiveFiltersList<TData>({
   table,
   activeFilters,
@@ -35,10 +35,12 @@ export default function ActiveFiltersList<TData>({
     <div className="grid grid-cols-2 md:flex gap-2 place-items-center">
       {activeFilters.map((filt) => (
         <Button
+          variant={"secondary"}
           onClick={() => handleRemoveFilter(filt)}
           key={`active-filter-${filt}`}
+          className="flex gap-2 items-center capitalize px-2 py-0"
         >
-          {filt}
+          {filt} <ImCross className="text-red-700 text-sm" />
         </Button>
       ))}
     </div>

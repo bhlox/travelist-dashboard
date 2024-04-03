@@ -7,7 +7,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useRouter } from "next/navigation";
-import { ScheduleBlockInfo } from "@/lib/types";
+import { ScheduleBlockData } from "@/lib/types";
 import UpdateScheduleForm from "@/components/forms/update schedule";
 
 export default function ModalEditingBlockedSchedule({
@@ -15,8 +15,8 @@ export default function ModalEditingBlockedSchedule({
   toBeEditedBlockedSchedule,
   editId,
 }: {
-  blockedSchedules: ScheduleBlockInfo[];
-  toBeEditedBlockedSchedule: ScheduleBlockInfo;
+  blockedSchedules: ScheduleBlockData[];
+  toBeEditedBlockedSchedule: ScheduleBlockData;
   editId: string;
 }) {
   const router = useRouter();
@@ -31,7 +31,7 @@ export default function ModalEditingBlockedSchedule({
         className="sm:max-w-md w-11/12 rounded-lg"
       >
         <DialogHeader>
-          <DialogTitle>Update your blocked schedule </DialogTitle>
+          {/* <DialogTitle>Update your blocked schedule </DialogTitle> */}
         </DialogHeader>
         <UpdateScheduleForm
           blockedSchedules={blockedSchedules}

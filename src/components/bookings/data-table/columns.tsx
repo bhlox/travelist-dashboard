@@ -16,11 +16,14 @@ import { bookingStatuses } from "@/lib/constants";
 import { Checkbox } from "@/components/ui/checkbox";
 import { deleteBooking } from "@/lib/actions/bookings";
 import { toast } from "react-toastify";
+import Link from "next/link";
 
 export const generateBookingsColumns = ({
   role,
+  windowWidth,
 }: {
   role: UserRoles;
+  windowWidth: number;
 }): ColumnDef<SelectBooking>[] => {
   return [
     {
@@ -44,6 +47,7 @@ export const generateBookingsColumns = ({
       ),
       enableSorting: false,
       enableHiding: false,
+      size: 10,
     },
     {
       accessorKey: "id",
@@ -68,12 +72,13 @@ export const generateBookingsColumns = ({
         const formatted = formatPhoneNumber(phoneNumber);
         return <p>{formatted}</p>;
       },
+      enableHiding: windowWidth > 768,
     },
     {
       accessorKey: "personInCharge",
       header: "Handler",
       id: "handler",
-      enableHiding: role !== "staff",
+      enableHiding: role !== "staff" && windowWidth > 768,
     },
     {
       accessorKey: "selectedDate",
@@ -89,26 +94,32 @@ export const generateBookingsColumns = ({
           </Button>
         );
       },
+      size: 12,
     },
     {
       accessorKey: "selectedTime",
       id: "time",
       header: ({ column }) => {
         return (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          >
-            Time
-            <ArrowUpDown className="ml-2 h-4 w-4" />
-          </Button>
+          <div className="flex justify-center">
+            <Button
+              variant="ghost"
+              onClick={() =>
+                column.toggleSorting(column.getIsSorted() === "asc")
+              }
+            >
+              Time
+              <ArrowUpDown className="ml-2 h-4 w-4" />
+            </Button>
+          </div>
         );
       },
       cell: ({ row }) => {
         const time = row.original.selectedTime;
         const formattedTime = time.slice(0, 5);
-        return <p className="inline-block">{formattedTime}</p>;
+        return <p className="text-center">{formattedTime}</p>;
       },
+      size: 12,
     },
     {
       accessorKey: "status",
@@ -150,9 +161,11 @@ export const generateBookingsColumns = ({
         }
         return null;
       },
+      size: 12,
     },
     {
       id: "actions",
+      size: 12,
       enableHiding: false,
       cell: ({ table, row }) => {
         const id = row.original.id;
@@ -167,44 +180,52 @@ export const generateBookingsColumns = ({
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link href={`/bookings/${id}`}>View Details</Link>
+              </DropdownMenuItem>
               <DropdownMenuItem
-                onClick={() =>
-                  (table.options?.meta as any).handleEditStatusDialog({
-                    currentStatus: row.original.status,
-                    name: row.original.customerName,
-                    id,
-                  })
-                }
+              // onClick={() =>
+              //   (table.options?.meta as any).handleEditStatusDialog({
+              //     currentStatus: row.original.status,
+              //     name: row.original.customerName,
+              //     id,
+              //   })
+              // }
               >
-                Edit status
+                <Link scroll={false} href={`/bookings/${id}/edit`}>
+                  Edit status
+                </Link>
               </DropdownMenuItem>
               {role !== "staff" ? (
                 <DropdownMenuItem
-                  onClick={async () => {
-                    toast.loading("Deleting booking", {
-                      toastId: "toastDelete",
-                      position: "top-center",
-                    });
-                    try {
-                      await deleteBooking(id);
-                      toast.update("toastDelete", {
-                        autoClose: 2500,
-                        render: "Deleted successfully",
-                        type: "success",
-                        isLoading: false,
-                      });
-                    } catch (error) {
-                      console.error(error);
-                      toast.update("toastDelete", {
-                        autoClose: 2500,
-                        render: "Something went wrong",
-                        type: "error",
-                        isLoading: false,
-                      });
-                    }
-                  }}
+                  // onClick={async () => {
+                  //   toast.loading("Deleting booking", {
+                  //     toastId: "toastDelete",
+                  //     position: "top-center",
+                  //   });
+                  //   try {
+                  //     await deleteBooking(id);
+                  //     toast.update("toastDelete", {
+                  //       autoClose: 2500,
+                  //       render: "Deleted successfully",
+                  //       type: "success",
+                  //       isLoading: false,
+                  //     });
+                  //   } catch (error) {
+                  //     console.error(error);
+                  //     toast.update("toastDelete", {
+                  //       autoClose: 2500,
+                  //       render: "Something went wrong",
+                  //       type: "error",
+                  //       isLoading: false,
+                  //     });
+                  //   }
+                  // }}
+                  asChild
                 >
-                  Delete booking
+                  <Link scroll={false} href={`/bookings/${id}/delete`}>
+                    Delete booking
+                  </Link>
                 </DropdownMenuItem>
               ) : null}
             </DropdownMenuContent>

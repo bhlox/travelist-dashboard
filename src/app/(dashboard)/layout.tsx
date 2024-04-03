@@ -56,7 +56,7 @@ export default async function RootLayoutHome({
               <SidebarProvider>
                 <MainContainer>
                   <SideBar />
-                  <div className="flex flex-col flex-1 w-full">
+                  <div className="flex flex-col flex-1 w-full ">
                     <Navbar />
                     <main className="h-screen overflow-y-auto">
                       <div className="p-4">

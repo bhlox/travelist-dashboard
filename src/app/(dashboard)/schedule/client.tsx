@@ -11,42 +11,41 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { ScheduleBlockInfoWithId } from "@/lib/types";
+import { ScheduleBlockData } from "@/lib/types";
+import Headings from "@/components/ui/headings";
 
 // #TODO add admin level actions for this page. current UI is only setup for staff level auth role. as for any level other level, a search bar input or select input or will display the all staff level. once pick,the blockschedulesection component will then be rendered. no actions can be done to the blocked schedule though.
 
 export default function ScheduleClient({
   blockedSchedules,
 }: {
-  blockedSchedules: ScheduleBlockInfoWithId[];
+  blockedSchedules: ScheduleBlockData[];
 }) {
   return (
-    <div className="flex flex-col lg:flex-row gap-4 ">
-      <UpdateScheduleSection blockedSchedules={blockedSchedules} />
-      {blockedSchedules.length > 0 ? (
-        <BlockedScheduleSection blockedSchedules={blockedSchedules} />
-      ) : (
-        <h4>No blocked schedule yet made</h4>
-      )}
-    </div>
+    <>
+      <Headings
+        title="Schedule"
+        description={"Update and manage your schedule"}
+      />
+      <div className="flex flex-col items-center justify-center lg:justify-start lg:items-start lg:flex-row gap-4 mt-8">
+        <UpdateScheduleSection blockedSchedules={blockedSchedules} />
+        {blockedSchedules.length > 0 ? (
+          <BlockedScheduleSection blockedSchedules={blockedSchedules} />
+        ) : (
+          <h4>No blocked schedule yet made</h4>
+        )}
+      </div>
+    </>
   );
 }
 
 function UpdateScheduleSection({
   blockedSchedules,
 }: {
-  blockedSchedules: {
-    date: Date;
-    timeRanges: any;
-    type: "day" | "time";
-  }[];
+  blockedSchedules: ScheduleBlockData[];
 }) {
   return (
-    <section className="space-y-4">
-      <div className="space-y-1">
-        <h3 className="text-2xl md:text-4xl font-bold">Update Schedule</h3>
-        <p>Block the time or days where you are not available</p>
-      </div>
+    <section className="max-w-[650px] lg:max-w-[500px] w-full">
       <UpdateScheduleForm
         blockedSchedules={blockedSchedules}
         submitType="create"
@@ -58,7 +57,7 @@ function UpdateScheduleSection({
 function BlockedScheduleSection({
   blockedSchedules,
 }: {
-  blockedSchedules: ScheduleBlockInfoWithId[];
+  blockedSchedules: ScheduleBlockData[];
 }) {
   const [conflictsDetected, setConflictsDetected] = useState(false);
   const sortedDates = blockedSchedules.sort((a, b) =>
@@ -66,17 +65,19 @@ function BlockedScheduleSection({
   );
 
   return (
-    <section>
-      <h2 className="text-2xl md:text-4xl font-bold spacey-y-6">
-        Your upcoming blocked schedule
+    <section className="w-full max-w-[650px] lg:w-auto lg:max-w-full">
+      <h2 className="text-2xl lg:text-4xl font-bold spacey-y-6 text-balance text-center lg:text-left lg:pl-6">
+        Upcoming blocked schedule
       </h2>
-      {sortedDates.map((sched) => (
-        <BlockedScheduleCard
-          key={`blocked-schedule-${sched.date}`}
-          blockedSchedule={sched}
-          setConflictsDetected={setConflictsDetected}
-        />
-      ))}
+      <div className="2xl:grid 2xl:grid-cols-2">
+        {sortedDates.map((sched) => (
+          <BlockedScheduleCard
+            key={`blocked-schedule-${sched.id}`}
+            blockedSchedule={sched}
+            setConflictsDetected={setConflictsDetected}
+          />
+        ))}
+      </div>
       {conflictsDetected ? <ConflictAlert /> : null}
     </section>
   );

@@ -28,6 +28,16 @@ import ToastContent from "@/components/toast/content";
 import { updateUserDetails } from "@/lib/actions/user";
 import { PasswordInput } from "@/components/ui/password-input";
 import { ProfileFormSchema } from "@/lib/forms-schema";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import Headings from "@/components/ui/headings";
+
+// #BUG something weird when zooming with scrolls. this only happens here not others pages
 
 export default function ClientProfilePage({ isDev }: { isDev: boolean }) {
   const {
@@ -73,115 +83,170 @@ export default function ClientProfilePage({ isDev }: { isDev: boolean }) {
 
   return (
     <div className="space-y-4">
-      <div>
-        <h3 className="text-2xl md:text-4xl font-bold">Profile settings</h3>
-        <p>Only Update the fields you want to change</p>
+      <Headings
+        title="Profile settings"
+        description="Update your profile information"
+      />
+      <div className="flex flex-col md:flex-row justify-between gap-4  max-w-3xl">
+        <Card className="flex-1">
+          <CardHeader>
+            <CardTitle>Display name</CardTitle>
+            <CardDescription>
+              This is how other users will view your name
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-4"
+              >
+                <FormField
+                  control={form.control}
+                  name="displayname"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <Button type="submit">submit</Button>
+              </form>
+            </Form>
+          </CardContent>
+        </Card>
+        <Card className="flex-1">
+          <CardHeader>
+            <CardTitle>Username</CardTitle>
+            <CardDescription>Can be used for login credentials</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-4"
+              >
+                <FormField
+                  control={form.control}
+                  name="username"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <Button type="submit">submit</Button>
+              </form>
+            </Form>
+          </CardContent>
+        </Card>
       </div>
-      <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="w-2/3 space-y-6"
-        >
-          <FormField
-            control={form.control}
-            name="displayname"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Display name</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="username"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Username</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="password"
-            render={({ field }) => {
-              return (
-                <FormItem>
-                  <FormLabel>Password</FormLabel>
-                  <FormControl>
-                    <PasswordInput
-                      onChange={(e) => {
-                        if (!e.target.value.trim()) {
-                          return field.onChange(undefined);
-                        }
-                        field.onChange(e.target.value.trim());
-                      }}
-                      placeholder="enter current password"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              );
-            }}
-          />
-          <FormField
-            control={form.control}
-            name="newPassword"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>New Password</FormLabel>
-                <FormControl>
-                  <PasswordInput
-                    onChange={(e) => {
-                      if (!e.target.value.trim()) {
-                        return field.onChange(undefined);
-                      }
-                      field.onChange(e.target.value);
-                    }}
-                    placeholder="enter new password"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          {isDev ? (
-            <FormField
-              control={form.control}
-              name="testRole"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Change test role</FormLabel>
-                  <Select onValueChange={field.onChange}>
+      <Card className="max-w-3xl">
+        <CardHeader>
+          <CardTitle>Password</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => {
+                  return (
+                    <FormItem>
+                      <FormLabel>Current Password</FormLabel>
+                      <FormControl>
+                        <PasswordInput
+                          onChange={(e) => {
+                            if (!e.target.value.trim()) {
+                              return field.onChange(undefined);
+                            }
+                            field.onChange(e.target.value.trim());
+                          }}
+                          placeholder="enter current password"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  );
+                }}
+              />
+              <FormField
+                control={form.control}
+                name="newPassword"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>New Password</FormLabel>
                     <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder={role} />
-                      </SelectTrigger>
+                      <PasswordInput
+                        onChange={(e) => {
+                          if (!e.target.value.trim()) {
+                            return field.onChange(undefined);
+                          }
+                          field.onChange(e.target.value);
+                        }}
+                        placeholder="enter new password"
+                      />
                     </FormControl>
-                    <SelectContent>
-                      {["owner", "admin", "staff"].map((role) => (
-                        <SelectItem key={`select-${role}`} value={role}>
-                          {role}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Button type="submit">submit</Button>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
+      {isDev && (
+        <Card className="max-w-3xl">
+          <CardHeader>
+            <CardTitle>Test Role</CardTitle>
+            <CardDescription>
+              Developer: Only used to test other roles
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-4"
+              >
+                <FormField
+                  control={form.control}
+                  name="testRole"
+                  render={({ field }) => (
+                    <FormItem>
+                      <Select onValueChange={field.onChange}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder={role} />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {["owner", "admin", "staff"].map((role) => (
+                            <SelectItem key={`select-${role}`} value={role}>
+                              {role}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
 
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          ) : null}
-          <Button type="submit">Submit</Button>
-        </form>
-      </Form>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <Button type="submit">Submit</Button>
+              </form>
+            </Form>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

@@ -115,5 +115,4 @@ export const deleteUser = async (id: string) => {
     .where(eq(user.id, id))
     .returning({ username: user.username });
   revalidatePath("/");
-  return deletedUser[0].username;
 };

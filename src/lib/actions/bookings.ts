@@ -6,6 +6,13 @@ import { eq } from "drizzle-orm";
 import { bookings } from "@/db/schema";
 import { revalidatePath } from "next/cache";
 
+export const getBooking = async (id: number) => {
+  return await db.query.bookings.findFirst({
+    where: (bookings, { eq }) => eq(bookings.id, id),
+    // columns: { status: true, customerName: true },
+  });
+};
+
 export const getBookingsForDate = async (date: string) => {
   return await db.query.bookings.findMany({
     where: (bookings, { eq }) => eq(bookings.selectedDate, date),
