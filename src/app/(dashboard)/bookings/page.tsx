@@ -1,7 +1,6 @@
 import { getBookings } from "@/lib/actions/bookings";
 import React from "react";
 import DataTable from "@/components/bookings/data-table/index";
-import { Separator } from "@/components/ui/separator";
 import Headings from "@/components/ui/headings";
 
 export default async function BookingsPage() {

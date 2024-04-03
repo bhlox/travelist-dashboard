@@ -2,6 +2,7 @@ import { compareItems, rankItem } from "@tanstack/match-sorter-utils";
 import { FilterFn, SortingFn, sortingFns } from "@tanstack/react-table";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { BookingsSlugAction } from "./types";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -56,3 +57,9 @@ const fuzzySort: SortingFn<any> = (rowA, rowB, columnId) => {
 export const randomIndexNumber = (length: number) => {
   return Math.floor(Math.random() * length);
 };
+
+export function isBookingsSlugAction(
+  action: string
+): action is BookingsSlugAction {
+  return action === "edit" || action === "delete";
+}

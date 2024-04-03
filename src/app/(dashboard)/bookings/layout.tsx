@@ -21,6 +21,7 @@ export default function BookingsLayout({
     { slug: "id", value: "" },
     { slug: "action", value: "" },
   ];
+  // reason why use this hook instaed of useParams. useParams returns all values with key and value from the url query param BUT, doesn't return in the order that we desire.
   const segments = useSelectedLayoutSegments();
 
   for (let i = 0; i < segments.length; i++) {

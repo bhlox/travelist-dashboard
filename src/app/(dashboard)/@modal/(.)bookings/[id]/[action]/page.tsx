@@ -2,11 +2,7 @@ import { getBooking } from "@/lib/actions/bookings";
 import React from "react";
 import BookingActionModal from "./modal";
 import { BookingsSlugAction } from "@/lib/types";
-
-// #TODO not sure if this working as intended to type guard said action
-function isBookingsSlugAction(action: string): action is BookingsSlugAction {
-  return action === "edit" || action === "delete";
-}
+import { isBookingsSlugAction } from "@/lib/utils";
 
 export default async function BookingModalActionPage({
   params,

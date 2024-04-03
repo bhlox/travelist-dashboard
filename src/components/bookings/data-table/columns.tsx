@@ -14,8 +14,6 @@ import {
 import { ArrowUpDown, MoreHorizontal } from "lucide-react";
 import { bookingStatuses } from "@/lib/constants";
 import { Checkbox } from "@/components/ui/checkbox";
-import { deleteBooking } from "@/lib/actions/bookings";
-import { toast } from "react-toastify";
 import Link from "next/link";
 
 export const generateBookingsColumns = ({

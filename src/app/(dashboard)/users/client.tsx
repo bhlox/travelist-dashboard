@@ -30,6 +30,7 @@ import LoadingSpinner from "@/components/svg/loader";
 import { useIsFirstRender } from "@uidotdev/usehooks";
 import { toast } from "react-toastify";
 import DialogDeleteConfirmation from "@/components/dialog/delete-confirmation";
+import Link from "next/link";
 
 export default function ClientUsersPage() {
   const isFirstRender = useIsFirstRender();
@@ -96,8 +97,6 @@ export default function ClientUsersPage() {
   );
 }
 
-// #TODO add a link to redirect to bookings page with handler query parameter
-
 function SearchedUserCard({
   details,
   setUserDeletionSuccess,
@@ -124,7 +123,16 @@ function SearchedUserCard({
           <div className="flex justify-between items-center">
             <div>
               <CardTitle>
-                {details.displayname || "default"}{" "}
+                {details.role === "staff" ? (
+                  <Link
+                    className="underline text-blue-400 dark:text-blue-400"
+                    href={`/bookings?handler=${details.displayname}`}
+                  >
+                    {details.displayname || "default"}
+                  </Link>
+                ) : (
+                  details.displayname || "default"
+                )}
                 <FaTrash className="inline" />
               </CardTitle>
               <CardDescription>Role: {details.role}</CardDescription>

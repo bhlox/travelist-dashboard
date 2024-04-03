@@ -29,7 +29,7 @@ export default async function BookingIdPage({
             <CardTitle>{booking?.customerName}</CardTitle>
           </div>
           <Link
-            href={`/bookings/${params.id}/delete?redirectTo=bookings`}
+            href={`/bookings/${params.id}/delete?redirect=bookings`}
             className="p-1 inline"
           >
             <FaTrash className="text-gray-400 hover:text-gray-600" />

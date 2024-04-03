@@ -14,8 +14,6 @@ import { Button } from "@/components/ui/button";
 import { ScheduleBlockData } from "@/lib/types";
 import Headings from "@/components/ui/headings";
 
-// #TODO add admin level actions for this page. current UI is only setup for staff level auth role. as for any level other level, a search bar input or select input or will display the all staff level. once pick,the blockschedulesection component will then be rendered. no actions can be done to the blocked schedule though.
-
 export default function ScheduleClient({
   blockedSchedules,
 }: {

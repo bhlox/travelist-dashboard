@@ -7,9 +7,6 @@ import { BookingStatus, BookingsSlugAction, SelectBooking } from "@/lib/types";
 import { useSearchParams } from "next/navigation";
 import React from "react";
 
-// #TODO continue delete dialog
-// #TODO change redirectTo to redirect
-
 export default function BookingActionModal({
   bookingId,
   bookingDetails,
@@ -20,7 +17,7 @@ export default function BookingActionModal({
   action: BookingsSlugAction;
 }) {
   const searchParams = useSearchParams();
-  const redirectTo = searchParams.get("redirectTo");
+  const redirectTo = searchParams.get("redirect");
   return (
     <>
       {action === "edit" ? (

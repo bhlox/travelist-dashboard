@@ -1,11 +1,6 @@
 "use client";
 import React from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader } from "@/components/ui/dialog";
 import { useRouter } from "next/navigation";
 import { ScheduleBlockData } from "@/lib/types";
 import UpdateScheduleForm from "@/components/forms/update schedule";
