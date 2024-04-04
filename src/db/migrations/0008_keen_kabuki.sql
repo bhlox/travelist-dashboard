@@ -1,0 +1,1 @@
+ALTER TABLE "bookings" ADD COLUMN "status" text DEFAULT 'pending';

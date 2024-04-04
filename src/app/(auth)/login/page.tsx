@@ -1,81 +1,48 @@
 "use client";
-import React from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { loginUser } from "@/lib/actions/auth";
-import { useRouter } from "next/navigation";
-
-const formSchema = z.object({
-  username: z.string().min(4).max(50),
-  password: z.string().min(6).max(254),
-});
+import React, { useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { loginRandomImagesList } from "@/lib/constants";
+import { cn, randomIndexNumber } from "@/lib/utils";
+import { useWindowSize } from "@uidotdev/usehooks";
+import LoginForm from "@/components/forms/login";
 
 export default function Login() {
-  const router = useRouter();
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      username: "",
-      password: "",
-    },
-  });
+  const { width } = useWindowSize();
+  const [loginImage] = useState(
+    () => loginRandomImagesList[randomIndexNumber(loginRandomImagesList.length)]
+  );
 
-  const onSubmit = async ({
-    password,
-    username,
-  }: z.infer<typeof formSchema>) => {
-    try {
-      await loginUser({ password, username });
-      router.replace("/");
-    } catch (error) {
-      console.log(error);
-    }
-  };
   return (
-    <div className="max-w-xl mx-auto p-4">
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-          <FormField
-            control={form.control}
-            name="username"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Username</FormLabel>
-                <FormControl>
-                  <Input placeholder="shadcn" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="password"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Password</FormLabel>
-                <FormControl>
-                  <Input type="password" placeholder="password" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <Button type="submit">Submit</Button>
-        </form>
-      </Form>
+    <div className="w-full grid lg:grid-cols-2 place-items-center min-h-[100dvh]">
+      <div className="flex items-center justify-center py-6 border px-4 rounded-xl">
+        <div className="mx-auto grid w-[350px] gap-6 ">
+          <div className="grid gap-2 text-center">
+            <h1 className="text-3xl font-bold">Login</h1>
+            <p className="text-balance">
+              Enter your email below to login to your account
+            </p>
+          </div>
+          <LoginForm/>
+          <div className="mt-4 text-center text-sm">
+            Don&apos;t have an account?{" "}
+            <Link href="/signup" className="underline underline-offset-2">
+              Sign up
+            </Link>
+          </div>
+        </div>
+      </div>
+      <div className="hidden lg:block h-full">
+        <Image
+          suppressHydrationWarning
+          priority={width && width >= 1024 ? true : false}
+          src={loginImage}
+          alt="Image"
+          width="1920"
+          height="1080"
+          className="h-full w-full object-cover dark:brightness-[0.6] dark:grayscale-[50%]"
+        />
+      </div>
     </div>
   );
 }

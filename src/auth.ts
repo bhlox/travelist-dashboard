@@ -18,6 +18,8 @@ export const lucia = new Lucia(adapter, {
       // attributes has the type of DatabaseUserAttributes
       username: attributes.username,
       role: attributes.role,
+      displayname: attributes.displayname,
+      testRole: attributes.testRole,
     };
   },
 });

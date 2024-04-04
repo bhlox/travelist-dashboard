@@ -5,6 +5,9 @@ import NextTopLoader from "nextjs-toploader";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { redirect } from "next/navigation";
 import { getUser } from "@/lib/actions/auth";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import ThemeToggler2 from "@/components/ui/theme-toggler2";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -19,16 +22,24 @@ export default function RootLayoutAuth({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className={inter.className} suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
+      <body className={inter.className}>
         <NextTopLoader showSpinner={false} />
         <ThemeProvider
-          defaultTheme="light"
+          defaultTheme="system"
           attribute="class"
           disableTransitionOnChange
         >
-          <p>dashboard group pages</p>
-          {children}
+          <ToastContainer
+            autoClose={3000}
+            position="top-center"
+            hideProgressBar
+            theme=""
+            bodyClassName="dark:text-white text-black "
+            toastClassName="dark:text-white text-black border-b-[6px] border-black dark:border-gray-300 dark:bg-black bg-gray-100 dark:bg-slate-900 shadow-lg"
+          />
+          <div className="">{children}</div>
+          <ThemeToggler2 />
         </ThemeProvider>
       </body>
     </html>

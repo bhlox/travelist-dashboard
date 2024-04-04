@@ -1,10 +1,16 @@
 import React from "react";
 
-export default function LoadingSpinner() {
+export default function LoadingSpinner({
+  height = "24",
+  width = "24",
+}: {
+  width?: string;
+  height?: string;
+}) {
   return (
     <svg
-      width="24"
-      height="24"
+      width={width}
+      height={height}
       stroke="#000"
       viewBox="0 0 24 24"
       xmlns="http://www.w3.org/2000/svg"
@@ -15,8 +21,8 @@ export default function LoadingSpinner() {
           cy="12"
           r="9.5"
           fill="none"
-          stroke-width="3"
-          stroke-linecap="round"
+          strokeWidth="3"
+          strokeLinecap="round"
         >
           <animate
             attributeName="stroke-dasharray"

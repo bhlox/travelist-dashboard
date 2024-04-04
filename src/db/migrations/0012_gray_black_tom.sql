@@ -1,0 +1,1 @@
+ALTER TABLE "blocked_schedules" ADD COLUMN "comment" text;

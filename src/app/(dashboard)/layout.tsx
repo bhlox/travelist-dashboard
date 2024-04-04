@@ -23,8 +23,10 @@ export const metadata: Metadata = {
 
 export default async function RootLayoutHome({
   children,
+  modal,
 }: Readonly<{
   children: React.ReactNode;
+  modal: React.ReactNode;
 }>) {
   const user = await getUser();
   if (!user || !user.user) {
@@ -32,8 +34,8 @@ export default async function RootLayoutHome({
     return redirect("/login");
   }
   return (
-    <html lang="en">
-      <body className={inter.className} suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
+      <body className={inter.className}>
         <NextTopLoader showSpinner={false} />
         <ThemeProvider
           defaultTheme="system"
@@ -54,10 +56,13 @@ export default async function RootLayoutHome({
               <SidebarProvider>
                 <MainContainer>
                   <SideBar />
-                  <div className="flex flex-col flex-1 w-full">
+                  <div className="flex flex-col flex-1 w-full ">
                     <Navbar />
                     <main className="h-screen overflow-y-auto">
-                      <div className="p-4">{children}</div>
+                      <div className="p-4">
+                        {modal}
+                        {children}
+                      </div>
                     </main>
                   </div>
                 </MainContainer>

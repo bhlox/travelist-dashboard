@@ -1,15 +1,58 @@
 "use server";
 import { db } from "@/db";
-import { UpdateUser } from "../types";
+import { GlobalSearchUser, InsertUser, SelectUser, UpdateUser } from "../types";
 import { revalidatePath } from "next/cache";
 import { user } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { Argon2id } from "oslo/password";
+import { lucia } from "@/auth";
+import { generateId } from "lucia";
+import { cookies } from "next/headers";
 
 export const findUser = async ({ username }: { username: string }) => {
   return await db.query.user.findFirst({
     where: (user, { eq }) => eq(user.username, username),
   });
+};
+
+export const createUser = async (userDetails: Omit<InsertUser, "id">) => {
+  // if (
+  //   typeof username !== "string" ||
+  //   username.length < 3 ||
+  //   username.length > 31 ||
+  //   !/^[a-z0-9_-]+$/.test(username)
+  // ) {
+  //   return {
+  //     error: "Invalid username",
+  //   };
+  // }
+  // if (
+  //   typeof password !== "string" ||
+  //   password.length < 6 ||
+  //   password.length > 255
+  // ) {
+  //   return {
+  //     error: "Invalid password",
+  //   };
+  // }
+
+  const hashedPassword = await new Argon2id().hash(userDetails.hashedPassword);
+  const userId = generateId(15);
+
+  await db.insert(user).values({
+    id: userId,
+    username: userDetails.username,
+    hashedPassword,
+    displayname: userDetails.displayname,
+  });
+
+  const session = await lucia.createSession(userId, {});
+  const sessionCookie = lucia.createSessionCookie(session.id);
+  cookies().set(
+    sessionCookie.name,
+    sessionCookie.value,
+    sessionCookie.attributes
+  );
 };
 
 export const updateUserDetails = async ({ update }: { update: UpdateUser }) => {
@@ -23,20 +66,53 @@ export const updateUserDetails = async ({ update }: { update: UpdateUser }) => {
         where: (user, { eq }) => eq(user.id, update.id),
         columns: { hashedPassword: true },
       });
-      const isPasswordSame = await new Argon2id().verify(
+      const verifyPassword = await new Argon2id().verify(
         hash?.hashedPassword!,
         update.password
       );
-      if (!isPasswordSame) {
-        throw new Error("Password is not same");
+      if (!verifyPassword) {
+        throw new Error("Incorrect password");
+      }
+      if (!update.hashedPassword) {
+        throw new Error("Pls provide a password");
+      }
+      const isNewPasswordSameWithOld = await new Argon2id().verify(
+        hash?.hashedPassword!,
+        update.hashedPassword
+      );
+      if (isNewPasswordSameWithOld) {
+        throw new Error("New password cannot be same as old password");
       }
     }
     if (!update.hashedPassword) {
-      throw new Error("pls provide your new password");
+      throw new Error("Pls provide a password");
     }
     update.hashedPassword = await new Argon2id().hash(update.hashedPassword);
   }
+
   const { id, password, ...values } = update;
   await db.update(user).set(values).where(eq(user.id, update.id));
+  revalidatePath("/");
+};
+
+export const globalSearchUser = async (searchTerm: string) => {
+  if (!searchTerm) return [];
+  const query = sql`SELECT ${user.id}, ${user.username}, ${
+    user.displayname
+  } AS displayname, ${user.role} FROM ${user} WHERE ${
+    user.username
+  } ILIKE ${`%${searchTerm}%`} OR ${
+    user.displayname
+  } ILIKE ${`%${searchTerm}%`}`;
+
+  const result: GlobalSearchUser[] = await db.execute(query);
+  return result;
+};
+
+export const deleteUser = async (id: string) => {
+  const deletedUser = await db
+    .delete(user)
+    .where(eq(user.id, id))
+    .returning({ username: user.username });
   revalidatePath("/");
 };
