@@ -1,10 +1,6 @@
 import { deleteSchedules, getSchedules } from "@/lib/actions/schedule";
 import { isDateInPast } from "@/lib/utils";
 
-// export async function GET(req: Request) {
-//   return new Response(JSON.stringify({ message: "OK" }), { status: 200 });
-// }
-
 export async function GET(request: Request) {
   console.log("deleting");
   const toBeDeletedSchedules: number[] = [];
