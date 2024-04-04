@@ -9,6 +9,7 @@ import {
   timestamp,
   text,
   json,
+  boolean,
 } from "drizzle-orm/pg-core";
 
 export const bookings = pgTable("bookings", {
@@ -33,6 +34,8 @@ export const user = pgTable("user", {
   hashedPassword: text("hashed_password").notNull(),
   role: text("role").$type<UserRoles>().default("staff"),
   testRole: text("test_role").$type<UserRoles>(),
+  email: text("email").notNull().unique(),
+  emailVerified: boolean("email_verified").default(false),
 });
 
 export const session = pgTable("session", {
@@ -48,9 +51,26 @@ export const session = pgTable("session", {
 
 export const blockedSchedules = pgTable("blocked_schedules", {
   id: serial("id").primaryKey().notNull(),
-  personnel: text("personnel").notNull(),
+  personnel: text("personnel")
+    .notNull()
+    .references(() => user.id),
   type: text("type").$type<"day" | "time">().notNull(),
   date: date("date").notNull(),
   timeRanges: json("time_ranges"),
   comment: text("comment"),
+});
+
+export const emailVerificationCodes = pgTable("email_verification_codes", {
+  id: serial("id").primaryKey().notNull(),
+  email: text("email")
+    .notNull()
+    .references(() => user.email),
+  userId: text("user_id")
+    .notNull()
+    .references(() => user.id),
+  code: text("code").notNull(),
+  expiresAt: timestamp("expires_at", {
+    withTimezone: true,
+    mode: "date",
+  }).notNull(),
 });

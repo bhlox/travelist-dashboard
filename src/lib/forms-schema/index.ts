@@ -36,7 +36,7 @@ export const ProfileFormSchema = z.object({
 });
 
 export const loginFormSchema = z.object({
-  username: z.string().min(4).max(50),
+  usernameOrEmail: z.string().min(4).max(50),
   password: z.string().min(6).max(254),
 });
 
@@ -46,7 +46,7 @@ export const signupFormSchema = z.object({
     .min(4, { message: "Username must be at least 4 characters" })
     .max(50),
   displayname: z.string().optional(),
-  email: z.string().email().optional(),
+  email: z.string().email(),
   password: z
     .string()
     .min(3, { message: "Password must be at least 3 characters" })
