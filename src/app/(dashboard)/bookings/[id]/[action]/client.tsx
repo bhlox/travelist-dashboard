@@ -94,7 +94,7 @@ function EditUI({ bookingDetails }: { bookingDetails: SelectBooking }) {
         <CardDescription>
           <ul className="list-disc list-inside">
             <li>Status: {bookingDetails.status}</li>
-            <li>Handler: {bookingDetails.personInCharge}</li>
+            <li>Handler: {bookingDetails.handler}</li>
             <li>Date: {bookingDetails.selectedDate}</li>
             <li>Time: {bookingDetails.selectedTime}</li>
           </ul>
@@ -159,7 +159,7 @@ function DeleteUI({ bookingDetails }: { bookingDetails: SelectBooking }) {
         <CardContent>
           <ul className="list-disc list-inside">
             <li>Status: {bookingDetails.status}</li>
-            <li>Handler: {bookingDetails.personInCharge}</li>
+            <li>Handler: {bookingDetails.handler}</li>
             <li>Date: {bookingDetails.selectedDate}</li>
             <li>Time: {bookingDetails.selectedTime}</li>
           </ul>

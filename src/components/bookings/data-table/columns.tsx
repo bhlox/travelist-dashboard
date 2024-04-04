@@ -73,7 +73,7 @@ export const generateBookingsColumns = ({
       enableHiding: windowWidth > 768,
     },
     {
-      accessorKey: "personInCharge",
+      accessorKey: "handler",
       header: "Handler",
       id: "handler",
       enableHiding: role !== "staff" && windowWidth > 768,

@@ -63,7 +63,7 @@ export default function ClientUsersPage() {
         <CardHeader>
           <CardTitle>Search user(s)</CardTitle>
           <CardDescription>
-            Find user either by their id, email, username, or display name
+            Find user either by their id, email, username, display name or roles
           </CardDescription>
         </CardHeader>
         <CardContent>

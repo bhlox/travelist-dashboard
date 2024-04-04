@@ -103,10 +103,11 @@ export const globalSearchUser = async (searchTerm: string) => {
     user.username
   } ILIKE ${`%${searchTerm}%`} OR ${
     user.displayname
-  } ILIKE ${`%${searchTerm}%`}`;
+  } ILIKE ${`%${searchTerm}%`} OR ${user.role} ILIKE ${`%${searchTerm}%`}`;
 
   const result: GlobalSearchUser[] = await db.execute(query);
-  return result;
+  const removeDev = result.filter((data) => data.role !== "developer");
+  return removeDev;
 };
 
 export const deleteUser = async (id: string) => {

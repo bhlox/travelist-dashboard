@@ -38,7 +38,7 @@ export default async function BookingIdPage({
         <CardContent>
           <h3>Details</h3>
           <ul className="list-disc list-inside">
-            <li>Handler: {booking?.personInCharge}</li>
+            <li>Handler: {booking?.handler}</li>
             <li>Date: {booking?.selectedDate}</li>
             <li>Time: {booking?.selectedTime}</li>
             <li>Status: {booking?.status}</li>

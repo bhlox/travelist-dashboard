@@ -16,7 +16,9 @@ export const bookings = pgTable("bookings", {
   selectedDate: date("selected_date").notNull(),
   selectedTime: time("selected_time").notNull(),
   phoneNumber: varchar("phone_number", { length: 20 }).notNull(),
-  personInCharge: varchar("person_in_charge", { length: 100 }).notNull(),
+  handler: text("handler")
+    .notNull()
+    .references(() => user.id),
   customerName: varchar("customer_name", { length: 100 }).notNull(),
   status: text("status").$type<BookingStatus>().default("pending"),
   bookedAt: timestamp("booked_at", { withTimezone: true, mode: "string" })
