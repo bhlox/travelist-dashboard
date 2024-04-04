@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { ScheduleBlock } from "@/lib/types";
+import { ScheduleBlockType } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import React from "react";
 import { CgViewDay } from "react-icons/cg";
@@ -9,8 +9,8 @@ export default function BtnsChangeFormShema({
   blockType,
   handleChangeSchema,
 }: {
-  blockType: ScheduleBlock;
-  handleChangeSchema: (blockType: ScheduleBlock) => void;
+  blockType: ScheduleBlockType;
+  handleChangeSchema: (blockType: ScheduleBlockType) => void;
 }) {
   return (
     <div className="flex justify-center items-between gap-4">
