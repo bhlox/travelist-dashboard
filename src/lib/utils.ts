@@ -63,3 +63,13 @@ export function isBookingsSlugAction(
 ): action is BookingsSlugAction {
   return action === "edit" || action === "delete";
 }
+
+export function isDateInPast(inputDate: Date): boolean {
+  const inputDateString = inputDate.toISOString().split("T")[0];
+  const currentDateString = new Date().toISOString().split("T")[0];
+
+  const inputDateObj = new Date(inputDateString);
+  const currentDateObj = new Date(currentDateString);
+
+  return inputDateObj < currentDateObj;
+}

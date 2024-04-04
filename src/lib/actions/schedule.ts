@@ -60,3 +60,10 @@ export const deleteSchedule = async (id: number) => {
   await db.delete(blockedSchedules).where(eq(blockedSchedules.id, id));
   revalidatePath("/schedule");
 };
+
+export const deleteSchedules = async (ids: number[]) => {
+  for (const id of ids) {
+    await db.delete(blockedSchedules).where(eq(blockedSchedules.id, id));
+  }
+  revalidatePath("/schedule");
+};
