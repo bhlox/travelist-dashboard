@@ -1,7 +1,12 @@
 import { deleteSchedules, getSchedules } from "@/lib/actions/schedule";
 import { isDateInPast } from "@/lib/utils";
 
+export async function GET(req: Request) {
+  return new Response(JSON.stringify({ message: "OK" }), { status: 200 });
+}
+
 export async function DELETE(request: Request) {
+  console.log("deleting");
   const toBeDeletedSchedules: number[] = [];
 
   const blockedSchedules = await getSchedules({ all: true });
@@ -20,12 +25,12 @@ export async function DELETE(request: Request) {
     await deleteSchedules(toBeDeletedSchedules);
     return new Response(
       JSON.stringify({ message: "Past schedules deleted successfully" }),
-      { status: 204 }
+      { status: 200 }
     );
   } else {
     return new Response(
       JSON.stringify({ message: "No past schedules found" }),
-      { status: 204 }
+      { status: 200 }
     );
   }
 }
