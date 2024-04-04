@@ -5,11 +5,11 @@ import { DateAfter, DateBefore, Matcher } from "react-day-picker";
 import { addDays, eachHourOfInterval, lightFormat } from "date-fns";
 
 export const sideBarItems = [
-  {
-    name: "Dashboard",
-    href: "/",
-    icon: FaHome,
-  },
+  // {
+  //   name: "Dashboard",
+  //   href: "/",
+  //   icon: FaHome,
+  // },
   {
     name: "Bookings",
     href: "/bookings",
