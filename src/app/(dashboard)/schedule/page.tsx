@@ -5,7 +5,11 @@ import { redirect } from "next/navigation";
 import { ScheduleBlockData } from "@/lib/types";
 
 export default async function SchedulePage() {
-  const blockedSchedules = await getSchedules({ all: true });
+  const user = await getUser();
+  if (!user || !user.user) {
+    redirect("/login");
+  }
+  const blockedSchedules = await getSchedules({ handlerId: user.user.id });
   const mappedData: ScheduleBlockData[] = blockedSchedules.map((day) => ({
     ...day,
     date: new Date(day.date),

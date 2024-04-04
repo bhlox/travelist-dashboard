@@ -2,13 +2,19 @@ import React from "react";
 import EditBlockScheduleClient from "./client";
 import { getSchedule, getSchedules } from "@/lib/actions/schedule";
 import { ScheduleBlockData } from "@/lib/types";
+import { getUser } from "@/lib/actions/auth";
+import { redirect } from "next/navigation";
 
 export default async function EditBlockSchedulePage({
   params,
 }: {
   params: { id: string };
 }) {
-  const blockedSchedules = await getSchedules({ all: true });
+  const user = await getUser();
+  if (!user || !user.user) {
+    redirect("/login");
+  }
+  const blockedSchedules = await getSchedules({ handlerId: user.user.id });
   const mappedData = blockedSchedules.map((day) => ({
     ...day,
     date: new Date(day.date),

@@ -8,6 +8,8 @@ export interface DatabaseUserAttributes {
   displayname: string;
   role: UserRoles;
   testRole?: UserRoles;
+  email: string;
+  email_verified: boolean;
 }
 
 export interface ISidebarContext {
@@ -100,9 +102,17 @@ export type DeleteDialogConfirmationProps = {
   sucessMsg: { title: string; description: string | undefined };
   errorMsg: string;
   setDeleteDialog?: React.Dispatch<React.SetStateAction<boolean>> | undefined;
-  setUserDeletionSuccess?: React.Dispatch<React.SetStateAction<boolean>>;
+  setUserDataUpdate?: React.Dispatch<React.SetStateAction<boolean>>;
   dialogTitle: string;
   dialogDescription: React.ReactNode;
   deleteFn: (id: any) => Promise<void>;
   redirectTo?: string | null;
 };
+
+export type FindUser = {
+  username?: string;
+  email?: string;
+} & (
+  | { username: string; email?: string }
+  | { username?: string; email: string }
+);

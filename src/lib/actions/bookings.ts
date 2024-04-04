@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/db";
-import { UpdateBooking } from "../types";
+import { UpdateBooking, UserRoles } from "../types";
 import { eq } from "drizzle-orm";
 import { bookings } from "@/db/schema";
 import { revalidatePath } from "next/cache";
@@ -19,8 +19,20 @@ export const getBookingsForDate = async (date: string) => {
   });
 };
 
-export const getBookings = async () => {
-  return await db.query.bookings.findMany();
+
+export const getBookings = async ({
+  handlerId,
+  role,
+}: {
+  handlerId: string;
+  role: UserRoles;
+}) => {
+  if (role !== "staff") {
+    return await db.query.bookings.findMany();
+  }
+  return await db.query.bookings.findMany({
+    where: (bookings, { eq }) => eq(bookings.handler, handlerId),
+  });
 };
 
 export const updateBooking = async (data: UpdateBooking) => {

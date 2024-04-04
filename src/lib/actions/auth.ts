@@ -1,7 +1,7 @@
 "use server";
 import { lucia } from "@/auth";
 import { db } from "@/db";
-import { user } from "@/db/schema";
+import { emailVerificationCodes, user } from "@/db/schema";
 import { generateId } from "lucia";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
@@ -11,66 +11,28 @@ import { cache } from "react";
 import { InsertUser, UpdateUser } from "../types";
 import { eq } from "drizzle-orm";
 import { findUser } from "./user";
-
-// export const signupUser = async (
-//   userDetails: InsertUser
-// ): Promise<{ error: string }> => {
-//   // if (
-//   //   typeof username !== "string" ||
-//   //   username.length < 3 ||
-//   //   username.length > 31 ||
-//   //   !/^[a-z0-9_-]+$/.test(username)
-//   // ) {
-//   //   return {
-//   //     error: "Invalid username",
-//   //   };
-//   // }
-//   // if (
-//   //   typeof password !== "string" ||
-//   //   password.length < 6 ||
-//   //   password.length > 255
-//   // ) {
-//   //   return {
-//   //     error: "Invalid password",
-//   //   };
-//   // }
-
-//   const hashedPassword = await new Argon2id().hash(password);
-//   const userId = generateId(15);
-
-//   await db.insert(user).values({
-//     id: userId,
-//     username,
-//     hashedPassword,
-//   });
-
-//   const session = await lucia.createSession(userId, {});
-//   const sessionCookie = lucia.createSessionCookie(session.id);
-//   cookies().set(
-//     sessionCookie.name,
-//     sessionCookie.value,
-//     sessionCookie.attributes
-//   );
-//   return redirect("/");
-// };
+import { isValidEmail } from "../utils";
+import { TimeSpan, createDate } from "oslo";
+import { generateRandomString, alphabet } from "oslo/crypto";
 
 export const loginUser = async ({
   password,
-  username,
+  usernameOrEmail,
 }: {
-  username: string;
+  usernameOrEmail: string;
   password: string;
 }) => {
-  if (
-    typeof username !== "string" ||
-    username.length < 3 ||
-    username.length > 31 ||
-    !/^[a-z0-9_-]+$/.test(username)
-  ) {
-    return {
-      error: "Invalid username",
-    };
-  }
+  let user;
+  // if (
+  //   typeof username !== "string" ||
+  //   username.length < 3 ||
+  //   username.length > 31 ||
+  //   !/^[a-z0-9_-]+$/.test(username)
+  // ) {
+  //   return {
+  //     error: "Invalid username",
+  //   };
+  // }
   if (
     typeof password !== "string" ||
     password.length < 6 ||
@@ -81,9 +43,23 @@ export const loginUser = async ({
     };
   }
 
-  const user = await findUser({ username });
-  if (!user || !(await new Argon2id().verify(user.hashedPassword, password))) {
-    throw new Error("Invalid credentials");
+  const isEmail = isValidEmail(usernameOrEmail);
+  if (isEmail) {
+    user = await findUser({ email: usernameOrEmail });
+    if (
+      !user ||
+      !(await new Argon2id().verify(user.hashedPassword, password))
+    ) {
+      throw new Error("Invalid credentials");
+    }
+  } else {
+    user = await findUser({ username: usernameOrEmail });
+    if (
+      !user ||
+      !(await new Argon2id().verify(user.hashedPassword, password))
+    ) {
+      throw new Error("Invalid credentials");
+    }
   }
 
   const session = await lucia.createSession(user.id, {});
@@ -140,4 +116,24 @@ export const logoutUser = async () => {
     sessionCookie.attributes
   );
   return redirect("/login");
+};
+
+export const generateEmailVerificationCode = async ({
+  email,
+  userId,
+}: {
+  userId: string;
+  email: string;
+}): Promise<string> => {
+  await db
+    .delete(emailVerificationCodes)
+    .where(eq(emailVerificationCodes.userId, userId));
+  const code = generateRandomString(6, alphabet("0-9", "A-Z")); // await db.table("email_verification_code").
+  await db.insert(emailVerificationCodes).values({
+    userId,
+    email,
+    code,
+    expiresAt: createDate(new TimeSpan(15, "m")),
+  });
+  return code;
 };

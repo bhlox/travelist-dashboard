@@ -63,7 +63,7 @@ export default function UpdateScheduleForm({
 }: UpdateScheduleFormProps) {
   const router = useRouter();
   const [calendarOpen, setCalendarOpen] = useState(false);
-  const { username } = useUserDetailsContext();
+  const { username, id } = useUserDetailsContext();
 
   const [selectedFormSchema, setSelectedFormSchema] = useState<{
     schema: typeof dateSchema | typeof timeSchema;
@@ -141,7 +141,7 @@ export default function UpdateScheduleForm({
           date: formattedDate,
           timeRanges: JSON.stringify(timeRanges),
           type: selectedFormSchema.blockType,
-          personnel: username,
+          personnel: id,
           comment: data.comment,
         });
       }
@@ -176,7 +176,7 @@ export default function UpdateScheduleForm({
     await createBlockedSchedule({
       date: formattedDate,
       type: selectedFormSchema.blockType,
-      personnel: username,
+      personnel: id,
       comment: data.comment,
     });
     form.reset({

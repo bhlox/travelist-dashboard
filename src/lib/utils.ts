@@ -73,3 +73,7 @@ export function isDateInPast(inputDate: Date): boolean {
 
   return inputDateObj < currentDateObj;
 }
+
+export function isValidEmail(email: string): boolean {
+  return /.+@.+/.test(email);
+}
