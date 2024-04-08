@@ -69,6 +69,16 @@ export const bookingStatuses = [
   "complete",
 ] as const;
 
+export const ACCEPTED_IMAGE_TYPES = ["image/png", "image/jpg", "image/jpeg"];
+export const MAX_IMAGE_SIZE = 4; //In MegaBytes
+
+export const sizeInMB = (sizeInBytes: number, decimalsNum = 2) => {
+  const result = sizeInBytes / (1024 * 1024);
+  return +result.toFixed(decimalsNum);
+};
+
+export const defaultDbProfPicString = "/avatar_default.jpg" as const;
+
 export const loginRandomImagesList = [
   "https://images.unsplash.com/photo-1511884642898-4c92249e20b6?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80",
   "https://images.unsplash.com/photo-1494500764479-0c8f2919a3d8?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80",

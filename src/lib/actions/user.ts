@@ -20,10 +20,12 @@ export const findUser = async ({ username, email }: FindUser) => {
   if (username) {
     return await db.query.user.findFirst({
       where: (user, { eq }) => eq(user.username, username),
+      columns: { hashedPassword: false },
     });
   } else if (email) {
     return await db.query.user.findFirst({
       where: (user, { eq }) => eq(user.email, email),
+      columns: { hashedPassword: false },
     });
   }
 };

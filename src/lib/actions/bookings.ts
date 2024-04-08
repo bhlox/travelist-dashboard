@@ -19,7 +19,6 @@ export const getBookingsForDate = async (date: string) => {
   });
 };
 
-
 export const getBookings = async ({
   handlerId,
   role,
@@ -28,7 +27,12 @@ export const getBookings = async ({
   role: UserRoles;
 }) => {
   if (role !== "staff") {
-    return await db.query.bookings.findMany();
+    const data = await db.query.bookings.findMany({
+      with: {
+        handler: { columns: { displayname: true } },
+      },
+    });
+    return data.map((dat) => ({ ...dat, handler: dat.handler?.displayname }));
   }
   return await db.query.bookings.findMany({
     where: (bookings, { eq }) => eq(bookings.handler, handlerId),

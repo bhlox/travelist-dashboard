@@ -1,5 +1,11 @@
 import { z } from "zod";
-import { openingHours, userRoles } from "../constants";
+import {
+  ACCEPTED_IMAGE_TYPES,
+  MAX_IMAGE_SIZE,
+  openingHours,
+  sizeInMB,
+  userRoles,
+} from "../constants";
 
 export const dateSchema = z.object({
   selectedDate: z.date({
@@ -7,6 +13,7 @@ export const dateSchema = z.object({
   }),
   comment: z.string().optional(),
 });
+
 export const timeSchema = z.object({
   selectedDate: z.date({
     required_error: "A date of birth is required.",
@@ -33,6 +40,23 @@ export const ProfileFormSchema = z.object({
     .optional(),
   password: z.string().optional(),
   newPassword: z.string().optional(),
+  description: z.string().optional(),
+  profilePicture: z
+    .custom<FileList>()
+    .optional()
+    // .refine((files) => {
+    //   return Array.from(files ?? []).length !== 0;
+    // }, "Image is required")
+    .refine((files) => {
+      return Array.from(files ?? []).every(
+        (file) => sizeInMB(file.size) <= MAX_IMAGE_SIZE
+      );
+    }, `The maximum image size is ${MAX_IMAGE_SIZE}MB`)
+    .refine((files) => {
+      return Array.from(files ?? []).every((file) =>
+        ACCEPTED_IMAGE_TYPES.includes(file.type)
+      );
+    }, "File type is not supported"),
 });
 
 export const loginFormSchema = z.object({

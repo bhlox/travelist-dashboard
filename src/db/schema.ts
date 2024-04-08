@@ -1,4 +1,5 @@
 import { BookingStatus, UserRoles } from "@/lib/types";
+import { relations } from "drizzle-orm";
 import {
   pgTable,
   pgEnum,
@@ -36,6 +37,8 @@ export const user = pgTable("user", {
   testRole: text("test_role").$type<UserRoles>(),
   email: text("email").notNull().unique(),
   emailVerified: boolean("email_verified").default(false),
+  description: text("description"),
+  profilePicture: text("profile_picture").default("/avatar_default.jpg"),
 });
 
 export const session = pgTable("session", {
@@ -74,3 +77,14 @@ export const emailVerificationCodes = pgTable("email_verification_codes", {
     mode: "date",
   }).notNull(),
 });
+
+export const bookingsRelations = relations(bookings, ({ one }) => ({
+  handler: one(user, {
+    fields: [bookings.handler],
+    references: [user.id],
+  }),
+}));
+
+export const usersRelations = relations(user, ({ many }) => ({
+  bookings: many(bookings),
+}));
