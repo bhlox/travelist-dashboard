@@ -42,20 +42,21 @@ export const ProfileFormSchema = z.object({
   newPassword: z.string().optional(),
   description: z.string().optional(),
   profilePicture: z
-    .custom<FileList>()
-    .optional()
+    .custom<File>()
     // .refine((files) => {
     //   return Array.from(files ?? []).length !== 0;
     // }, "Image is required")
-    .refine((files) => {
-      return Array.from(files ?? []).every(
-        (file) => sizeInMB(file.size) <= MAX_IMAGE_SIZE
-      );
+    .refine((file) => {
+      return sizeInMB(file.size) <= MAX_IMAGE_SIZE;
+      // return Array.from(files ?? []).every(
+      //   (file) => sizeInMB(file.size) <= MAX_IMAGE_SIZE
+      // );
     }, `The maximum image size is ${MAX_IMAGE_SIZE}MB`)
-    .refine((files) => {
-      return Array.from(files ?? []).every((file) =>
-        ACCEPTED_IMAGE_TYPES.includes(file.type)
-      );
+    .refine((file) => {
+      return ACCEPTED_IMAGE_TYPES.includes(file.type);
+      // return Array.from(files ?? []).every((file) =>
+      //   ACCEPTED_IMAGE_TYPES.includes(file.type)
+      // );
     }, "File type is not supported"),
 });
 

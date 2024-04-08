@@ -38,7 +38,9 @@ export const user = pgTable("user", {
   email: text("email").notNull().unique(),
   emailVerified: boolean("email_verified").default(false),
   description: text("description"),
-  profilePicture: text("profile_picture").default("/avatar_default.jpg"),
+  profilePicture: text("profile_picture")
+    .notNull()
+    .default("/avatar_default.jpg"),
 });
 
 export const session = pgTable("session", {

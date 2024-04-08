@@ -93,3 +93,10 @@ export function getImageData(event: ChangeEvent<HTMLInputElement>) {
 
   return { files, displayUrl };
 }
+
+export function splitUrlPath(url: string) {
+  return url
+    .replace(/^https?:\/\/[^/]+/, "")
+    .split("/")
+    .filter(Boolean);
+}

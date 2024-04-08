@@ -112,6 +112,7 @@ export type DeleteDialogConfirmationProps = {
 export type FindUser = {
   username?: string;
   email?: string;
+  withPassword: boolean;
 } & (
   | { username: string; email?: string }
   | { username?: string; email: string }

@@ -45,18 +45,18 @@ export const loginUser = async ({
 
   const isEmail = isValidEmail(usernameOrEmail);
   if (isEmail) {
-    user = await findUser({ email: usernameOrEmail });
+    user = await findUser({ email: usernameOrEmail, withPassword: true });
     if (
       !user ||
-      !(await new Argon2id().verify(user.hashedPassword, password))
+      !(await new Argon2id().verify((user as any).hashedPassword, password))
     ) {
       throw new Error("Invalid credentials");
     }
   } else {
-    user = await findUser({ username: usernameOrEmail });
+    user = await findUser({ username: usernameOrEmail, withPassword: true });
     if (
       !user ||
-      !(await new Argon2id().verify(user.hashedPassword, password))
+      !(await new Argon2id().verify((user as any).hashedPassword, password))
     ) {
       throw new Error("Invalid credentials");
     }

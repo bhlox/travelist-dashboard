@@ -16,16 +16,38 @@ import { generateId } from "lucia";
 import { cookies } from "next/headers";
 import { generateEmailVerificationCode } from "./auth";
 
-export const findUser = async ({ username, email }: FindUser) => {
+export const findUser = async ({ username, email, withPassword }: FindUser) => {
   if (username) {
     return await db.query.user.findFirst({
       where: (user, { eq }) => eq(user.username, username),
-      columns: { hashedPassword: false },
+      columns: {
+        hashedPassword: withPassword,
+        id: true,
+        description: true,
+        displayname: true,
+        email: true,
+        emailVerified: true,
+        role: true,
+        testRole: true,
+        profilePicture: true,
+        username: true,
+      },
     });
   } else if (email) {
     return await db.query.user.findFirst({
       where: (user, { eq }) => eq(user.email, email),
-      columns: { hashedPassword: false },
+      columns: {
+        hashedPassword: withPassword,
+        id: true,
+        description: true,
+        displayname: true,
+        email: true,
+        emailVerified: true,
+        role: true,
+        testRole: true,
+        profilePicture: true,
+        username: true,
+      },
     });
   }
 };
@@ -85,6 +107,9 @@ export const updateUserDetails = async ({ update }: { update: UpdateUser }) => {
   if (!update.id) throw new Error("No id found for updating user");
   if (update.hashedPassword && !update.password) {
     throw new Error("pls confirm your current password first");
+  }
+  if (update.profilePicture) {
+    update.profilePicture = `https://gpteawbghqdquxidtnqc.supabase.co/storage/v1/object/public/profile-images/${update.profilePicture}`;
   }
   if (update.password) {
     {
