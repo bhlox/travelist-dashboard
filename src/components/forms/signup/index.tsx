@@ -35,6 +35,7 @@ export default function SignupForm() {
     defaultValues: {
       username: "",
       password: "",
+      confirm: "",
       email: "",
       displayname: "",
     },
@@ -47,7 +48,7 @@ export default function SignupForm() {
     displayname,
   }: z.infer<typeof signupFormSchema>) => {
     try {
-      const usernameExists = await findUser({ username });
+      const usernameExists = await findUser({ username, withPassword: false });
       if (usernameExists) {
         toast.error("Username already exists");
         return form.setError("username", {
@@ -77,6 +78,7 @@ export default function SignupForm() {
       toast.error("Signup failed. Please try again");
     }
   };
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4">
@@ -149,6 +151,19 @@ export default function SignupForm() {
               <FormLabel>Password</FormLabel>
               <FormControl>
                 <PasswordInput {...field} placeholder="password" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="confirm"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Confirm Password</FormLabel>
+              <FormControl>
+                <PasswordInput {...field} placeholder="confirm password" />
               </FormControl>
               <FormMessage />
             </FormItem>

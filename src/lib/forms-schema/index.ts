@@ -65,15 +65,18 @@ export const loginFormSchema = z.object({
   password: z.string().max(254),
 });
 
-export const signupFormSchema = z.object({
-  username: z
-    .string()
-    .min(4, { message: "Username must be at least 4 characters" })
-    .max(50),
-  displayname: z.string().optional(),
-  email: z.string().email(),
-  password: z
-    .string()
-    .min(3, { message: "Password must be at least 3 characters" })
-    .max(254),
-});
+export const signupFormSchema = z
+  .object({
+    username: z
+      .string()
+      .min(4, { message: "Username must be at least 4 characters" })
+      .max(50),
+    displayname: z.string().optional(),
+    email: z.string().email(),
+    password: z.string(),
+    confirm: z.string(),
+  })
+  .refine((data) => data.password === data.confirm, {
+    message: "Passwords are not matching",
+    path: ["confirm"],
+  });
