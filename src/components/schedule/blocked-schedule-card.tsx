@@ -35,10 +35,14 @@ export default function BlockedScheduleCard({
     ${blockedSchedule.timeRanges.at(-1)}`
       : "";
 
+
   const { data, isFetching, isError } = useQuery({
     queryKey: ["customers", blockedSchedule.date],
     queryFn: () =>
-      getBookingsForDate(lightFormat(blockedSchedule.date, "yyyy-MM-dd")),
+      getBookingsForDate({
+        date: lightFormat(blockedSchedule.date, "yyyy-MM-dd"),
+        handlerId: blockedSchedule.personnel,
+      }),
     staleTime: Infinity,
   });
 
@@ -97,12 +101,12 @@ export default function BlockedScheduleCard({
                   <ul className="list-disc list-inside flex flex-col">
                     {conflictList?.map((cust) => (
                       <Link
-                        href={`/bookings?ID=${cust.id}`}
+                        href={`/bookings/${cust.id}`}
                         key={`conflict-${cust.id}`}
                         className="inline-block text-blue-800 dark:text-blue-400 hover:opacity-80 underline max-w-max underline-offset-4"
                       >
                         <li>
-                          {cust.customerName} - {cust.selectedTime}
+                          {cust.customerName} - {cust.selectedTime.slice(0, 5)}
                         </li>
                       </Link>
                     ))}

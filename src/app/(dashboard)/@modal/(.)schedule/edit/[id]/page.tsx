@@ -3,13 +3,18 @@ import ModalEditingBlockedSchedule from "./modal";
 import { getSchedule, getSchedules } from "@/lib/actions/schedule";
 import { redirect } from "next/navigation";
 import { ScheduleBlockData } from "@/lib/types";
+import { getUser } from "@/lib/actions/auth";
 
 export default async function ModesEditingPage({
   params,
 }: {
   params: { id: string };
 }) {
-  const blockedSchedules = await getSchedules({ all: true });
+  const user = await getUser();
+  if (!user || !user.user) {
+    redirect("/login");
+  }
+  const blockedSchedules = await getSchedules({ handlerId: user.user.id });
   if (!blockedSchedules) {
     console.error("could not find schedule details");
     redirect("/schedule");

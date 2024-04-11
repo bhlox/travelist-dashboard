@@ -9,13 +9,21 @@ import { revalidatePath } from "next/cache";
 export const getBooking = async (id: number) => {
   return await db.query.bookings.findFirst({
     where: (bookings, { eq }) => eq(bookings.id, id),
+    with: { handler: { columns: { id: true, displayname: true } } },
     // columns: { status: true, customerName: true },
   });
 };
 
-export const getBookingsForDate = async (date: string) => {
+export const getBookingsForDate = async ({
+  date,
+  handlerId,
+}: {
+  date: string;
+  handlerId: string;
+}) => {
   return await db.query.bookings.findMany({
-    where: (bookings, { eq }) => eq(bookings.selectedDate, date),
+    where: (bookings, { eq, and }) =>
+      and(eq(bookings.selectedDate, date), eq(bookings.handler, handlerId)),
   });
 };
 

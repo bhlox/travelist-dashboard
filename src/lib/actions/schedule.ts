@@ -11,6 +11,10 @@ export const createBlockedSchedule = async (data: InsertBlockedSchedule) => {
   revalidatePath("/schedule");
 };
 
+export const getAllBlockedSchedules = async () => {
+  return await db.query.blockedSchedules.findMany();
+};
+
 export const getSchedules = async ({
   handlerId,
 }: {
@@ -25,7 +29,6 @@ export const getSchedules = async ({
   // }[];
   // if (all) {
   return await db.query.blockedSchedules.findMany({
-    columns: { personnel: false },
     where: (blockedSchedules, { eq }) =>
       eq(blockedSchedules.personnel, handlerId),
   });

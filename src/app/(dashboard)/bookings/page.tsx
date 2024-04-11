@@ -14,22 +14,11 @@ export default async function BookingsPage() {
     handlerId: user.user.id,
     role: user.user.role,
   });
-  const asd = [
-    ...bookings,
-    // ...bookings,
-    // ...bookings,
-    // ...bookings,
-    // ...bookings,
-    // ...bookings,
-    // ...bookings,
-    // ...bookings,
-    // ...bookings,
-    // ...bookings,
-  ];
+
   return (
     <>
       <Headings title="Bookings" description="Manage user bookings" />
-      <DataTable data={asd} />
+      <DataTable data={bookings} />
     </>
   );
 }

@@ -45,7 +45,7 @@ export type ScheduleBlockType = "day" | "time";
 
 export type ScheduleBlockData = { timeRanges: string[]; date: Date } & Omit<
   SelectBlockedSchedule,
-  "personnel" | "timeRanges" | "date"
+  "timeRanges" | "date"
 >;
 
 export type UpdateScheduleFormProps = {
