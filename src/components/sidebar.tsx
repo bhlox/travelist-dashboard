@@ -13,7 +13,7 @@ import { useSideBarContext } from "./providers/sidebar-provider";
 import { FaHome } from "react-icons/fa";
 import { Button } from "./ui/button";
 import Link from "next/link";
-import { sideBarItems } from "@/lib/constants";
+import { SIDEBAR_ITEMS } from "@/lib/constants";
 import { useWindowSize } from "@uidotdev/usehooks";
 import { usePathname } from "next/navigation";
 import { useUserDetailsContext } from "./providers/user-details-provider";
@@ -63,7 +63,7 @@ function Content() {
   const { toggleSidebar } = useSideBarContext();
   const { role } = useUserDetailsContext();
   const pathname = usePathname();
-  const mappedSideBar = sideBarItems.filter((item) => {
+  const mappedSideBar = SIDEBAR_ITEMS.filter((item) => {
     if (item.name === "Users" && role !== "owner") return false;
     return true;
   });

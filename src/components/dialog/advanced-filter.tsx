@@ -35,7 +35,7 @@ import {
 import { cn } from "@/lib/utils";
 import { CalendarIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
-import { bookingStatuses } from "@/lib/constants";
+import { BOOKING_STATUSES } from "@/lib/constants";
 import CustomPhoneInput from "@/components/ui/phone-input";
 import { useSearchParams } from "next/navigation";
 
@@ -223,7 +223,7 @@ export default function DialogAdvancedFilter<TData>({
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            {bookingStatuses.map((stats) => (
+                            {BOOKING_STATUSES.map((stats) => (
                               <SelectItem key={`status-${stats}`} value={stats}>
                                 {stats}
                               </SelectItem>

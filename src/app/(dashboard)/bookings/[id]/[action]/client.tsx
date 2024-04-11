@@ -24,7 +24,7 @@ import {
   getBooking,
   updateBooking,
 } from "@/lib/actions/bookings";
-import { bookingStatuses } from "@/lib/constants";
+import { BOOKING_STATUSES } from "@/lib/constants";
 import { SelectBooking } from "@/lib/types";
 import { useMutation } from "@tanstack/react-query";
 import { useWindowSize } from "@uidotdev/usehooks";
@@ -111,7 +111,7 @@ function EditUI({ bookingDetails }: { bookingDetails: SelectBooking }) {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {bookingStatuses.map((stats) => (
+              {BOOKING_STATUSES.map((stats) => (
                 <SelectItem key={`status-${stats}`} value={stats}>
                   {stats}
                 </SelectItem>

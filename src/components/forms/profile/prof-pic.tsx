@@ -23,8 +23,8 @@ import { updateUserDetails } from "@/lib/actions/user";
 import {
   ACCEPTED_IMAGE_TYPES,
   MAX_IMAGE_SIZE,
-  defaultDbProfPicString,
-  sizeInMB,
+  DEFAULT_DB_PROF_PIC_STRING,
+  SIZE_IN_MB,
 } from "@/lib/constants";
 import { getImageData } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -43,9 +43,9 @@ const ImageFormSchema = z.object({
       //   return Array.from(files ?? []).length !== 0;
     }, "Image is required")
     .refine((file) => {
-      return sizeInMB(file?.size) <= MAX_IMAGE_SIZE;
+      return SIZE_IN_MB(file?.size) <= MAX_IMAGE_SIZE;
       // return Array.from(files ?? []).every(
-      //   (file) => sizeInMB(file.size) <= MAX_IMAGE_SIZE
+      //   (file) => SIZE_IN_MB(file.size) <= MAX_IMAGE_SIZE
       // );
     }, `The maximum image size is ${MAX_IMAGE_SIZE}MB`)
     .refine((file) => {
@@ -91,8 +91,8 @@ export default function ProfilePictureForm({
   };
 
   const profPic =
-    currentPicture === defaultDbProfPicString
-      ? `/assets${defaultDbProfPicString}`
+    currentPicture === DEFAULT_DB_PROF_PIC_STRING
+      ? `/assets${DEFAULT_DB_PROF_PIC_STRING}`
       : currentPicture;
 
   return (

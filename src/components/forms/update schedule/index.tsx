@@ -37,10 +37,10 @@ import { toast } from "react-toastify";
 import { useUserDetailsContext } from "@/components/providers/user-details-provider";
 import { useRouter } from "next/navigation";
 import {
-  after31Days,
-  beforeTomorrow,
-  disableWeekends,
-  openingHours,
+  AFTER_31_DAYS,
+  BEFORE_TOMORROW,
+  DISABLE_WEEKENDS,
+  OPENING_HOURS,
 } from "@/lib/constants";
 import { dateSchema, timeSchema } from "@/lib/forms-schema";
 import { ScheduleBlockType, UpdateScheduleFormProps } from "@/lib/types";
@@ -281,10 +281,10 @@ export default function UpdateScheduleForm({
                             form.resetField("endTime", { defaultValue: "" });
                           }}
                           disabled={[
-                            disableWeekends,
+                            DISABLE_WEEKENDS,
                             ...disableDays,
-                            beforeTomorrow,
-                            after31Days,
+                            BEFORE_TOMORROW,
+                            AFTER_31_DAYS,
                           ]}
                         />
                       </PopoverContent>
@@ -318,7 +318,7 @@ export default function UpdateScheduleForm({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {openingHours.map((hr) => (
+                        {OPENING_HOURS.map((hr) => (
                           <SelectItem
                             key={`hr-${hr}`}
                             value={hr}
@@ -360,7 +360,7 @@ export default function UpdateScheduleForm({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {openingHours.map((hr) => (
+                        {OPENING_HOURS.map((hr) => (
                           <SelectItem
                             key={`hr-${hr}`}
                             value={hr}

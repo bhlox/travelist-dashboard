@@ -17,7 +17,7 @@ import { loginUser } from "@/lib/actions/auth";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { loginRandomImagesList } from "@/lib/constants";
+import { LOGIN_RNDM_IMG_LIST } from "@/lib/constants";
 import { cn, randomIndexNumber } from "@/lib/utils";
 import { loginFormSchema } from "@/lib/forms-schema";
 import { toast } from "react-toastify";

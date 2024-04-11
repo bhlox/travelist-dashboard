@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { loginRandomImagesList } from "@/lib/constants";
+import { LOGIN_RNDM_IMG_LIST } from "@/lib/constants";
 import { cn, randomIndexNumber } from "@/lib/utils";
 import { useWindowSize } from "@uidotdev/usehooks";
 import LoginForm from "@/components/forms/login";
@@ -10,7 +10,7 @@ import LoginForm from "@/components/forms/login";
 export default function Login() {
   const { width } = useWindowSize();
   const [loginImage] = useState(
-    () => loginRandomImagesList[randomIndexNumber(loginRandomImagesList.length)]
+    () => LOGIN_RNDM_IMG_LIST[randomIndexNumber(LOGIN_RNDM_IMG_LIST.length)]
   );
 
   return (
@@ -23,7 +23,7 @@ export default function Login() {
               Enter your email below to login to your account
             </p>
           </div>
-          <LoginForm/>
+          <LoginForm />
           <div className="mt-4 text-center text-sm">
             Don&apos;t have an account?{" "}
             <Link href="/signup" className="underline underline-offset-2">

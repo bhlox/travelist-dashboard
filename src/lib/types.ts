@@ -1,6 +1,6 @@
 import { blockedSchedules, bookings, user } from "@/db/schema";
 import { InferInsertModel, InferSelectModel } from "drizzle-orm";
-import { bookingStatuses, userRoles } from "./constants";
+import { BOOKING_STATUSES, USER_ROLES } from "./constants";
 import { ColumnDef, Table } from "@tanstack/react-table";
 
 export interface DatabaseUserAttributes {
@@ -69,7 +69,7 @@ export type UpdateScheduleFormProps = {
     }
 );
 
-export type BookingStatus = (typeof bookingStatuses)[number];
+export type BookingStatus = (typeof BOOKING_STATUSES)[number];
 
 export type DialogEditStatusProps = {
   currentStatus: BookingStatus | undefined;
@@ -93,7 +93,7 @@ export interface IAdvancedSearchForm {
   status?: BookingStatus;
 }
 
-export type UserRoles = (typeof userRoles)[number];
+export type UserRoles = (typeof USER_ROLES)[number];
 
 export type BookingsSlugAction = "edit" | "delete";
 

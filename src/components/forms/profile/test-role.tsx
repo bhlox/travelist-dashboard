@@ -24,7 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { updateUserDetails } from "@/lib/actions/user";
-import { userRoles } from "@/lib/constants";
+import { USER_ROLES } from "@/lib/constants";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React from "react";
 import { useForm } from "react-hook-form";
@@ -32,7 +32,7 @@ import { toast } from "react-toastify";
 import { z } from "zod";
 
 const TestRoleFormSchema = z.object({
-  testRole: z.enum(userRoles, {
+  testRole: z.enum(USER_ROLES, {
     invalid_type_error: "Invalid user role",
   }),
 });
