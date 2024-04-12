@@ -19,6 +19,7 @@ import { MdEditSquare } from "react-icons/md";
 import { FaTrash } from "react-icons/fa";
 import DialogDeleteConfirmation from "../dialog/delete-confirmation";
 import { deleteSchedule } from "@/lib/actions/schedule";
+import { PiWarningFill } from "react-icons/pi";
 
 export default function BlockedScheduleCard({
   blockedSchedule,
@@ -34,7 +35,6 @@ export default function BlockedScheduleCard({
       ? `From ${blockedSchedule.timeRanges[0]} to 
     ${blockedSchedule.timeRanges.at(-1)}`
       : "";
-
 
   const { data, isFetching, isError } = useQuery({
     queryKey: ["customers", blockedSchedule.date],
@@ -72,7 +72,15 @@ export default function BlockedScheduleCard({
         <Card className="2xl:max-w-[324px] h-full">
           <CardHeader>
             <CardTitle className="flex justify-between">
-              {formattedDate}
+              <Link
+                href={`/bookings?date=${lightFormat(
+                  blockedSchedule.date,
+                  "yyyy-MM-dd"
+                )}`}
+                className="underline underline-offset-4 hover:text-blue-500"
+              >
+                {formattedDate}{" "}
+              </Link>
               <button
                 onClick={() => setDeleteDialog(true)}
                 className="inline text-base hover:scale-110 transition-transform duration-200 ease-in-out"
@@ -90,20 +98,23 @@ export default function BlockedScheduleCard({
             </p>
 
             <Separator />
-            <div>
-              <h4>Conflicts</h4>
+            <div className="space-y-4">
+              <h4 className="text-lg lg:text-xl font-semibold text-red-600 dark:text-red-500 flex items-center gap-2">
+                <PiWarningFill className="text-yellow-500 text-2xl lg:text-3xl" />{" "}
+                Conflicts
+              </h4>
               {isFetching ? (
                 <p>Loading...</p>
               ) : isError ? (
                 <p>Error</p>
               ) : conflictList?.length > 0 ? (
                 <>
-                  <ul className="list-disc list-inside flex flex-col">
+                  <ul className="list-disc list-inside flex flex-col space-y-2">
                     {conflictList?.map((cust) => (
                       <Link
                         href={`/bookings/${cust.id}`}
                         key={`conflict-${cust.id}`}
-                        className="inline-block text-blue-800 dark:text-blue-400 hover:opacity-80 underline max-w-max underline-offset-4"
+                        className="inline-block hover:text-blue-500 underline max-w-max underline-offset-4"
                       >
                         <li>
                           {cust.customerName} - {cust.selectedTime.slice(0, 5)}

@@ -3,6 +3,7 @@ import ScheduleClient from "./client";
 import { getUser } from "@/lib/actions/auth";
 import { redirect } from "next/navigation";
 import { ScheduleBlockData } from "@/lib/types";
+import { getBookings } from "@/lib/actions/bookings";
 
 export default async function SchedulePage() {
   const user = await getUser();
@@ -15,5 +16,13 @@ export default async function SchedulePage() {
     date: new Date(day.date),
     timeRanges: JSON.parse(day.timeRanges as string) as string[],
   }));
-  return <ScheduleClient blockedSchedules={mappedData} />;
+
+  // #TODO optimize what data you just need here
+  const bookings = await getBookings({
+    handlerId: user.user.id,
+    role: user.user.role,
+    testRole: user.user.testRole,
+  });
+
+  return <ScheduleClient blockedSchedules={mappedData} bookings={bookings} />;
 }

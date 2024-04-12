@@ -54,6 +54,7 @@ export type UpdateScheduleFormProps = {
   editId?: string;
   toBeEditedBlockedSchedule?: ScheduleBlockData;
   isModal?: boolean;
+  bookings: SelectBooking[];
 } & (
   | {
       submitType: "create";

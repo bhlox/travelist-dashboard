@@ -1,8 +1,10 @@
-import { FaHome, FaAddressBook, FaUsers } from "react-icons/fa";
-import { BsPersonFillGear } from "react-icons/bs";
+import { FaHome, FaAddressBook, FaUsers, FaHammer } from "react-icons/fa";
+import { BsPersonFill, BsPersonFillGear, BsPersonFillUp } from "react-icons/bs";
 import { IoIosTime } from "react-icons/io";
 import { DateAfter, DateBefore, Matcher } from "react-day-picker";
 import { addDays, eachHourOfInterval, lightFormat } from "date-fns";
+import { UserRoles } from "./types";
+import { IconType } from "react-icons/lib";
 
 export const SIDEBAR_ITEMS = [
   // {
@@ -97,4 +99,11 @@ export const LOGIN_RNDM_IMG_LIST = [
   "https://images.unsplash.com/photo-1426604966848-d7adac402bff?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80",
   "https://images.unsplash.com/photo-1523712999610-f77fbcfc3843?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80",
   "https://images.unsplash.com/photo-1431631927486-6603c868ce5e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80",
+];
+
+export const ROLE_ICONS: { role: UserRoles; icon: IconType }[] = [
+  { role: "owner", icon: BsPersonFillUp },
+  { role: "admin", icon: BsPersonFillGear },
+  { role: "staff", icon: BsPersonFill },
+  { role: "developer", icon: FaHammer },
 ];

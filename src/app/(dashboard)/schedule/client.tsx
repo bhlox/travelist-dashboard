@@ -11,22 +11,27 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { ScheduleBlockData } from "@/lib/types";
+import { ScheduleBlockData, SelectBooking } from "@/lib/types";
 import Headings from "@/components/ui/headings";
 
 export default function ScheduleClient({
   blockedSchedules,
+  bookings,
 }: {
   blockedSchedules: ScheduleBlockData[];
+  bookings: SelectBooking[];
 }) {
   return (
     <>
       <Headings
         title="Schedule"
-        description={"Update and manage your schedule"}
+        description="Update and manage your schedule"
       />
       <div className="flex flex-col items-center justify-center lg:justify-start lg:items-start lg:flex-row gap-4 mt-8">
-        <UpdateScheduleSection blockedSchedules={blockedSchedules} />
+        <UpdateScheduleSection
+          blockedSchedules={blockedSchedules}
+          bookings={bookings}
+        />
         {blockedSchedules.length > 0 ? (
           <BlockedScheduleSection blockedSchedules={blockedSchedules} />
         ) : (
@@ -39,14 +44,17 @@ export default function ScheduleClient({
 
 function UpdateScheduleSection({
   blockedSchedules,
+  bookings,
 }: {
   blockedSchedules: ScheduleBlockData[];
+  bookings: SelectBooking[];
 }) {
   return (
     <section className="max-w-[650px] lg:max-w-[500px] w-full">
       <UpdateScheduleForm
         blockedSchedules={blockedSchedules}
         submitType="create"
+        bookings={bookings}
       />
     </section>
   );

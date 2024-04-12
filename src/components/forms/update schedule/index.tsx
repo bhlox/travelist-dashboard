@@ -1,7 +1,13 @@
 "use client";
 import React, { useState } from "react";
 import { Calendar } from "@/components/ui/calendar";
-import { eachHourOfInterval, lightFormat, format, isSameDay } from "date-fns";
+import {
+  eachHourOfInterval,
+  lightFormat,
+  format,
+  isSameDay,
+  toDate,
+} from "date-fns";
 import {
   Select,
   SelectContent,
@@ -53,6 +59,9 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
+import LoadingSpinner from "@/components/svg/loader";
+
+// #TODO scheduledBookings here is getting ALL bookings. Filter it or fix the db query to include the dates from today up to 30 days in the future.
 
 export default function UpdateScheduleForm({
   blockedSchedules,
@@ -60,7 +69,15 @@ export default function UpdateScheduleForm({
   editId,
   toBeEditedBlockedSchedule,
   isModal,
+  bookings: scheduledBookings,
 }: UpdateScheduleFormProps) {
+  const bookedDays = scheduledBookings.map((sch) => toDate(sch.selectedDate));
+  // #TODO bookedTimes is working. THE PROBLEM IS THE SELECT COMPONENT. WHEN EDITING THE CLASSNAMES DIRECTLY IN THE COMPONENT IT WORKS BUT WHEN IMPORTING AND PASSING IT, CLASSNAMES ARE NOT UPDATED.
+  // const bookedTimes = scheduledBookings.map((sch) => ({
+  //   time: sch.selectedTime.slice(0, 5),
+  //   date: toDate(sch.selectedDate),
+  // }));
+
   const router = useRouter();
   const [calendarOpen, setCalendarOpen] = useState(false);
   const { username, id } = useUserDetailsContext();
@@ -225,7 +242,9 @@ export default function UpdateScheduleForm({
       <CardHeader>
         <CardTitle>Update Schedule</CardTitle>
         <CardDescription>
-          Block the time or days where you are not available
+          Block the time or days where you are not available. <br /> Dates with{" "}
+          <span className="text-yellow-500">YELLOW</span> indicates that day has
+          a booking.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -272,6 +291,10 @@ export default function UpdateScheduleForm({
                         <Calendar
                           mode="single"
                           selected={field.value}
+                          modifiers={{ booked: bookedDays }}
+                          modifiersClassNames={{
+                            booked: "text-amber-500 font-semibold",
+                          }}
                           onSelect={(date) => {
                             field.onChange(date);
                             setCalendarOpen(false);
@@ -392,8 +415,12 @@ export default function UpdateScheduleForm({
                 </FormItem>
               )}
             />
-            <Button className="block w-full mt-5" type="submit">
-              Submit
+            <Button
+              disabled={form.formState.isSubmitting}
+              className="w-full mt-5 flex justify-center"
+              type="submit"
+            >
+              {form.formState.isSubmitting ? <LoadingSpinner /> : "Submit"}
             </Button>
           </form>
         </Form>

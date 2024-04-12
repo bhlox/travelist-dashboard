@@ -4,6 +4,7 @@ import { getSchedule, getSchedules } from "@/lib/actions/schedule";
 import { ScheduleBlockData } from "@/lib/types";
 import { getUser } from "@/lib/actions/auth";
 import { redirect } from "next/navigation";
+import { getBookings } from "@/lib/actions/bookings";
 
 export default async function EditBlockSchedulePage({
   params,
@@ -29,11 +30,19 @@ export default async function EditBlockSchedulePage({
     date: new Date(currentBlockedSchedule.date),
     timeRanges: JSON.parse(currentBlockedSchedule.timeRanges as string),
   };
+
+  const bookings = await getBookings({
+    handlerId: user.user.id,
+    role: user.user.role,
+    testRole: user.user.testRole,
+  });
+
   return (
     <EditBlockScheduleClient
       toBeEditedBlockedSchedule={toBeEditedBlockedSchedule}
       blockedSchedules={mappedData}
       editId={params.id}
+      bookings={bookings}
     />
   );
 }
