@@ -6,12 +6,26 @@ import { LOGIN_RNDM_IMG_LIST } from "@/lib/constants";
 import { cn, randomIndexNumber } from "@/lib/utils";
 import { useWindowSize } from "@uidotdev/usehooks";
 import LoginForm from "@/components/forms/login";
+import { toast } from "react-toastify";
+import { loginDemoUser } from "@/lib/actions/auth";
+import { useRouter } from "next/navigation";
 
 export default function Login() {
+  const router = useRouter();
   const { width } = useWindowSize();
   const [loginImage] = useState(
     () => LOGIN_RNDM_IMG_LIST[randomIndexNumber(LOGIN_RNDM_IMG_LIST.length)]
   );
+
+  const handleLoginDemo = async () => {
+    try {
+      await loginDemoUser();
+      router.replace("/");
+    } catch (error) {
+      console.error(error);
+      toast.error("Login failed. Please try again");
+    }
+  };
 
   return (
     <div className="w-full grid lg:grid-cols-2 place-items-center min-h-[100dvh]">
@@ -24,11 +38,26 @@ export default function Login() {
             </p>
           </div>
           <LoginForm />
-          <div className="mt-4 text-center text-sm">
-            Don&apos;t have an account?{" "}
-            <Link href="/signup" className="underline underline-offset-2">
-              Sign up
-            </Link>
+          <div className="mt-4 text-center text-sm space-y-2">
+            <p>
+              Don&apos;t have an account?{" "}
+              <Link
+                href="/signup"
+                className="underline underline-offset-2 hover:text-blue-500"
+              >
+                Sign up
+              </Link>
+            </p>
+            <div className="flex items-center gap-2 text-center justify-center">
+              <p>Demo testing:</p>
+              <button
+                type="button"
+                onClick={handleLoginDemo}
+                className="underline underline-offset-2 hover:text-blue-500"
+              >
+                Click here
+              </button>
+            </div>
           </div>
         </div>
       </div>

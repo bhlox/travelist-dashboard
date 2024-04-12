@@ -137,3 +137,21 @@ export const generateEmailVerificationCode = async ({
   });
   return code;
 };
+
+export const loginDemoUser = async () => {
+  const demoUser = await db
+    .select()
+    .from(user)
+    .where(eq(user.username, "demo"))
+    .limit(1)
+    .execute();
+  if (demoUser.length) {
+    const session = await lucia.createSession(demoUser[0].id, {});
+    const sessionCookie = lucia.createSessionCookie(session.id);
+    cookies().set(
+      sessionCookie.name,
+      sessionCookie.value,
+      sessionCookie.attributes
+    );
+  }
+};
