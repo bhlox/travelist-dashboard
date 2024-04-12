@@ -246,8 +246,8 @@ export default function UpdateScheduleForm({
         <CardTitle>Update Schedule</CardTitle>
         <CardDescription>
           Block the time or days where you are not available. <br /> Dates with{" "}
-          <span className="text-yellow-500">YELLOW</span> indicates that day has
-          a booking.
+          <span className="text-blue-800 dark:text-yellow-500">COLOR</span>{" "}
+          indicates that day has a booking.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
