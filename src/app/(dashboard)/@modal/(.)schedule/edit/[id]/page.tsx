@@ -4,6 +4,7 @@ import { getSchedule, getSchedules } from "@/lib/actions/schedule";
 import { redirect } from "next/navigation";
 import { ScheduleBlockData } from "@/lib/types";
 import { getUser } from "@/lib/actions/auth";
+import { getBookings } from "@/lib/actions/bookings";
 
 export default async function ModesEditingPage({
   params,
@@ -35,11 +36,18 @@ export default async function ModesEditingPage({
     date: new Date(currentBlockedSchedule.date),
     timeRanges: JSON.parse(currentBlockedSchedule.timeRanges as string),
   };
+
+  const bookings = await getBookings({
+    handlerId: user.user.id,
+    role: user.user.role,
+    testRole: user.user.testRole,
+  });
   return (
     <ModalEditingBlockedSchedule
       blockedSchedules={mappedblockedSchedules}
       toBeEditedBlockedSchedule={toBeEditedBlockedSchedule}
       editId={params.id}
+      bookings={bookings}
     />
   );
 }
