@@ -12,7 +12,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import Link from "next/link";
-import { ScheduleBlockData } from "@/lib/types";
+import { ScheduleBlockData, ScheduleBlockWithRelations } from "@/lib/types";
 import { getBookingsForDate } from "@/lib/actions/bookings";
 import { Separator } from "../ui/separator";
 import { MdEditSquare } from "react-icons/md";
@@ -22,12 +22,10 @@ import { deleteSchedule } from "@/lib/actions/schedule";
 import { PiWarningFill } from "react-icons/pi";
 import { GrLike } from "react-icons/gr";
 
-export default function BlockedScheduleCard({
+export default function ApprovedBlockedScheduleCard({
   blockedSchedule,
-  setConflictsDetected,
 }: {
-  blockedSchedule: ScheduleBlockData;
-  setConflictsDetected: React.Dispatch<React.SetStateAction<boolean>>;
+  blockedSchedule: ScheduleBlockWithRelations;
 }) {
   const [deleteDialog, setDeleteDialog] = useState(false);
   const formattedDate = format(blockedSchedule.date, "MMMM dd, yyyy");
@@ -61,16 +59,10 @@ export default function BlockedScheduleCard({
       }
     }) || [];
 
-  useEffect(() => {
-    if (conflictList?.length > 0) {
-      setConflictsDetected(true);
-    }
-  }, [conflictList?.length, setConflictsDetected]);
-
   return (
     <>
-      <div className="p-4">
-        <Card className="2xl:max-w-[324px] h-full">
+      <div>
+        <Card className="w-full">
           <CardHeader>
             <CardTitle className="flex justify-between">
               <Link
@@ -94,8 +86,17 @@ export default function BlockedScheduleCard({
             ) : null}
           </CardHeader>
           <CardContent className="space-y-4">
-            <p className="text-sm whitespace-pre-wrap">
-              {blockedSchedule.comment || "No comment"}
+            <blockquote className="p-4 my-4 border-s-4 border-gray-400 bg-gray-300 dark:border-gray-500 dark:bg-neutral-900">
+              <p className="text-xl italic font-medium leading-relaxed text-gray-900 dark:text-white">
+                &quot;{blockedSchedule.comment || "No comment"}&quot;
+              </p>
+            </blockquote>
+
+            <p className="font-light text-neutral-500 dark:text-neutral-400">
+              Approved by:{" "}
+              <span className="italic">
+                {blockedSchedule.approver?.displayname}
+              </span>
             </p>
 
             <Separator />
@@ -136,7 +137,7 @@ export default function BlockedScheduleCard({
           </CardContent>
           <CardFooter className="flex flex-col sm:flex-row gap-2">
             <Button
-              className="w-full text-center flex gap-2 items-center bg-yellow-700 "
+              className="w-full text-center flex gap-2 items-center bg-yellow-700"
               asChild
             >
               <Link

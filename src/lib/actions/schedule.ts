@@ -15,6 +15,7 @@ export const getAllBlockedSchedules = async () => {
   return await db.query.blockedSchedules.findMany();
 };
 
+// #TODO fix the return type and the data that is needed.
 export const getSchedules = async ({
   handlerId,
 }: {
@@ -28,10 +29,15 @@ export const getSchedules = async ({
   //   timeRanges?: unknown;
   // }[];
   // if (all) {
-  return await db.query.blockedSchedules.findMany({
+  const data = await db.query.blockedSchedules.findMany({
     where: (blockedSchedules, { eq }) =>
       eq(blockedSchedules.personnel, handlerId),
+    with: {
+      handler: { columns: { displayname: true } },
+      approver: { columns: { displayname: true } },
+    },
   });
+  return data;
   // }
   // if (isTime) {
   //   schedule = await db.query.blockedSchedules.findMany({
@@ -52,6 +58,10 @@ export const getSchedules = async ({
 export const getSchedule = async (id: number) => {
   return await db.query.blockedSchedules.findFirst({
     where: (blockedSchedules, { eq }) => eq(blockedSchedules.id, id),
+    with: {
+      handler: { columns: { displayname: true } },
+      approver: { columns: { displayname: true } },
+    },
   });
 };
 

@@ -140,6 +140,9 @@ export default function UpdateScheduleForm({
           timeRanges: JSON.stringify(timeRanges),
           type: selectedFormSchema.blockType,
           id: +editId!,
+          approved: false,
+          status_updated_by: null,
+          comment: data.comment,
         });
         form.reset({
           selectedDate: undefined,
@@ -176,6 +179,8 @@ export default function UpdateScheduleForm({
         type: selectedFormSchema.blockType,
         id: +editId!,
         comment: data.comment,
+        approved: false,
+        status_updated_by: null,
       });
       form.reset({
         selectedDate: undefined,
@@ -244,7 +249,7 @@ export default function UpdateScheduleForm({
     <Card>
       <CardHeader>
         <CardTitle>Update Schedule</CardTitle>
-        <CardDescription>
+        <CardDescription className="text-balance">
           Block the time or days where you are not available. <br /> Dates with{" "}
           <span className="text-blue-800 dark:text-yellow-500 font-semibold">
             COLOR

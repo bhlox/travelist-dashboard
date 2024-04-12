@@ -48,6 +48,11 @@ export type ScheduleBlockData = { timeRanges: string[]; date: Date } & Omit<
   "timeRanges" | "date"
 >;
 
+export type ScheduleBlockWithRelations = ScheduleBlockData & {
+  handler: { displayname: string };
+  approver: { displayname: string } | null;
+};
+
 export type UpdateScheduleFormProps = {
   blockedSchedules: ScheduleBlockData[];
   submitType: "create" | "update";
