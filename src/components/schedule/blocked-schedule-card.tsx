@@ -20,6 +20,7 @@ import { FaTrash } from "react-icons/fa";
 import DialogDeleteConfirmation from "../dialog/delete-confirmation";
 import { deleteSchedule } from "@/lib/actions/schedule";
 import { PiWarningFill } from "react-icons/pi";
+import { GrLike } from "react-icons/gr";
 
 export default function BlockedScheduleCard({
   blockedSchedule,
@@ -99,15 +100,22 @@ export default function BlockedScheduleCard({
 
             <Separator />
             <div className="space-y-4">
-              <h4 className="text-lg lg:text-xl font-semibold text-red-600 dark:text-red-500 flex items-center gap-2">
-                <PiWarningFill className="text-yellow-500 text-2xl lg:text-3xl" />{" "}
-                Conflicts
-              </h4>
+              {conflictList.length ? (
+                <h4 className="text-lg lg:text-xl font-semibold text-red-600 dark:text-red-500 flex items-center gap-2">
+                  <PiWarningFill className="text-yellow-500 text-2xl lg:text-3xl" />{" "}
+                  Conflicts
+                </h4>
+              ) : (
+                <h4 className="text-lg lg:text-xl font-semibold flex items-center gap-2">
+                  <GrLike className="dark:text-green-500 text-emerald-800" /> No
+                  conflicts
+                </h4>
+              )}
               {isFetching ? (
                 <p>Loading...</p>
               ) : isError ? (
                 <p>Error</p>
-              ) : conflictList?.length > 0 ? (
+              ) : conflictList.length ? (
                 <>
                   <ul className="list-disc list-inside flex flex-col space-y-2">
                     {conflictList?.map((cust) => (
@@ -123,9 +131,7 @@ export default function BlockedScheduleCard({
                     ))}
                   </ul>
                 </>
-              ) : (
-                <p>No conflicts</p>
-              )}
+              ) : null}
             </div>
           </CardContent>
           <CardFooter className="flex flex-col sm:flex-row gap-2">
