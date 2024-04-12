@@ -30,10 +30,17 @@ export const getBookingsForDate = async ({
 export const getBookings = async ({
   handlerId,
   role,
+  testRole,
 }: {
   handlerId: string;
   role: UserRoles;
+  testRole?: UserRoles;
 }) => {
+  if (testRole === "staff") {
+    return await db.query.bookings.findMany({
+      where: (bookings, { eq }) => eq(bookings.handler, handlerId),
+    });
+  }
   if (role !== "staff") {
     const data = await db.query.bookings.findMany({
       with: {

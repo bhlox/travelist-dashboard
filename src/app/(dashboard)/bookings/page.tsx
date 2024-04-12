@@ -13,6 +13,7 @@ export default async function BookingsPage() {
   const bookings = await getBookings({
     handlerId: user.user.id,
     role: user.user.role,
+    testRole: user.user.testRole,
   });
 
   return (
