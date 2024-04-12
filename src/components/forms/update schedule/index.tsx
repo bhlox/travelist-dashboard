@@ -30,7 +30,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { z } from "zod";
 import { useForm, useWatch } from "react-hook-form";
@@ -72,11 +72,10 @@ export default function UpdateScheduleForm({
   bookings: scheduledBookings,
 }: UpdateScheduleFormProps) {
   const bookedDays = scheduledBookings.map((sch) => toDate(sch.selectedDate));
-  // #TODO bookedTimes is working. THE PROBLEM IS THE SELECT COMPONENT. WHEN EDITING THE CLASSNAMES DIRECTLY IN THE COMPONENT IT WORKS BUT WHEN IMPORTING AND PASSING IT, CLASSNAMES ARE NOT UPDATED.
-  // const bookedTimes = scheduledBookings.map((sch) => ({
-  //   time: sch.selectedTime.slice(0, 5),
-  //   date: toDate(sch.selectedDate),
-  // }));
+  const mappedTimes = scheduledBookings.map((sch) => ({
+    time: sch.selectedTime.slice(0, 5),
+    date: toDate(sch.selectedDate),
+  }));
 
   const router = useRouter();
   const [calendarOpen, setCalendarOpen] = useState(false);
@@ -237,6 +236,10 @@ export default function UpdateScheduleForm({
     });
   };
 
+  const watchValueSelectedDate = form.watch("selectedDate");
+  const bookedTimes = mappedTimes
+    .filter((time) => isSameDay(watchValueSelectedDate, new Date(time.date)))
+    .map((time) => time.time);
   return (
     <Card>
       <CardHeader>
@@ -348,6 +351,7 @@ export default function UpdateScheduleForm({
                             disabled={
                               disabledTimes ? disabledTimes.includes(hr) : true
                             }
+                            isAvailable={bookedTimes.includes(hr)}
                           >
                             {hr}
                           </SelectItem>
@@ -390,6 +394,7 @@ export default function UpdateScheduleForm({
                             disabled={
                               disabledTimes ? disabledTimes.includes(hr) : true
                             }
+                            isAvailable={bookedTimes.includes(hr)}
                           >
                             {hr}
                           </SelectItem>
