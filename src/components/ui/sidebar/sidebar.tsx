@@ -106,7 +106,7 @@ function Content({ pendingScheduleLength }: { pendingScheduleLength: number }) {
               >
                 <item.icon className="text-2xl " />
                 <span className="text-lg">{item.name}</span>
-                {item.name === "Schedule" && (
+                {item.name === "Schedule" && role !== "staff" && (
                   <div className="absolute size-6 grid place-items-center top-1/2 -translate-y-1/2 right-4 z-10 bg-blue-500 dark:bg-blue-700 rounded-full">
                     <span>{pendingScheduleLength}</span>
                   </div>
