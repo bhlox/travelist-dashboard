@@ -64,7 +64,7 @@ export const blockedSchedules = pgTable("blocked_schedules", {
   timeRanges: json("time_ranges"),
   comment: text("comment"),
   approved: boolean("approved").notNull().default(false),
-  status_updated_by: text("status_updated_by").references(() => user.id),
+  statusUpdatedBy: text("status_updated_by").references(() => user.id),
 });
 
 export const emailVerificationCodes = pgTable("email_verification_codes", {
@@ -93,7 +93,7 @@ export const blockedSchedulesRelations = relations(
   blockedSchedules,
   ({ one }) => ({
     approver: one(user, {
-      fields: [blockedSchedules.status_updated_by],
+      fields: [blockedSchedules.statusUpdatedBy],
       references: [user.id],
     }),
     handler: one(user, {

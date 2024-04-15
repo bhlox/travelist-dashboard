@@ -71,6 +71,7 @@ export default function UpdateScheduleForm({
   isModal,
   bookings: scheduledBookings,
 }: UpdateScheduleFormProps) {
+  // console.log(scheduledBookings);
   const bookedDays = scheduledBookings.map((sch) => toDate(sch.selectedDate));
   const mappedTimes = scheduledBookings.map((sch) => ({
     time: sch.selectedTime.slice(0, 5),
@@ -141,7 +142,7 @@ export default function UpdateScheduleForm({
           type: selectedFormSchema.blockType,
           id: +editId!,
           approved: false,
-          status_updated_by: null,
+          statusUpdatedBy: null,
           comment: data.comment,
         });
         form.reset({
@@ -180,7 +181,7 @@ export default function UpdateScheduleForm({
         id: +editId!,
         comment: data.comment,
         approved: false,
-        status_updated_by: null,
+        statusUpdatedBy: null,
       });
       form.reset({
         selectedDate: undefined,
@@ -303,7 +304,8 @@ export default function UpdateScheduleForm({
                           selected={field.value}
                           modifiers={{ booked: bookedDays }}
                           modifiersClassNames={{
-                            booked: "text-amber-500 font-semibold",
+                            booked:
+                              "text-blue-800 dark:text-yellow-500 font-semibold",
                           }}
                           onSelect={(date) => {
                             field.onChange(date);

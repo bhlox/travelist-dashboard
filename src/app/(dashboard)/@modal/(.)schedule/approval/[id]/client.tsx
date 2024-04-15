@@ -29,7 +29,7 @@ export default function ModalClientScheduleApprovalIdPage({
       updateBlockedSchedule({
         id: blockedSchedule.id,
         approved: value,
-        status_updated_by: id,
+        statusUpdatedBy: id,
       }),
     onSuccess: (data: any, value: boolean) => {
       const msg = value ? "approved" : "rejected";

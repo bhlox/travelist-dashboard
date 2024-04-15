@@ -56,7 +56,7 @@ export default function ClientApprovalIdPage({
       updateBlockedSchedule({
         id: blockedSchedule.id,
         approved: value,
-        status_updated_by: id,
+        statusUpdatedBy: id,
       }),
     onSuccess: (data: any, value: boolean) => {
       const msg = value ? "approved" : "rejected";
@@ -99,7 +99,7 @@ export default function ClientApprovalIdPage({
                   </li>
                 )}
                 <li>Handler: {blockedSchedule.handler.displayname}</li>
-                {blockedSchedule.status_updated_by && (
+                {blockedSchedule.statusUpdatedBy && (
                   <>
                     <li>
                       Status: {blockedSchedule.approved ? "Approved" : "Denied"}

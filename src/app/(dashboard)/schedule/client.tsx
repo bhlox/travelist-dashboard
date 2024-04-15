@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { compareAsc, isSameDay, lightFormat } from "date-fns";
+import { isSameDay, lightFormat } from "date-fns";
 import UpdateScheduleForm from "@/components/forms/update schedule";
 import ApprovedBlockedScheduleCard from "@/components/schedule/blocked-schedule-card";
 import {
@@ -38,21 +38,27 @@ import { useUserDetailsContext } from "@/components/providers/user-details-provi
 export default function ScheduleClient({
   blockedSchedules,
   bookings,
+  allBlockedSchedules,
 }: {
   blockedSchedules: ScheduleBlockWithRelations[];
   bookings: SelectBooking[];
+  allBlockedSchedules: ScheduleBlockWithRelations[];
 }) {
-  const pendingSchedules = blockedSchedules
-    .filter((schedule) => !schedule.status_updated_by)
-    .sort((a, b) => compareAsc(a.date, b.date));
+  const { role } = useUserDetailsContext();
+  const userApprovedSchedules = blockedSchedules.filter(
+    (schedule) => schedule.approved
+  );
+  const userPendingSchedules = blockedSchedules.filter(
+    (schedule) => !schedule.approved
+  );
 
-  const approvedSchedules = blockedSchedules
-    .filter((schedule) => schedule.approved)
-    .sort((a, b) => compareAsc(a.date, b.date));
+  const pendingSchedules = allBlockedSchedules.filter(
+    (schedule) => !schedule.statusUpdatedBy
+  );
 
-  const updatedBlockedScheduleApprovals = blockedSchedules
-    .filter((sched) => sched.status_updated_by)
-    .sort((a, b) => compareAsc(a.date, b.date));
+  const updatedBlockedScheduleApprovals = allBlockedSchedules.filter(
+    (sched) => sched.statusUpdatedBy
+  );
   return (
     <>
       <Headings
@@ -66,7 +72,7 @@ export default function ScheduleClient({
             bookings={bookings}
           />
           {blockedSchedules.length ? (
-            <BlockedScheduleSection blockedSchedules={approvedSchedules} />
+            <BlockedScheduleSection blockedSchedules={userApprovedSchedules} />
           ) : (
             <h4 className="text-2xl md:text-4xl font-bold lg:col-span-2">
               No blocked schedule(s) yet approved
@@ -74,10 +80,16 @@ export default function ScheduleClient({
           )}
         </div>
         <div className="grid lg:grid-cols-2 xl:grid-cols-3 gap-12 ">
-          <PendingSchedulesSection pendingSchedules={pendingSchedules} />
-          <UpdatedBlockedSchedulesSection
-            approvedSchedules={updatedBlockedScheduleApprovals}
+          <PendingSchedulesSection
+            pendingSchedules={
+              role === "staff" ? userPendingSchedules : pendingSchedules
+            }
           />
+          {role !== "staff" && (
+            <UpdatedBlockedSchedulesSection
+              approvedSchedules={updatedBlockedScheduleApprovals}
+            />
+          )}
         </div>
       </div>
     </>
@@ -163,12 +175,16 @@ function PendingSchedulesSection({
 }: {
   pendingSchedules: ScheduleBlockWithRelations[];
 }) {
-  console.log(pendingSchedules);
+  const { role } = useUserDetailsContext();
   return (
     <section>
       <Card>
         <CardHeader>
-          <CardTitle>Pending Blocked Schedule Approvals</CardTitle>
+          <CardTitle className="capitalize">
+            {role === "staff"
+              ? "My pending blocked schedule approvals"
+              : "Pending Blocked Schedule Approvals"}{" "}
+          </CardTitle>
           <CardDescription></CardDescription>
         </CardHeader>
         <CardContent>
@@ -230,6 +246,7 @@ function PendingScheduleAccordionItem({
       className="border-b-2 border-black dark:border-gray-100"
     >
       <AccordionTrigger>
+        {role !== "staff" && <>Personnel: {schedule.handler.displayname}, </>}
         Date: {lightFormat(schedule.date, "yyyy-MM-dd")}
       </AccordionTrigger>
       <AccordionContent className="space-y-8">
@@ -237,9 +254,6 @@ function PendingScheduleAccordionItem({
           <div>
             <h4 className="text-lg lg:text-xl font-semibold">Details:</h4>
             <ul className="list-disc list-inside space-y-1">
-              {role !== "staff" && (
-                <li>Handler: {schedule.handler.displayname}</li>
-              )}
               <li>Blocked Schedule Type: {schedule.type}</li>
               {schedule.type === "time" && (
                 <li>
@@ -247,7 +261,7 @@ function PendingScheduleAccordionItem({
                 </li>
               )}
               <li>Comment: {schedule.comment || "No comment was written"}</li>
-              {schedule.status_updated_by && (
+              {schedule.statusUpdatedBy && (
                 <>
                   <li>Status: {schedule.approved ? "approved" : "denied"}</li>
                   <li>Approved by: {schedule.approver?.displayname}</li>
@@ -276,7 +290,7 @@ function PendingScheduleAccordionItem({
           </div>
         </div>
         <div>
-          {role === "staff" ? (
+          {role === "staff" || id === schedule.personnel ? (
             <Button className="w-full" asChild>
               <Link scroll={false} href={`/schedule/edit/${schedule.id}`}>
                 Edit Schedule
@@ -300,23 +314,60 @@ function UpdatedBlockedSchedulesSection({
 }: {
   approvedSchedules: ScheduleBlockWithRelations[];
 }) {
+  const approvedStatusesSchedules = approvedSchedules.filter(
+    (schedule) => schedule.approved
+  );
+  const deniedStatusesSchedules = approvedSchedules.filter(
+    (schedule) => !schedule.approved
+  );
   return (
-    <section>
+    <section className="xl:col-span-2">
       <Card>
         <CardHeader>
           <CardTitle>Updated Blocked Schedules Approvals</CardTitle>
           <CardDescription></CardDescription>
         </CardHeader>
-        <CardContent>
-          <Accordion type="single" collapsible>
-            {approvedSchedules.map((schedule, i) => (
-              <PendingScheduleAccordionItem
-                key={`pending-schedule-${schedule.id}`}
-                schedule={schedule}
-                i={i}
-              />
-            ))}
-          </Accordion>
+        <CardContent className="grid gap-16 md:grid-cols-2">
+          <div className="">
+            <h4 className="text-2xl md:text-3xl font-bold text-red-600 dark:text-red-500">
+              Denied
+            </h4>
+            {deniedStatusesSchedules.length ? (
+              <Accordion type="single" collapsible>
+                {deniedStatusesSchedules.map((schedule, i) => (
+                  <PendingScheduleAccordionItem
+                    key={`pending-schedule-${schedule.id}`}
+                    schedule={schedule}
+                    i={i}
+                  />
+                ))}
+              </Accordion>
+            ) : (
+              <p className="text-neutral-500 dark:text-neutral-400">
+                No Denied Schedules
+              </p>
+            )}
+          </div>
+          <div className="">
+            <h4 className="text-2xl md:text-3xl font-bold text-green-700 dark:text-green-500">
+              Approved
+            </h4>
+            {approvedStatusesSchedules.length ? (
+              <Accordion type="single" collapsible>
+                {approvedStatusesSchedules.map((schedule, i) => (
+                  <PendingScheduleAccordionItem
+                    key={`pending-schedule-${schedule.id}`}
+                    schedule={schedule}
+                    i={i}
+                  />
+                ))}
+              </Accordion>
+            ) : (
+              <p className="text-neutral-500 dark:text-neutral-400">
+                No Approved Schedules
+              </p>
+            )}
+          </div>
         </CardContent>
       </Card>
     </section>
