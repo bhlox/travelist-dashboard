@@ -222,7 +222,7 @@ function PendingScheduleAccordionItem({
     queryFn: () =>
       getBookingsForDate({
         date: lightFormat(schedule.date, "yyyy-MM-dd"),
-        handlerId: schedule.personnel,
+        handlerId: schedule.handlerID,
       }),
     staleTime: Infinity,
   });
@@ -290,7 +290,7 @@ function PendingScheduleAccordionItem({
           </div>
         </div>
         <div>
-          {role === "staff" || id === schedule.personnel ? (
+          {role === "staff" || id === schedule.handlerID ? (
             <Button className="w-full" asChild>
               <Link scroll={false} href={`/schedule/edit/${schedule.id}`}>
                 Edit Schedule

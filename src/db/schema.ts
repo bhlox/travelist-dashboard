@@ -56,7 +56,7 @@ export const session = pgTable("session", {
 
 export const blockedSchedules = pgTable("blocked_schedules", {
   id: serial("id").primaryKey().notNull(),
-  personnel: text("personnel")
+  handlerID: text("handlerID")
     .notNull()
     .references(() => user.id),
   type: text("type").$type<"day" | "time">().notNull(),
@@ -97,7 +97,7 @@ export const blockedSchedulesRelations = relations(
       references: [user.id],
     }),
     handler: one(user, {
-      fields: [blockedSchedules.personnel],
+      fields: [blockedSchedules.handlerID],
       references: [user.id],
     }),
   })

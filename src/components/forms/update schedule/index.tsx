@@ -161,7 +161,7 @@ export default function UpdateScheduleForm({
           date: formattedDate,
           timeRanges: JSON.stringify(timeRanges),
           type: selectedFormSchema.blockType,
-          personnel: id,
+          handlerID: id,
           comment: data.comment,
         });
       }
@@ -198,7 +198,7 @@ export default function UpdateScheduleForm({
     await createBlockedSchedule({
       date: formattedDate,
       type: selectedFormSchema.blockType,
-      personnel: id,
+      handlerID: id,
       comment: data.comment,
     });
     form.reset({

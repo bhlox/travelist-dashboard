@@ -32,7 +32,7 @@ export default function ClientApprovalIdPage({
     queryFn: () =>
       getBookingsForDate({
         date: lightFormat(blockedSchedule.date, "yyyy-MM-dd"),
-        handlerId: blockedSchedule.personnel,
+        handlerId: blockedSchedule.handlerID,
       }),
     staleTime: Infinity,
   });
