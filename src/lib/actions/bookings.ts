@@ -31,10 +31,21 @@ export const getBookings = async ({
   handlerId,
   role,
   testRole,
+  filters,
 }: {
+  // handlerId is the ID of the current user who is requesting the data. while filters.id indicates which userID are we requesting. this can be the current user or another user
   handlerId: string;
   role: UserRoles;
   testRole?: UserRoles;
+  filters?: {
+    offset?: number;
+    limit?: number;
+    id?: string;
+    dateRange?: {
+      start: string;
+      end: string;
+    };
+  };
 }) => {
   if (testRole === "staff") {
     return await db.query.bookings.findMany({
@@ -42,16 +53,30 @@ export const getBookings = async ({
     });
   }
   if (role !== "staff") {
+    if (filters) {
+      if (filters.dateRange) {
+        const { start, end } = filters.dateRange;
+        return await db.query.bookings.findMany({
+          where: (bookings, { and, gte, lte, eq }) =>
+            and(
+              gte(bookings.selectedDate, start),
+              lte(bookings.handler, end),
+              filters.id ? eq(bookings.handler, filters.id) : undefined
+            ),
+        });
+      }
+    }
     const data = await db.query.bookings.findMany({
       with: {
         handler: { columns: { displayname: true } },
       },
     });
     return data.map((dat) => ({ ...dat, handler: dat.handler?.displayname }));
+  } else {
+    return await db.query.bookings.findMany({
+      where: (bookings, { eq }) => eq(bookings.handler, handlerId),
+    });
   }
-  return await db.query.bookings.findMany({
-    where: (bookings, { eq }) => eq(bookings.handler, handlerId),
-  });
 };
 
 export const updateBooking = async (data: UpdateBooking) => {

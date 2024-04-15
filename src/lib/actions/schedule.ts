@@ -1,7 +1,11 @@
 "use server";
 
 import { blockedSchedules } from "@/db/schema";
-import { InsertBlockedSchedule, UpdateBlockedSchedule } from "../types";
+import {
+  GetSchedulesProps,
+  InsertBlockedSchedule,
+  UpdateBlockedSchedule,
+} from "../types";
 import { db } from "@/db";
 import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
@@ -16,43 +20,25 @@ export const getAllBlockedSchedules = async () => {
 };
 
 // #TODO fix the return type and the data that is needed.
-export const getSchedules = async ({
-  handlerId,
-}: {
-  isTime?: boolean;
-  username?: string;
-  all?: boolean;
-  handlerId: string;
-}) => {
-  // let schedule: {
-  //   date: string;
-  //   timeRanges?: unknown;
-  // }[];
-  // if (all) {
-  const data = await db.query.blockedSchedules.findMany({
-    where: (blockedSchedules, { eq }) =>
-      eq(blockedSchedules.personnel, handlerId),
-    with: {
-      handler: { columns: { displayname: true } },
-      approver: { columns: { displayname: true } },
-    },
-  });
-  return data;
-  // }
-  // if (isTime) {
-  //   schedule = await db.query.blockedSchedules.findMany({
-  //     columns: { date: true, timeRanges: true },
-  //     where: (blockedSchedules, { eq }) =>
-  //       eq(blockedSchedules.personnel, username),
-  //   });
-  // } else {
-  //   schedule = await db.query.blockedSchedules.findMany({
-  //     columns: { date: true, timeRanges: false },
-  //     where: (blockedSchedules, { eq }) =>
-  //       eq(blockedSchedules.personnel, username),
-  //   });
-  // }
-  // return schedule;
+export const getSchedules = async ({ handlerId, all }: GetSchedulesProps) => {
+  if (handlerId) {
+    return await db.query.blockedSchedules.findMany({
+      where: (blockedSchedules, { eq }) =>
+        eq(blockedSchedules.handlerID, handlerId),
+      with: {
+        handler: { columns: { displayname: true } },
+        approver: { columns: { displayname: true } },
+      },
+    });
+  }
+  if (all) {
+    return await db.query.blockedSchedules.findMany({
+      with: {
+        handler: { columns: { displayname: true } },
+        approver: { columns: { displayname: true } },
+      },
+    });
+  }
 };
 
 export const getSchedule = async (id: number) => {

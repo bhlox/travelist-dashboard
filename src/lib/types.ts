@@ -123,3 +123,8 @@ export type FindUser = {
   | { username: string; email?: string }
   | { username?: string; email: string }
 );
+
+export type GetSchedulesProps = {
+  all?: boolean;
+  handlerId?: string;
+} & ({ all: true } | { all?: false; handlerId: string });
