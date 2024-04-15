@@ -17,19 +17,21 @@ export default function ClientProfilePage({
   userDetails: Omit<SelectUser, "hashedPassword">;
 }) {
   return (
-    <div className="space-y-4">
+    <>
       <Headings
         title="Profile settings"
         description="Update your profile information"
       />
-      <ProfilePictureForm currentPicture={userDetails.profilePicture} />
-      <div className="flex flex-col md:flex-row justify-between gap-4  max-w-3xl">
-        <DisplayNameForm currentDisplayName={userDetails.displayname} />
-        <UsernameForm currentUsername={userDetails.username} />
+      <div className="space-y-4">
+        <ProfilePictureForm currentPicture={userDetails.profilePicture} />
+        <div className="flex flex-col md:flex-row justify-between gap-4  max-w-3xl">
+          <DisplayNameForm currentDisplayName={userDetails.displayname} />
+          <UsernameForm currentUsername={userDetails.username} />
+        </div>
+        <PasswordForm />
+        <DescriptionForm currentDescription={userDetails.description} />
+        {userDetails.role === "developer" && <TestRoleForm />}
       </div>
-      <PasswordForm />
-      <DescriptionForm currentDescription={userDetails.description} />
-      {userDetails.role === "developer" && <TestRoleForm />}
-    </div>
+    </>
   );
 }

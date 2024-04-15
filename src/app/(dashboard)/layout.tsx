@@ -13,6 +13,7 @@ import { UserDetailsProvider } from "@/components/providers/user-details-provide
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Sidebar from "@/components/ui/sidebar";
+import { cn } from "@/lib/utils";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -35,7 +36,7 @@ export default async function RootLayoutHome({
   }
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
+      <body className={cn("overflow-hidden", inter.className)}>
         <NextTopLoader showSpinner={false} />
         <ThemeProvider
           defaultTheme="system"
@@ -58,7 +59,7 @@ export default async function RootLayoutHome({
                   <Sidebar />
                   <div className="flex flex-col flex-1 w-full ">
                     <Navbar />
-                    <main className="h-screen overflow-y-auto">
+                    <main className="h-[100dvh] overflow-y-auto">
                       <div className="p-4">
                         {modal}
                         {children}
