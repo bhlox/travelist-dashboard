@@ -5,14 +5,14 @@ import NextTopLoader from "nextjs-toploader";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { redirect } from "next/navigation";
 import { getUser } from "@/lib/actions/auth";
-import Navbar from "@/components/navbar";
-import SideBar from "@/components/sidebar";
+import Navbar from "@/components/ui/navbar";
 import { SidebarProvider } from "@/components/providers/sidebar-provider";
 import MainContainer from "@/components/main-container";
 import QueryProvider from "@/components/providers/query-provider";
 import { UserDetailsProvider } from "@/components/providers/user-details-provider";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Sidebar from "@/components/ui/sidebar";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -55,7 +55,7 @@ export default async function RootLayoutHome({
             <UserDetailsProvider details={user.user}>
               <SidebarProvider>
                 <MainContainer>
-                  <SideBar />
+                  <Sidebar />
                   <div className="flex flex-col flex-1 w-full ">
                     <Navbar />
                     <main className="h-screen overflow-y-auto">

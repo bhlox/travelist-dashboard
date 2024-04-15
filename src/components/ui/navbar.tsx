@@ -1,11 +1,11 @@
 "use client";
 import React, { useState } from "react";
-import { Button } from "./ui/button";
+import { Button } from "./button";
 import { cn } from "@/lib/utils";
-import { useSideBarContext } from "./providers/sidebar-provider";
+import { useSideBarContext } from "../providers/sidebar-provider";
 import { GiHamburgerMenu } from "react-icons/gi";
-import ThemeToggler from "./ui/theme-toggler";
-import { useUserDetailsContext } from "./providers/user-details-provider";
+import ThemeToggler from "./theme-toggler";
+import { useUserDetailsContext } from "../providers/user-details-provider";
 import { ROLE_ICONS } from "@/lib/constants";
 
 export default function Navbar() {

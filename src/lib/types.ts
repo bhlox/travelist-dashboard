@@ -127,4 +127,5 @@ export type FindUser = {
 export type GetSchedulesProps = {
   all?: boolean;
   handlerId?: string;
+  filters?: { pendingStatus?: true };
 } & ({ all: true } | { all?: false; handlerId: string });

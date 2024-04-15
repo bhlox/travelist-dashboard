@@ -8,7 +8,7 @@ import {
 } from "../types";
 import { db } from "@/db";
 import { revalidatePath } from "next/cache";
-import { eq } from "drizzle-orm";
+import { count, eq, sql } from "drizzle-orm";
 
 export const createBlockedSchedule = async (data: InsertBlockedSchedule) => {
   await db.insert(blockedSchedules).values(data);
@@ -20,7 +20,11 @@ export const getAllBlockedSchedules = async () => {
 };
 
 // #TODO fix the return type and the data that is needed.
-export const getSchedules = async ({ handlerId, all }: GetSchedulesProps) => {
+export const getSchedules = async ({
+  handlerId,
+  all,
+  filters,
+}: GetSchedulesProps) => {
   if (handlerId) {
     return await db.query.blockedSchedules.findMany({
       where: (blockedSchedules, { eq }) =>
@@ -37,6 +41,12 @@ export const getSchedules = async ({ handlerId, all }: GetSchedulesProps) => {
         handler: { columns: { displayname: true } },
         approver: { columns: { displayname: true } },
       },
+      where: (blockedSchedules, { and, isNull }) =>
+        and(
+          filters?.pendingStatus
+            ? isNull(blockedSchedules.statusUpdatedBy)
+            : undefined
+        ),
     });
   }
 };
@@ -49,6 +59,15 @@ export const getSchedule = async (id: number) => {
       approver: { columns: { displayname: true } },
     },
   });
+};
+
+export const getPendingSchedulesLength = async () => {
+  const data = await db
+    .select({ totalCount: count() }) // Use count() to get the total count
+    .from(blockedSchedules)
+    .where(sql`status_updated_by IS NULL`) // Apply filter condition
+    .execute();
+  return data[0].totalCount;
 };
 
 export const updateBlockedSchedule = async (data: UpdateBlockedSchedule) => {

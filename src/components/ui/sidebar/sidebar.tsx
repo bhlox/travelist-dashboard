@@ -9,48 +9,52 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { useSideBarContext } from "./providers/sidebar-provider";
+import { useSideBarContext } from "../../providers/sidebar-provider";
 import { FaHome } from "react-icons/fa";
-import { Button } from "./ui/button";
+import { Button } from "../button";
 import Link from "next/link";
 import { SIDEBAR_ITEMS } from "@/lib/constants";
 import { useWindowSize } from "@uidotdev/usehooks";
 import { usePathname } from "next/navigation";
-import { useUserDetailsContext } from "./providers/user-details-provider";
+import { useUserDetailsContext } from "../../providers/user-details-provider";
 import { TbLogout2 } from "react-icons/tb";
 import { logoutUser } from "@/lib/actions/auth";
 import { useMutation } from "@tanstack/react-query";
-import LoadingSpinner from "./svg/loader";
+import LoadingSpinner from "../../svg/loader";
 import { toast } from "react-toastify";
 import { RiBox3Fill } from "react-icons/ri";
 
-export default function SideBar() {
+export default function SideBarClient({
+  pendingScheduleLength,
+}: {
+  pendingScheduleLength: number;
+}) {
   return (
     <>
-      <Desktop />
-      <Mobile />
+      <Desktop pendingScheduleLength={pendingScheduleLength} />
+      <Mobile pendingScheduleLength={pendingScheduleLength} />
     </>
   );
 }
 
-function Desktop() {
+function Desktop({ pendingScheduleLength }: { pendingScheduleLength: number }) {
   return (
     <>
       <aside className="z-30 flex-shrink-0 hidden overflow-y-auto bg-white dark:bg-slate-950 lg:block border-r dark:border-gray-700 border-gray-400">
-        <Content />
+        <Content pendingScheduleLength={pendingScheduleLength} />
       </aside>
     </>
   );
 }
 
-function Mobile() {
+function Mobile({ pendingScheduleLength }: { pendingScheduleLength: number }) {
   const { isSidebarOpen, toggleSidebar } = useSideBarContext();
   return (
     <>
       <Sheet open={isSidebarOpen} onOpenChange={toggleSidebar}>
         <SheetContent className="h-full" side="left">
           <SheetDescription className="h-full">
-            <Content />
+            <Content pendingScheduleLength={pendingScheduleLength} />
           </SheetDescription>
         </SheetContent>
       </Sheet>
@@ -58,7 +62,7 @@ function Mobile() {
   );
 }
 
-function Content() {
+function Content({ pendingScheduleLength }: { pendingScheduleLength: number }) {
   const size = useWindowSize();
   const { toggleSidebar } = useSideBarContext();
   const { role } = useUserDetailsContext();
@@ -90,14 +94,23 @@ function Content() {
                   if (size.width && size?.width < 1024) toggleSidebar();
                 }}
                 href={item.href}
-                className={cn("flex items-center gap-2 font-bold p-4", null, {
-                  "text-black dark:text-white/80": pathname === item.href,
-                  "text-neutral-500 dark:text-neutral-400":
-                    pathname !== item.href,
-                })}
+                className={cn(
+                  "flex items-center gap-2 font-bold p-4 relative",
+                  null,
+                  {
+                    "text-black dark:text-white/80": pathname === item.href,
+                    "text-neutral-500 dark:text-neutral-400":
+                      pathname !== item.href,
+                  }
+                )}
               >
-                <item.icon className="text-2xl " />{" "}
+                <item.icon className="text-2xl " />
                 <span className="text-lg">{item.name}</span>
+                {item.name === "Schedule" && (
+                  <div className="absolute size-6 grid place-items-center top-1/2 -translate-y-1/2 right-4 z-10 bg-blue-500 dark:bg-blue-700 rounded-full">
+                    <span>{pendingScheduleLength}</span>
+                  </div>
+                )}
               </Link>
             </li>
           ))}
