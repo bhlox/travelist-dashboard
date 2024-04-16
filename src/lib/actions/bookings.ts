@@ -2,7 +2,7 @@
 
 import { db } from "@/db";
 import { UpdateBooking, UserRoles } from "../types";
-import { eq } from "drizzle-orm";
+import { and, eq, lt } from "drizzle-orm";
 import { bookings } from "@/db/schema";
 import { revalidatePath } from "next/cache";
 
@@ -94,6 +94,21 @@ export const updateBookings = async (data: UpdateBooking[]) => {
     await db.update(bookings).set(booking).where(eq(bookings.id, booking.id));
   }
   revalidatePath("/bookings");
+};
+
+export const updatePendingBooksToOverdue = async () => {
+  const updatedIds = await db
+    .update(bookings)
+    .set({ status: "overdue" })
+    .where(
+      and(
+        eq(bookings.status, "pending"),
+        lt(bookings.selectedDate, new Date().toISOString().split("T")[0])
+      )
+    )
+    .returning({ id: bookings.id });
+  revalidatePath("/bookings");
+  return updatedIds.length;
 };
 
 export const deleteBooking = async (id: number) => {
