@@ -16,7 +16,6 @@ import { generateRandomString, alphabet, sha256 } from "oslo/crypto";
 import { encodeHex } from "oslo/encoding";
 import { headers } from "next/headers";
 import transporter from "../config/nodemailer";
-import env from "../config/env";
 
 export const loginUser = async ({
   password,
@@ -232,14 +231,6 @@ export const resetPassword = async ({
     sessionCookie.value,
     sessionCookie.attributes
   );
-  // return new Response(null, {
-  //   status: 302,
-  //   headers: {
-  //     Location: "/",
-  //     "Set-Cookie": sessionCookie.serialize(),
-  //     "Referrer-Policy": "no-referrer",
-  //   },
-  // });
 };
 
 export const sendEmailPasswordResetToken = async ({
