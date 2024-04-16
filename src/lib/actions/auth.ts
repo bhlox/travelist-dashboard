@@ -1,19 +1,22 @@
 "use server";
 import { lucia } from "@/auth";
 import { db } from "@/db";
-import { emailVerificationCodes, user } from "@/db/schema";
+import { emailVerificationCodes, passwordResetTokens, user } from "@/db/schema";
 import { generateId } from "lucia";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { Argon2id } from "oslo/password";
 import { cache } from "react";
-import { InsertUser, UpdateUser } from "../types";
 import { eq } from "drizzle-orm";
 import { findUser } from "./user";
 import { isValidEmail } from "../utils";
 import { TimeSpan, createDate } from "oslo";
-import { generateRandomString, alphabet } from "oslo/crypto";
+import { generateRandomString, alphabet, sha256 } from "oslo/crypto";
+import { encodeHex } from "oslo/encoding";
+import { headers } from "next/headers";
+import transporter from "../config/nodemailer";
+import env from "../config/env";
 
 export const loginUser = async ({
   password,
@@ -154,4 +157,106 @@ export const loginDemoUser = async () => {
       sessionCookie.attributes
     );
   }
+};
+
+export const createPasswordResetToken = async (
+  userId: string
+): Promise<string> => {
+  // optionally invalidate all existing tokens
+  await db
+    .delete(passwordResetTokens)
+    .where(eq(passwordResetTokens.userId, userId));
+  const tokenId = generateId(40);
+  const tokenHash = encodeHex(await sha256(new TextEncoder().encode(tokenId)));
+
+  await db.insert(passwordResetTokens).values({
+    tokenHash,
+    userId,
+    expiresAt: createDate(new TimeSpan(2, "h")),
+  });
+  return tokenId;
+};
+
+export const requestResetPassword = async (email: string) => {
+  const headersList = headers();
+  const hostname = headersList.get("x-forwarded-host");
+  const user = await db.query.user.findFirst({
+    where: (user, { eq }) => eq(user.email, email),
+  });
+  if (!user) {
+    throw new Error("No user found");
+  }
+  const verificationToken = await createPasswordResetToken(user.id);
+  const verificationLink = `${hostname}/password/reset?tk=${verificationToken}`;
+
+  await sendEmailPasswordResetToken({ email, verificationLink });
+  return verificationLink;
+};
+
+export const validateResetPasswordToken = async (tk: string) => {
+  const tokenHash = encodeHex(await sha256(new TextEncoder().encode(tk)));
+  const token = await db.query.passwordResetTokens.findFirst({
+    where: (token, { eq }) => eq(token.tokenHash, tokenHash),
+  });
+  if (!token) {
+    throw new Error("Invalid token");
+  }
+  return true;
+};
+
+export const resetPassword = async ({
+  password,
+  tk,
+}: {
+  password: string;
+  tk: string;
+}) => {
+  const tokenHash = encodeHex(await sha256(new TextEncoder().encode(tk)));
+  const token = await db.query.passwordResetTokens.findFirst({
+    where: (token, { eq }) => eq(token.tokenHash, tokenHash),
+  });
+  if (!token) {
+    throw new Error("Invalid token");
+  }
+  await lucia.invalidateUserSessions(token.userId);
+  const hashedPassword = await new Argon2id().hash(password);
+
+  await db
+    .update(user)
+    .set({ hashedPassword })
+    .where(eq(user.id, token.userId));
+  const session = await lucia.createSession(token.userId, {});
+  const sessionCookie = lucia.createSessionCookie(session.id);
+  cookies().set(
+    sessionCookie.name,
+    sessionCookie.value,
+    sessionCookie.attributes
+  );
+  // return new Response(null, {
+  //   status: 302,
+  //   headers: {
+  //     Location: "/",
+  //     "Set-Cookie": sessionCookie.serialize(),
+  //     "Referrer-Policy": "no-referrer",
+  //   },
+  // });
+};
+
+export const sendEmailPasswordResetToken = async ({
+  email,
+  verificationLink,
+}: {
+  email: string;
+  verificationLink: string;
+}) => {
+  // env.isDevelopment
+  await transporter.sendMail({
+    from: "sender",
+    to: email,
+    subject: "Password Reset token link",
+    html:
+      '<p>Click <a href="http://' +
+      verificationLink +
+      '">here</a> to reset your password</p>',
+  });
 };

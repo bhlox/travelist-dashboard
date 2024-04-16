@@ -13,6 +13,7 @@ import {
   boolean,
 } from "drizzle-orm/pg-core";
 
+
 export const bookings = pgTable("bookings", {
   id: serial("id").primaryKey().notNull(),
   selectedDate: date("selected_date").notNull(),
@@ -82,6 +83,18 @@ export const emailVerificationCodes = pgTable("email_verification_codes", {
   }).notNull(),
 });
 
+export const passwordResetTokens = pgTable("password_reset_tokens", {
+  id: serial("id").primaryKey().notNull(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => user.id),
+  tokenHash: text("token_hash").notNull(),
+  expiresAt: timestamp("expires_at", {
+    withTimezone: true,
+    mode: "date",
+  }).notNull(),
+});
+
 export const bookingsRelations = relations(bookings, ({ one }) => ({
   handler: one(user, {
     fields: [bookings.handler],
@@ -108,4 +121,15 @@ export const usersRelations = relations(user, ({ many }) => ({
   sessions: many(session),
   blockedSchedules: many(blockedSchedules),
   emailVerificationCodes: many(emailVerificationCodes),
+  passwordResetTokens: many(passwordResetTokens),
 }));
+
+export const passwordResetTokenRelations = relations(
+  passwordResetTokens,
+  ({ one }) => ({
+    user: one(user, {
+      fields: [passwordResetTokens.userId],
+      references: [user.id],
+    }),
+  })
+);

@@ -11,6 +11,7 @@ import { loginDemoUser } from "@/lib/actions/auth";
 import { useRouter } from "next/navigation";
 
 export default function Login() {
+  
   const router = useRouter();
   const { width } = useWindowSize();
   const [loginImage] = useState(
