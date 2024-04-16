@@ -190,7 +190,7 @@ export const requestResetPassword = async (email: string) => {
   const verificationLink = `${hostname}/password/reset?tk=${verificationToken}`;
 
   await sendEmailPasswordResetToken({ email, verificationLink });
-  return verificationLink;
+  return true;
 };
 
 export const validateResetPasswordToken = async (tk: string) => {
@@ -249,14 +249,16 @@ export const sendEmailPasswordResetToken = async ({
   email: string;
   verificationLink: string;
 }) => {
-  // env.isDevelopment
+  const formattedLink = verificationLink.includes("localhost")
+    ? `http://${verificationLink}`
+    : `https://${verificationLink}`;
   await transporter.sendMail({
     from: "sender",
     to: email,
     subject: "Password Reset token link",
     html:
-      '<p>Click <a href="http://' +
-      verificationLink +
+      '<p>Click <a href="' +
+      formattedLink +
       '">here</a> to reset your password</p>',
   });
 };
