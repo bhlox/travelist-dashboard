@@ -10,6 +10,7 @@ This is the internal tool to manage bookings of customers and manage the team me
 - 📝 CRUD (Create, Read, Update, Delete) for bookings, schedules and users
 - 📱 Responsive Design
 - ➡️ Modals and Intercepting routes
+- 💡 CRON Job routes
 - 🔍 Server side querying of data table (SOON)
 
 ## Auth Roles
