@@ -26,7 +26,7 @@ import {
   DialogEditStatusProps,
   SelectBooking,
 } from "@/lib/types";
-import { cn, fuzzyFilter } from "@/lib/utils";
+import {  dateBetweenFilterFn, fuzzyFilter } from "@/lib/utils";
 import PaginationControls from "./pagination-controls";
 import FilterViewControls from "./filter-view-controls";
 import DialogAdvancedFilter from "../../dialog/advanced-filter";
@@ -81,6 +81,7 @@ export default function DateTable<TData>({ data }: DataTableProps<TData>) {
     globalFilterFn: fuzzyFilter,
     filterFns: {
       fuzzy: fuzzyFilter,
+      dateBetweenFilterFn: dateBetweenFilterFn,
     },
     state: {
       columnVisibility: {

@@ -92,6 +92,7 @@ export const generateBookingsColumns = ({
           </Button>
         );
       },
+      filterFn: "dateBetweenFilterFn" as any,
       size: 12,
     },
     {

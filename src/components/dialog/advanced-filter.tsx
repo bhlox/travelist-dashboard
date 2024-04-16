@@ -1,4 +1,3 @@
-import { IAdvancedSearchForm } from "@/lib/types";
 import { Table } from "@tanstack/react-table";
 import { useWindowSize } from "@uidotdev/usehooks";
 import { format, lightFormat } from "date-fns";
@@ -38,6 +37,9 @@ import { Calendar } from "@/components/ui/calendar";
 import { BOOKING_STATUSES } from "@/lib/constants";
 import CustomPhoneInput from "@/components/ui/phone-input";
 import { useSearchParams } from "next/navigation";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { advcanceSearchFormSchema } from "@/lib/forms-schema";
 
 export default function DialogAdvancedFilter<TData>({
   setShowAdvancedFilter,
@@ -64,15 +66,15 @@ export default function DialogAdvancedFilter<TData>({
       }
     }
   };
-  const form = useForm<IAdvancedSearchForm>();
+  const form = useForm<z.infer<typeof advcanceSearchFormSchema>>({
+    resolver: zodResolver(advcanceSearchFormSchema),
+  });
 
-  const onSubmit: SubmitHandler<IAdvancedSearchForm> = (data) => {
+  const onSubmit = (data: z.infer<typeof advcanceSearchFormSchema>) => {
     Object.entries(data).forEach(([key, value]) => {
       if (value) {
         if (key === "date") {
-          return table
-            .getColumn(key)
-            ?.setFilterValue(lightFormat(value, "yyyy-MM-dd"));
+          return table.getColumn(key)?.setFilterValue(value);
         }
         table.getColumn(key)?.setFilterValue(value);
       } else {
@@ -184,8 +186,11 @@ export default function DialogAdvancedFilter<TData>({
                                   !field.value && "text-muted-foreground"
                                 )}
                               >
-                                {field.value ? (
-                                  format(field.value, "PPP")
+                                {field.value?.to ? (
+                                  <span>
+                                    {format(field.value.from, "PPP")} -{" "}
+                                    {format(field.value.to, "PPP")}
+                                  </span>
                                 ) : (
                                   <span>Pick a date</span>
                                 )}
@@ -193,13 +198,19 @@ export default function DialogAdvancedFilter<TData>({
                               </Button>
                             </FormControl>
                           </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="start">
+                          <PopoverContent
+                            className="w-auto p-0"
+                            align="start"
+                            side="bottom"
+                          >
                             <Calendar
-                              mode="single"
+                              mode="range"
                               selected={field.value}
                               onSelect={(date) => {
                                 field.onChange(date);
-                                setCalendarOpen(false);
+                                // if (date?.to) {
+                                //   setCalendarOpen(false);
+                                // }
                               }}
                             />
                           </PopoverContent>

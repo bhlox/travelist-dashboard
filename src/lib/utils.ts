@@ -4,6 +4,7 @@ import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { BookingsSlugAction } from "./types";
 import { ChangeEvent } from "react";
+import { toDate } from "date-fns";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -100,3 +101,19 @@ export function splitUrlPath(url: string) {
     .split("/")
     .filter(Boolean);
 }
+
+// git ref link: https://github.com/TanStack/table/discussions/4284#discussioncomment-8486399
+export const dateBetweenFilterFn: FilterFn<any> = (row, columnId, value) => {
+  const date = toDate(row.getValue(columnId));
+  const { from, to } = value;
+  if ((from || to) && !date) return false;
+  if (from && !to) {
+    return date.getTime() >= from.getTime();
+  } else if (!from && to) {
+    return date.getTime() <= to.getTime();
+  } else if (from && to) {
+    return date.getTime() >= from.getTime() && date.getTime() <= to.getTime();
+  } else return true;
+};
+
+dateBetweenFilterFn.autoRemove;

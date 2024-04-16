@@ -92,13 +92,6 @@ export interface DataTableProps<TData> {
   data: TData[];
 }
 
-export interface IAdvancedSearchForm {
-  name?: string;
-  phone?: string;
-  date?: Date;
-  status?: BookingStatus;
-}
-
 export type UserRoles = (typeof USER_ROLES)[number];
 
 export type BookingsSlugAction = "edit" | "delete";
