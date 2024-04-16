@@ -34,7 +34,7 @@ export default function BookingActionModal({
             <>
               <p>Details are as follows:</p>
               <ul className="list-disc list-inside">
-                <li>Handler: {bookingDetails.personInCharge}</li>
+                <li>Handler: {bookingDetails.handler}</li>
                 <li>Date: {bookingDetails.selectedDate}</li>
                 <li>Time: {bookingDetails.selectedTime}</li>
                 <li>Status: {bookingDetails.status}</li>

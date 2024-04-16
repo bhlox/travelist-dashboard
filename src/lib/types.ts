@@ -1,6 +1,6 @@
 import { blockedSchedules, bookings, user } from "@/db/schema";
 import { InferInsertModel, InferSelectModel } from "drizzle-orm";
-import { bookingStatuses, userRoles } from "./constants";
+import { BOOKING_STATUSES, USER_ROLES } from "./constants";
 import { ColumnDef, Table } from "@tanstack/react-table";
 
 export interface DatabaseUserAttributes {
@@ -8,6 +8,8 @@ export interface DatabaseUserAttributes {
   displayname: string;
   role: UserRoles;
   testRole?: UserRoles;
+  email: string;
+  email_verified: boolean;
 }
 
 export interface ISidebarContext {
@@ -23,7 +25,7 @@ export type UpdateBooking = {
 } & Partial<Omit<InsertBooking, "id">>;
 
 export type SelectUser = InferSelectModel<typeof user>;
-export type GlobalSearchUser = { role: "admin" | "staff" } & Omit<
+export type GlobalSearchUser = { role: "admin" | "staff" | "developer" } & Omit<
   SelectUser,
   "hashedPassword" | "testRole" | "role"
 >;
@@ -43,8 +45,13 @@ export type ScheduleBlockType = "day" | "time";
 
 export type ScheduleBlockData = { timeRanges: string[]; date: Date } & Omit<
   SelectBlockedSchedule,
-  "personnel" | "timeRanges" | "date"
+  "timeRanges" | "date"
 >;
+
+export type ScheduleBlockWithRelations = ScheduleBlockData & {
+  handler: { displayname: string };
+  approver: { displayname: string } | null;
+};
 
 export type UpdateScheduleFormProps = {
   blockedSchedules: ScheduleBlockData[];
@@ -52,6 +59,7 @@ export type UpdateScheduleFormProps = {
   editId?: string;
   toBeEditedBlockedSchedule?: ScheduleBlockData;
   isModal?: boolean;
+  bookings: SelectBooking[];
 } & (
   | {
       submitType: "create";
@@ -67,7 +75,7 @@ export type UpdateScheduleFormProps = {
     }
 );
 
-export type BookingStatus = (typeof bookingStatuses)[number];
+export type BookingStatus = (typeof BOOKING_STATUSES)[number];
 
 export type DialogEditStatusProps = {
   currentStatus: BookingStatus | undefined;
@@ -91,7 +99,7 @@ export interface IAdvancedSearchForm {
   status?: BookingStatus;
 }
 
-export type UserRoles = (typeof userRoles)[number];
+export type UserRoles = (typeof USER_ROLES)[number];
 
 export type BookingsSlugAction = "edit" | "delete";
 
@@ -100,9 +108,24 @@ export type DeleteDialogConfirmationProps = {
   sucessMsg: { title: string; description: string | undefined };
   errorMsg: string;
   setDeleteDialog?: React.Dispatch<React.SetStateAction<boolean>> | undefined;
-  setUserDeletionSuccess?: React.Dispatch<React.SetStateAction<boolean>>;
+  setUserDataUpdate?: React.Dispatch<React.SetStateAction<boolean>>;
   dialogTitle: string;
   dialogDescription: React.ReactNode;
   deleteFn: (id: any) => Promise<void>;
   redirectTo?: string | null;
 };
+
+export type FindUser = {
+  username?: string;
+  email?: string;
+  withPassword: boolean;
+} & (
+  | { username: string; email?: string }
+  | { username?: string; email: string }
+);
+
+export type GetSchedulesProps = {
+  all?: boolean;
+  handlerId?: string;
+  filters?: { pendingStatus?: true };
+} & ({ all: true } | { all?: false; handlerId: string });

@@ -13,7 +13,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { bookingStatuses } from "@/lib/constants";
+import { BOOKING_STATUSES } from "@/lib/constants";
 import DialogMultiDelete from "../../../dialog/multi-delete";
 import { useMutation } from "@tanstack/react-query";
 import { BookingStatus, SelectBooking } from "@/lib/types";
@@ -116,7 +116,7 @@ function MultiRowAction<TData>({ table }: { table: Table<TData> }) {
         <DropdownMenuContent align="center">
           <DropdownMenuLabel>Update status</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          {bookingStatuses.map((stats) => (
+          {BOOKING_STATUSES.map((stats) => (
             <DropdownMenuItem
               key={`multirow-dropdown-menu-${stats}`}
               onSelect={() => mutate(stats)}

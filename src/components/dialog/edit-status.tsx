@@ -20,7 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { bookingStatuses } from "@/lib/constants";
+import { BOOKING_STATUSES } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import LoadingSpinner from "@/components/svg/loader";
 import { useRouter } from "next/navigation";
@@ -86,7 +86,7 @@ export default function DialogEditStatus({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {bookingStatuses.map((stats) => (
+                {BOOKING_STATUSES.map((stats) => (
                   <SelectItem key={`status-${stats}`} value={stats}>
                     {stats}
                   </SelectItem>

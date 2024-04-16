@@ -19,7 +19,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { createUser } from "@/lib/actions/user";
+import { createUser, findEmail, findUser } from "@/lib/actions/user";
 import { signupFormSchema } from "@/lib/forms-schema";
 import { PasswordInput } from "@/components/ui/password-input";
 import LoadingSpinner from "@/components/svg/loader";
@@ -35,6 +35,7 @@ export default function SignupForm() {
     defaultValues: {
       username: "",
       password: "",
+      confirm: "",
       email: "",
       displayname: "",
     },
@@ -47,7 +48,28 @@ export default function SignupForm() {
     displayname,
   }: z.infer<typeof signupFormSchema>) => {
     try {
-      await createUser({ hashedPassword: password, username, displayname });
+      const usernameExists = await findUser({ username, withPassword: false });
+      if (usernameExists) {
+        toast.error("Username already exists");
+        return form.setError("username", {
+          type: "manual",
+          message: "Username already exists",
+        });
+      }
+      const emailExists = await findEmail(email);
+      if (emailExists) {
+        toast.error("Email already exists");
+        return form.setError("email", {
+          type: "manual",
+          message: "Email already exists",
+        });
+      }
+      await createUser({
+        hashedPassword: password,
+        username,
+        displayname,
+        email,
+      });
       setTimeout(() => {
         router.replace("/");
       }, 1000);
@@ -56,6 +78,7 @@ export default function SignupForm() {
       toast.error("Signup failed. Please try again");
     }
   };
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4">
@@ -133,6 +156,19 @@ export default function SignupForm() {
             </FormItem>
           )}
         />
+        <FormField
+          control={form.control}
+          name="confirm"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Confirm Password</FormLabel>
+              <FormControl>
+                <PasswordInput {...field} placeholder="confirm password" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         <Button
           disabled={
             form.formState.isSubmitting || form.formState.isSubmitSuccessful
@@ -152,15 +188,6 @@ export default function SignupForm() {
           ) : (
             "Create an Account"
           )}
-        </Button>
-        <Button
-          disabled={
-            form.formState.isSubmitting || form.formState.isSubmitSuccessful
-          }
-          variant="outline"
-          className="w-full"
-        >
-          Sign up with GitHub
         </Button>
       </form>
     </Form>

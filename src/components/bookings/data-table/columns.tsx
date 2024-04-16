@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ArrowUpDown, MoreHorizontal } from "lucide-react";
-import { bookingStatuses } from "@/lib/constants";
+import { BOOKING_STATUSES } from "@/lib/constants";
 import { Checkbox } from "@/components/ui/checkbox";
 import Link from "next/link";
 
@@ -73,7 +73,7 @@ export const generateBookingsColumns = ({
       enableHiding: windowWidth > 768,
     },
     {
-      accessorKey: "personInCharge",
+      accessorKey: "handler",
       header: "Handler",
       id: "handler",
       enableHiding: role !== "staff" && windowWidth > 768,
@@ -131,8 +131,8 @@ export const generateBookingsColumns = ({
       },
       sortingFn: (rowA, rowB, columnId) => {
         return (
-          bookingStatuses.indexOf(rowA.original.status!) -
-          bookingStatuses.indexOf(rowB.original.status!)
+          BOOKING_STATUSES.indexOf(rowA.original.status!) -
+          BOOKING_STATUSES.indexOf(rowB.original.status!)
         );
       },
       cell: ({ row }) => {

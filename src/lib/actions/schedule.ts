@@ -1,50 +1,73 @@
 "use server";
 
 import { blockedSchedules } from "@/db/schema";
-import { InsertBlockedSchedule, UpdateBlockedSchedule } from "../types";
+import {
+  GetSchedulesProps,
+  InsertBlockedSchedule,
+  UpdateBlockedSchedule,
+} from "../types";
 import { db } from "@/db";
 import { revalidatePath } from "next/cache";
-import { eq } from "drizzle-orm";
+import { count, eq, sql } from "drizzle-orm";
 
 export const createBlockedSchedule = async (data: InsertBlockedSchedule) => {
   await db.insert(blockedSchedules).values(data);
   revalidatePath("/schedule");
 };
 
-export const getSchedules = async ({}: {
-  isTime?: boolean;
-  username?: string;
-  all?: boolean;
-}) => {
-  // let schedule: {
-  //   date: string;
-  //   timeRanges?: unknown;
-  // }[];
-  // if (all) {
-  return await db.query.blockedSchedules.findMany({
-    columns: { personnel: false },
-  });
-  // }
-  // if (isTime) {
-  //   schedule = await db.query.blockedSchedules.findMany({
-  //     columns: { date: true, timeRanges: true },
-  //     where: (blockedSchedules, { eq }) =>
-  //       eq(blockedSchedules.personnel, username),
-  //   });
-  // } else {
-  //   schedule = await db.query.blockedSchedules.findMany({
-  //     columns: { date: true, timeRanges: false },
-  //     where: (blockedSchedules, { eq }) =>
-  //       eq(blockedSchedules.personnel, username),
-  //   });
-  // }
-  // return schedule;
+export const getAllBlockedSchedules = async () => {
+  return await db.query.blockedSchedules.findMany();
+};
+
+// #TODO fix the return type and the data that is needed.
+export const getSchedules = async ({
+  handlerId,
+  all,
+  filters,
+}: GetSchedulesProps) => {
+  if (handlerId) {
+    return await db.query.blockedSchedules.findMany({
+      where: (blockedSchedules, { eq }) =>
+        eq(blockedSchedules.handlerID, handlerId),
+      with: {
+        handler: { columns: { displayname: true } },
+        approver: { columns: { displayname: true } },
+      },
+    });
+  }
+  if (all) {
+    return await db.query.blockedSchedules.findMany({
+      with: {
+        handler: { columns: { displayname: true } },
+        approver: { columns: { displayname: true } },
+      },
+      where: (blockedSchedules, { and, isNull }) =>
+        and(
+          filters?.pendingStatus
+            ? isNull(blockedSchedules.statusUpdatedBy)
+            : undefined
+        ),
+    });
+  }
 };
 
 export const getSchedule = async (id: number) => {
   return await db.query.blockedSchedules.findFirst({
     where: (blockedSchedules, { eq }) => eq(blockedSchedules.id, id),
+    with: {
+      handler: { columns: { displayname: true } },
+      approver: { columns: { displayname: true } },
+    },
   });
+};
+
+export const getPendingSchedulesLength = async () => {
+  const data = await db
+    .select({ totalCount: count() }) // Use count() to get the total count
+    .from(blockedSchedules)
+    .where(sql`status_updated_by IS NULL`) // Apply filter condition
+    .execute();
+  return data[0].totalCount;
 };
 
 export const updateBlockedSchedule = async (data: UpdateBlockedSchedule) => {

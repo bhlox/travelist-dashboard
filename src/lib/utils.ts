@@ -3,6 +3,7 @@ import { FilterFn, SortingFn, sortingFns } from "@tanstack/react-table";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { BookingsSlugAction } from "./types";
+import { ChangeEvent } from "react";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -72,4 +73,30 @@ export function isDateInPast(inputDate: Date): boolean {
   const currentDateObj = new Date(currentDateString);
 
   return inputDateObj < currentDateObj;
+}
+
+export function isValidEmail(email: string): boolean {
+  return /.+@.+/.test(email);
+}
+
+export function getImageData(event: ChangeEvent<HTMLInputElement>) {
+  // FileList is immutable, so we need to create a new one
+  const dataTransfer = new DataTransfer();
+
+  // Add newly uploaded images
+  Array.from(event.target.files!).forEach((image) =>
+    dataTransfer.items.add(image)
+  );
+
+  const files = dataTransfer.files;
+  const displayUrl = URL.createObjectURL(event.target.files![0]);
+
+  return { files, displayUrl };
+}
+
+export function splitUrlPath(url: string) {
+  return url
+    .replace(/^https?:\/\/[^/]+/, "")
+    .split("/")
+    .filter(Boolean);
 }

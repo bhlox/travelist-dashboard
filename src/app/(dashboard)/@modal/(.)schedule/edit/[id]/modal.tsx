@@ -2,17 +2,18 @@
 import React from "react";
 import { Dialog, DialogContent, DialogHeader } from "@/components/ui/dialog";
 import { useRouter } from "next/navigation";
-import { ScheduleBlockData } from "@/lib/types";
+import { ScheduleBlockData, SelectBooking } from "@/lib/types";
 import UpdateScheduleForm from "@/components/forms/update schedule";
 
 export default function ModalEditingBlockedSchedule({
   blockedSchedules,
   toBeEditedBlockedSchedule,
-  editId,
+  editId,bookings
 }: {
   blockedSchedules: ScheduleBlockData[];
   toBeEditedBlockedSchedule: ScheduleBlockData;
   editId: string;
+  bookings: SelectBooking[];
 }) {
   const router = useRouter();
 
@@ -34,6 +35,7 @@ export default function ModalEditingBlockedSchedule({
           toBeEditedBlockedSchedule={toBeEditedBlockedSchedule}
           editId={editId}
           isModal
+          bookings={bookings}
         />
       </DialogContent>
     </Dialog>

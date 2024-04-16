@@ -44,7 +44,12 @@ export default function DateTable<TData>({ data }: DataTableProps<TData>) {
 
   const [editStatusDialog, setEditStatusDialog] = useState(false);
   const [showAdvancedFilter, setShowAdvancedFilter] = useState(false);
-  const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [sorting, setSorting] = React.useState<SortingState>([
+    {
+      id: "date",
+      desc: false,
+    },
+  ]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );

@@ -34,7 +34,7 @@ import Link from "next/link";
 
 export default function ClientUsersPage() {
   const isFirstRender = useIsFirstRender();
-  const [userDeletionSuccess, setUserDeletionSuccess] = useState(false);
+  const [userDataUpdate, setUserDataUpdate] = useState(false);
   const [searchString, setSearchString] = useState("");
   const debouncedSearchString = useDebounce(searchString, 700);
 
@@ -51,11 +51,11 @@ export default function ClientUsersPage() {
   }, [debouncedSearchString, mutate, isFirstRender]);
 
   useEffect(() => {
-    if (userDeletionSuccess) {
+    if (userDataUpdate) {
       mutate(debouncedSearchString);
-      setUserDeletionSuccess(false);
+      setUserDataUpdate(false);
     }
-  }, [debouncedSearchString, mutate, userDeletionSuccess]);
+  }, [debouncedSearchString, mutate, userDataUpdate]);
 
   return (
     <div className="space-y-6">
@@ -63,7 +63,7 @@ export default function ClientUsersPage() {
         <CardHeader>
           <CardTitle>Search user(s)</CardTitle>
           <CardDescription>
-            Find user either by their id, email, username, or display name
+            Find user either by their id, email, username, display name or roles
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -85,7 +85,7 @@ export default function ClientUsersPage() {
               <SearchedUserCard
                 key={`searched-user-${details.id}`}
                 details={details}
-                setUserDeletionSuccess={setUserDeletionSuccess}
+                setUserDataUpdate={setUserDataUpdate}
               />
             ))}
           </div>
@@ -99,10 +99,10 @@ export default function ClientUsersPage() {
 
 function SearchedUserCard({
   details,
-  setUserDeletionSuccess,
+  setUserDataUpdate,
 }: {
   details: GlobalSearchUser;
-  setUserDeletionSuccess: React.Dispatch<React.SetStateAction<boolean>>;
+  setUserDataUpdate: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
   const [role, setRole] = useState(details.role!);
   const [deleteUserDialog, setDeleteUserDialog] = useState(false);
@@ -110,6 +110,7 @@ function SearchedUserCard({
     mutationFn: () => updateUserDetails({ update: { id: details.id, role } }),
     onSuccess: () => {
       toast.success(`Updated role of ${details.displayname} to ${role}`);
+      setUserDataUpdate(true);
     },
     onError: () => {
       toast.error(`Failed to update role of ${details.displayname}`);
@@ -133,7 +134,6 @@ function SearchedUserCard({
                 ) : (
                   details.displayname || "default"
                 )}
-                <FaTrash className="inline" />
               </CardTitle>
               <CardDescription>Role: {details.role}</CardDescription>
             </div>
@@ -181,7 +181,7 @@ function SearchedUserCard({
             description: `User ${details.username} deleted`,
           }}
           errorMsg="Failed to delete user"
-          setUserDeletionSuccess={setUserDeletionSuccess}
+          setUserDataUpdate={setUserDataUpdate}
         />
       )}
     </>

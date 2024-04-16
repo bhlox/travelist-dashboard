@@ -1,15 +1,17 @@
-import { FaHome, FaAddressBook, FaUsers } from "react-icons/fa";
-import { BsPersonFillGear } from "react-icons/bs";
+import { FaHome, FaAddressBook, FaUsers, FaHammer } from "react-icons/fa";
+import { BsPersonFill, BsPersonFillGear, BsPersonFillUp } from "react-icons/bs";
 import { IoIosTime } from "react-icons/io";
 import { DateAfter, DateBefore, Matcher } from "react-day-picker";
 import { addDays, eachHourOfInterval, lightFormat } from "date-fns";
+import { UserRoles } from "./types";
+import { IconType } from "react-icons/lib";
 
-export const sideBarItems = [
-  {
-    name: "Dashboard",
-    href: "/",
-    icon: FaHome,
-  },
+export const SIDEBAR_ITEMS = [
+  // {
+  //   name: "Dashboard",
+  //   href: "/",
+  //   icon: FaHome,
+  // },
   {
     name: "Bookings",
     href: "/bookings",
@@ -32,9 +34,9 @@ export const sideBarItems = [
   },
 ];
 
-export const userRoles = ["owner", "admin", "staff", "developer"] as const;
+export const USER_ROLES = ["owner", "admin", "staff", "developer"] as const;
 
-// export const openingHours = [
+// export const OPENING_HOURS = [
 //   { day: "Monday", from: "10:00", to: "18:00" },
 //   { day: "Tuesday", from: "10:00", to: "18:00" },
 //   { day: "Wednesday", from: "10:00", to: "18:00" },
@@ -49,27 +51,37 @@ const openingHoursInterval = eachHourOfInterval({
   start: new Date(2014, 9, 6, 9),
   end: new Date(2014, 9, 6, 18),
 });
-export const openingHours = openingHoursInterval.map((dt) =>
+export const OPENING_HOURS = openingHoursInterval.map((dt) =>
   lightFormat(dt, "HH:mm")
 );
 
-export const beforeTomorrow: DateBefore = { before: new Date() };
-export const after31Days: DateAfter = { after: addDays(new Date(), 31) };
+export const BEFORE_TOMORROW: DateBefore = { before: new Date() };
+export const AFTER_31_DAYS: DateAfter = { after: addDays(new Date(), 31) };
 
-export const disableWeekends: Matcher = (date) => {
+export const DISABLE_WEEKENDS: Matcher = (date) => {
   return date.getDay() === 0 || date.getDay() === 6;
 };
 
 //   const disableDays: Matcher = [new Date(2024, 2, 26), new Date(2024, 2, 28)];
 
-export const bookingStatuses = [
+export const BOOKING_STATUSES = [
   "pending",
   "overdue",
   "cancelled",
   "complete",
 ] as const;
 
-export const loginRandomImagesList = [
+export const ACCEPTED_IMAGE_TYPES = ["image/png", "image/jpg", "image/jpeg"];
+export const MAX_IMAGE_SIZE = 4; //In MegaBytes
+
+export const SIZE_IN_MB = (sizeInBytes: number, decimalsNum = 2) => {
+  const result = sizeInBytes / (1024 * 1024);
+  return +result.toFixed(decimalsNum);
+};
+
+export const DEFAULT_DB_PROF_PIC_STRING = "/avatar_default.jpg" as const;
+
+export const LOGIN_RNDM_IMG_LIST = [
   "https://images.unsplash.com/photo-1511884642898-4c92249e20b6?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80",
   "https://images.unsplash.com/photo-1494500764479-0c8f2919a3d8?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80",
   "https://images.unsplash.com/photo-1434725039720-aaad6dd32dfe?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1642&q=80",
@@ -87,4 +99,11 @@ export const loginRandomImagesList = [
   "https://images.unsplash.com/photo-1426604966848-d7adac402bff?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80",
   "https://images.unsplash.com/photo-1523712999610-f77fbcfc3843?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80",
   "https://images.unsplash.com/photo-1431631927486-6603c868ce5e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80",
+];
+
+export const ROLE_ICONS: { role: UserRoles; icon: IconType }[] = [
+  { role: "owner", icon: BsPersonFillUp },
+  { role: "admin", icon: BsPersonFillGear },
+  { role: "staff", icon: BsPersonFill },
+  { role: "developer", icon: FaHammer },
 ];

@@ -8,6 +8,7 @@ export const UserDetailsContext = createContext<User>({
   username: "",
   displayname: "",
   testRole: undefined,
+  email: "",
 });
 
 export const UserDetailsProvider = ({

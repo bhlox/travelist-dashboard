@@ -23,7 +23,7 @@ export default function DialogDeleteConfirmation({
   errorMsg,
   dialogDescription,
   deleteFn,
-  setUserDeletionSuccess,
+  setUserDataUpdate,
   redirectTo,
 }: DeleteDialogConfirmationProps) {
   const router = useRouter();
@@ -36,7 +36,7 @@ export default function DialogDeleteConfirmation({
           description={sucessMsg.description}
         />
       );
-      if (setUserDeletionSuccess) setUserDeletionSuccess(true);
+      if (setUserDataUpdate) setUserDataUpdate(true);
     },
     onError: () => {
       toast.error(errorMsg);

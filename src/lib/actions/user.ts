@@ -1,6 +1,12 @@
 "use server";
 import { db } from "@/db";
-import { GlobalSearchUser, InsertUser, SelectUser, UpdateUser } from "../types";
+import {
+  FindUser,
+  GlobalSearchUser,
+  InsertUser,
+  SelectUser,
+  UpdateUser,
+} from "../types";
 import { revalidatePath } from "next/cache";
 import { user } from "@/db/schema";
 import { eq, sql } from "drizzle-orm";
@@ -8,10 +14,47 @@ import { Argon2id } from "oslo/password";
 import { lucia } from "@/auth";
 import { generateId } from "lucia";
 import { cookies } from "next/headers";
+import { generateEmailVerificationCode } from "./auth";
 
-export const findUser = async ({ username }: { username: string }) => {
+export const findUser = async ({ username, email, withPassword }: FindUser) => {
+  if (username) {
+    return await db.query.user.findFirst({
+      where: (user, { eq }) => eq(user.username, username),
+      columns: {
+        hashedPassword: withPassword,
+        id: true,
+        description: true,
+        displayname: true,
+        email: true,
+        emailVerified: true,
+        role: true,
+        testRole: true,
+        profilePicture: true,
+        username: true,
+      },
+    });
+  } else if (email) {
+    return await db.query.user.findFirst({
+      where: (user, { eq }) => eq(user.email, email),
+      columns: {
+        hashedPassword: withPassword,
+        id: true,
+        description: true,
+        displayname: true,
+        email: true,
+        emailVerified: true,
+        role: true,
+        testRole: true,
+        profilePicture: true,
+        username: true,
+      },
+    });
+  }
+};
+
+export const findEmail = async (email: string) => {
   return await db.query.user.findFirst({
-    where: (user, { eq }) => eq(user.username, username),
+    where: (user, { eq }) => eq(user.email, email),
   });
 };
 
@@ -44,6 +87,11 @@ export const createUser = async (userDetails: Omit<InsertUser, "id">) => {
     username: userDetails.username,
     hashedPassword,
     displayname: userDetails.displayname,
+    email: userDetails.email,
+  });
+  const verificationCode = await generateEmailVerificationCode({
+    userId,
+    email: userDetails.email,
   });
 
   const session = await lucia.createSession(userId, {});
@@ -59,6 +107,9 @@ export const updateUserDetails = async ({ update }: { update: UpdateUser }) => {
   if (!update.id) throw new Error("No id found for updating user");
   if (update.hashedPassword && !update.password) {
     throw new Error("pls confirm your current password first");
+  }
+  if (update.profilePicture) {
+    update.profilePicture = `https://gpteawbghqdquxidtnqc.supabase.co/storage/v1/object/public/profile-images/${update.profilePicture}`;
   }
   if (update.password) {
     {
@@ -103,10 +154,11 @@ export const globalSearchUser = async (searchTerm: string) => {
     user.username
   } ILIKE ${`%${searchTerm}%`} OR ${
     user.displayname
-  } ILIKE ${`%${searchTerm}%`}`;
+  } ILIKE ${`%${searchTerm}%`} OR ${user.role} ILIKE ${`%${searchTerm}%`}`;
 
   const result: GlobalSearchUser[] = await db.execute(query);
-  return result;
+  const removeDev = result.filter((data) => data.role !== "developer");
+  return removeDev;
 };
 
 export const deleteUser = async (id: string) => {

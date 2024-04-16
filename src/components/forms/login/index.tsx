@@ -17,7 +17,7 @@ import { loginUser } from "@/lib/actions/auth";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { loginRandomImagesList } from "@/lib/constants";
+import { LOGIN_RNDM_IMG_LIST } from "@/lib/constants";
 import { cn, randomIndexNumber } from "@/lib/utils";
 import { loginFormSchema } from "@/lib/forms-schema";
 import { toast } from "react-toastify";
@@ -31,22 +31,23 @@ export default function LoginForm() {
   const form = useForm<z.infer<typeof loginFormSchema>>({
     resolver: zodResolver(loginFormSchema),
     defaultValues: {
-      username: "",
+      usernameOrEmail: "",
       password: "",
     },
   });
   const onSubmit = async ({
     password,
-    username,
+    usernameOrEmail,
   }: z.infer<typeof loginFormSchema>) => {
     try {
-      await loginUser({ password, username });
+      await loginUser({ password, usernameOrEmail });
       setTimeout(() => {
         router.replace("/");
       }, 1000);
     } catch (error) {
       console.error(error);
       toast.error("Login failed. Please try again");
+      form.setError("usernameOrEmail", { message: "Invalid credentials" });
     }
   };
   return (
@@ -54,12 +55,12 @@ export default function LoginForm() {
       <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4">
         <FormField
           control={form.control}
-          name="username"
+          name="usernameOrEmail"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Username</FormLabel>
+              <FormLabel>Username / Email</FormLabel>
               <FormControl>
-                <Input placeholder="username" {...field} />
+                <Input placeholder="username or email" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -73,7 +74,7 @@ export default function LoginForm() {
               <div className="flex items-center">
                 <FormLabel htmlFor="password">Password</FormLabel>
                 <Link
-                  href="/forgot-password"
+                  href="/password/forgot"
                   className="ml-auto inline-block text-sm underline underline-offset-2"
                 >
                   Forgot your password?
@@ -105,15 +106,6 @@ export default function LoginForm() {
           ) : (
             "Submit"
           )}
-        </Button>
-        <Button
-          disabled={
-            form.formState.isSubmitting || form.formState.isSubmitSuccessful
-          }
-          variant="outline"
-          className="w-full"
-        >
-          Login with Google
         </Button>
       </form>
     </Form>

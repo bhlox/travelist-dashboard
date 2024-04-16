@@ -1,7 +1,13 @@
 "use client";
 import React, { useState } from "react";
 import { Calendar } from "@/components/ui/calendar";
-import { eachHourOfInterval, lightFormat, format, isSameDay } from "date-fns";
+import {
+  eachHourOfInterval,
+  lightFormat,
+  format,
+  isSameDay,
+  toDate,
+} from "date-fns";
 import {
   Select,
   SelectContent,
@@ -24,7 +30,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { z } from "zod";
 import { useForm, useWatch } from "react-hook-form";
@@ -37,10 +43,10 @@ import { toast } from "react-toastify";
 import { useUserDetailsContext } from "@/components/providers/user-details-provider";
 import { useRouter } from "next/navigation";
 import {
-  after31Days,
-  beforeTomorrow,
-  disableWeekends,
-  openingHours,
+  AFTER_31_DAYS,
+  BEFORE_TOMORROW,
+  DISABLE_WEEKENDS,
+  OPENING_HOURS,
 } from "@/lib/constants";
 import { dateSchema, timeSchema } from "@/lib/forms-schema";
 import { ScheduleBlockType, UpdateScheduleFormProps } from "@/lib/types";
@@ -53,6 +59,9 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
+import LoadingSpinner from "@/components/svg/loader";
+
+// #TODO scheduledBookings here is getting ALL bookings. Filter it or fix the db query to include the dates from today up to 30 days in the future.
 
 export default function UpdateScheduleForm({
   blockedSchedules,
@@ -60,10 +69,18 @@ export default function UpdateScheduleForm({
   editId,
   toBeEditedBlockedSchedule,
   isModal,
+  bookings: scheduledBookings,
 }: UpdateScheduleFormProps) {
+  // console.log(scheduledBookings);
+  const bookedDays = scheduledBookings.map((sch) => toDate(sch.selectedDate));
+  const mappedTimes = scheduledBookings.map((sch) => ({
+    time: sch.selectedTime.slice(0, 5),
+    date: toDate(sch.selectedDate),
+  }));
+
   const router = useRouter();
   const [calendarOpen, setCalendarOpen] = useState(false);
-  const { username } = useUserDetailsContext();
+  const { username, id } = useUserDetailsContext();
 
   const [selectedFormSchema, setSelectedFormSchema] = useState<{
     schema: typeof dateSchema | typeof timeSchema;
@@ -124,6 +141,9 @@ export default function UpdateScheduleForm({
           timeRanges: JSON.stringify(timeRanges),
           type: selectedFormSchema.blockType,
           id: +editId!,
+          approved: false,
+          statusUpdatedBy: null,
+          comment: data.comment,
         });
         form.reset({
           selectedDate: undefined,
@@ -141,7 +161,7 @@ export default function UpdateScheduleForm({
           date: formattedDate,
           timeRanges: JSON.stringify(timeRanges),
           type: selectedFormSchema.blockType,
-          personnel: username,
+          handlerID: id,
           comment: data.comment,
         });
       }
@@ -160,6 +180,8 @@ export default function UpdateScheduleForm({
         type: selectedFormSchema.blockType,
         id: +editId!,
         comment: data.comment,
+        approved: false,
+        statusUpdatedBy: null,
       });
       form.reset({
         selectedDate: undefined,
@@ -176,7 +198,7 @@ export default function UpdateScheduleForm({
     await createBlockedSchedule({
       date: formattedDate,
       type: selectedFormSchema.blockType,
-      personnel: username,
+      handlerID: id,
       comment: data.comment,
     });
     form.reset({
@@ -220,12 +242,20 @@ export default function UpdateScheduleForm({
     });
   };
 
+  const watchValueSelectedDate = form.watch("selectedDate");
+  const bookedTimes = mappedTimes
+    .filter((time) => isSameDay(watchValueSelectedDate, new Date(time.date)))
+    .map((time) => time.time);
   return (
     <Card>
       <CardHeader>
         <CardTitle>Update Schedule</CardTitle>
-        <CardDescription>
-          Block the time or days where you are not available
+        <CardDescription className="text-balance">
+          Block the time or days where you are not available. <br /> Dates with{" "}
+          <span className="text-blue-800 dark:text-yellow-500 font-semibold">
+            COLOR
+          </span>{" "}
+          indicates that day has a booking.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -272,6 +302,11 @@ export default function UpdateScheduleForm({
                         <Calendar
                           mode="single"
                           selected={field.value}
+                          modifiers={{ booked: bookedDays }}
+                          modifiersClassNames={{
+                            booked:
+                              "text-blue-800 dark:text-yellow-500 font-semibold",
+                          }}
                           onSelect={(date) => {
                             field.onChange(date);
                             setCalendarOpen(false);
@@ -281,10 +316,10 @@ export default function UpdateScheduleForm({
                             form.resetField("endTime", { defaultValue: "" });
                           }}
                           disabled={[
-                            disableWeekends,
+                            DISABLE_WEEKENDS,
                             ...disableDays,
-                            beforeTomorrow,
-                            after31Days,
+                            BEFORE_TOMORROW,
+                            AFTER_31_DAYS,
                           ]}
                         />
                       </PopoverContent>
@@ -318,13 +353,14 @@ export default function UpdateScheduleForm({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {openingHours.map((hr) => (
+                        {OPENING_HOURS.map((hr) => (
                           <SelectItem
                             key={`hr-${hr}`}
                             value={hr}
                             disabled={
                               disabledTimes ? disabledTimes.includes(hr) : true
                             }
+                            isAvailable={bookedTimes.includes(hr)}
                           >
                             {hr}
                           </SelectItem>
@@ -360,13 +396,14 @@ export default function UpdateScheduleForm({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {openingHours.map((hr) => (
+                        {OPENING_HOURS.map((hr) => (
                           <SelectItem
                             key={`hr-${hr}`}
                             value={hr}
                             disabled={
                               disabledTimes ? disabledTimes.includes(hr) : true
                             }
+                            isAvailable={bookedTimes.includes(hr)}
                           >
                             {hr}
                           </SelectItem>
@@ -392,8 +429,12 @@ export default function UpdateScheduleForm({
                 </FormItem>
               )}
             />
-            <Button className="block w-full mt-5" type="submit">
-              Submit
+            <Button
+              disabled={form.formState.isSubmitting}
+              className="w-full mt-5 flex justify-center"
+              type="submit"
+            >
+              {form.formState.isSubmitting ? <LoadingSpinner /> : "Submit"}
             </Button>
           </form>
         </Form>
