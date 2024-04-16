@@ -12,6 +12,14 @@ This is the internal tool to manage bookings of customers and manage the team me
 - ➡️ Modals and Intercepting routes
 - 🔍 Server side querying of data table (SOON)
 
+## Auth Roles
+
+| Role              | Create   | Read                               | Update                             | Delete                             |
+| :---------------- | :------- | :--------------------------------- | :--------------------------------- | :--------------------------------- |
+| staff             | schedule | bookings, profile, schedule        | schedule, bookings                 | schedule                           |
+| admin             | schedule | bookings, profile, schedule        | schedule, bookings                 | schedule, bookings                 |
+| owner / developer | schedule | users, bookings, profile, schedule | users, bookings, profile, schedule | users, bookings, profile, schedule |
+
 ## Technologies
 
 - React / Next JS
@@ -20,5 +28,4 @@ This is the internal tool to manage bookings of customers and manage the team me
 - Shadcn UI component library
 - Drizzle
 - Supabase storage and postgresql
-- Sendgrid
 - Lucia Auth
