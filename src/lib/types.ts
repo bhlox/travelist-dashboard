@@ -90,6 +90,8 @@ export interface DataTablePaginationProps<TData> {
 export interface DataTableProps<TData> {
   // columns?: ColumnDef<TData, TValue>[];
   data: TData[];
+  searchParams: { [key: string]: string };
+  pageCount: number;
 }
 
 export type UserRoles = (typeof USER_ROLES)[number];

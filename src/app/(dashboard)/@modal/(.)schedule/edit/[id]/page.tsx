@@ -39,6 +39,7 @@ export default async function ModesEditingPage({
   };
 
   // NOTE: We need `getBookings` to check for conflicts within that booking date. the data fetched is passed towards updatescheduleform component.
+
   const bookings = await getBookings({
     handlerId: user.user.id,
     role: user.user.role,
@@ -51,12 +52,13 @@ export default async function ModesEditingPage({
       id: user.user.id,
     },
   });
+  console.log(bookings);
   return (
     <ModalEditingBlockedSchedule
       blockedSchedules={mappedblockedSchedules}
       toBeEditedBlockedSchedule={toBeEditedBlockedSchedule}
       editId={params.id}
-      bookings={bookings}
+      bookings={bookings.data}
     />
   );
 }

@@ -225,6 +225,7 @@ function PendingScheduleAccordionItem({
         handlerId: schedule.handlerID,
       }),
     staleTime: Infinity,
+    
   });
 
   const conflictList =

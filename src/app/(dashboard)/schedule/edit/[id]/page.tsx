@@ -52,7 +52,7 @@ export default async function EditBlockSchedulePage({
       toBeEditedBlockedSchedule={toBeEditedBlockedSchedule}
       blockedSchedules={mappedData}
       editId={params.id}
-      bookings={bookings}
+      bookings={bookings.data}
     />
   );
 }

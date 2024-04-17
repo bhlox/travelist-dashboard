@@ -1,8 +1,8 @@
 "use server";
 
 import { db } from "@/db";
-import { UpdateBooking, UserRoles } from "../types";
-import { and, eq, lt } from "drizzle-orm";
+import { SelectBooking, UpdateBooking, UserRoles } from "../types";
+import { and, count, eq, lt } from "drizzle-orm";
 import { bookings } from "@/db/schema";
 import { revalidatePath } from "next/cache";
 
@@ -31,51 +31,122 @@ export const getBookings = async ({
   handlerId,
   role,
   testRole,
-  filters,
+  filters = { pageNumber: 1 },
 }: {
   // handlerId is the ID of the current user who is requesting the data. while filters.id indicates which userID are we requesting. this can be the current user or another user
   handlerId: string;
   role: UserRoles;
   testRole?: UserRoles;
-  filters?: {
-    offset?: number;
-    limit?: number;
-    id?: string;
-    dateRange?: {
-      start: string;
-      end: string;
-    };
-  };
-}) => {
+  filters?:
+    | ({
+        getPageCount?: boolean;
+        pageNumber?: number;
+        limit?: number;
+        id?: string;
+        dateRange?: {
+          start: string;
+          end: string;
+        };
+      } & {
+        getPageCount?: false;
+        limit?: number;
+        id?: string;
+        dateRange?: {
+          start: string;
+          end: string;
+        };
+      })
+    | {
+        getPageCount: true;
+        pageNumber: number;
+        limit?: number;
+        id?: string;
+        dateRange?: {
+          start: string;
+          end: string;
+        };
+      };
+}): Promise<{ count?: number; data: SelectBooking[] }> => {
   if (testRole === "staff") {
-    return await db.query.bookings.findMany({
-      where: (bookings, { eq }) => eq(bookings.handler, handlerId),
-    });
+    const dataLength = await db
+      .select({ totalCount: count() })
+      .from(bookings)
+      .where(eq(bookings.handler, handlerId));
+    const totalCount = Math.ceil(dataLength[0].totalCount / 10);
+    return {
+      data: await db.query.bookings.findMany({
+        where: (bookings, { eq }) => eq(bookings.handler, handlerId),
+        limit: filters.getPageCount ? 10 : undefined,
+        offset: filters.getPageCount
+          ? (filters.pageNumber - 1) * 10
+          : undefined,
+      }),
+      count: totalCount,
+    };
   }
   if (role !== "staff") {
     if (filters) {
       if (filters.dateRange) {
+        // console.log("fetching dateranges");
         const { start, end } = filters.dateRange;
-        return await db.query.bookings.findMany({
+        const data = await db.query.bookings.findMany({
           where: (bookings, { and, gte, lte, eq }) =>
             and(
               gte(bookings.selectedDate, start),
               lte(bookings.handler, end),
               filters.id ? eq(bookings.handler, filters.id) : undefined
             ),
+          with: {
+            handler: { columns: { displayname: true } },
+          },
+          limit: filters.getPageCount ? 10 : undefined,
+          offset: filters.getPageCount
+            ? (filters.pageNumber - 1) * 10
+            : undefined,
         });
+        console.log(data);
+        const formattedData = data.map((dat) => ({
+          ...dat,
+          handler: dat.handler?.displayname,
+        }));
+        const dataLength = await db
+          .select({ totalCount: count() })
+          .from(bookings);
+        const totalCount = Math.ceil(dataLength[0].totalCount / 10);
+        return { data: formattedData, count: totalCount };
       }
     }
+
     const data = await db.query.bookings.findMany({
       with: {
         handler: { columns: { displayname: true } },
       },
+      limit: filters.getPageCount ? 10 : undefined,
+      offset: filters.getPageCount ? (filters.pageNumber - 1) * 10 : undefined,
     });
-    return data.map((dat) => ({ ...dat, handler: dat.handler?.displayname }));
+    const dataLength = await db.select({ totalCount: count() }).from(bookings);
+    const totalCount = Math.ceil(dataLength[0].totalCount / 10);
+    const formattedData = data.map((dat) => ({
+      ...dat,
+      handler: dat.handler?.displayname,
+    }));
+    return { data: formattedData, count: totalCount };
   } else {
-    return await db.query.bookings.findMany({
-      where: (bookings, { eq }) => eq(bookings.handler, handlerId),
-    });
+    const dataLength = await db
+      .select({ totalCount: count() })
+      .from(bookings)
+      .where(eq(bookings.handler, handlerId));
+    const totalCount = Math.ceil(dataLength[0].totalCount / 10);
+    return {
+      data: await db.query.bookings.findMany({
+        where: (bookings, { eq }) => eq(bookings.handler, handlerId),
+        limit: filters.getPageCount ? 10 : undefined,
+        offset: filters.getPageCount
+          ? (filters.pageNumber - 1) * 10
+          : undefined,
+      }),
+      count: totalCount,
+    };
   }
 };
 

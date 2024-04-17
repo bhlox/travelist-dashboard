@@ -59,7 +59,7 @@ export default async function SchedulePage() {
   return (
     <ScheduleClient
       blockedSchedules={handlersBlockedSchedulesFormatted}
-      bookings={bookings}
+      bookings={bookings.data}
       allBlockedSchedules={allBlockedSchedules}
     />
   );
