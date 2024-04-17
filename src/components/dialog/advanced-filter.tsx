@@ -36,7 +36,7 @@ import { CalendarIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { BOOKING_STATUSES } from "@/lib/constants";
 import CustomPhoneInput from "@/components/ui/phone-input";
-import { useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { advcanceSearchFormSchema } from "@/lib/forms-schema";
@@ -50,6 +50,8 @@ export default function DialogAdvancedFilter<TData>({
   setShowAdvancedFilter: React.Dispatch<React.SetStateAction<boolean>>;
   table: Table<TData>;
 }) {
+  const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const [calendarOpen, setCalendarOpen] = useState(false);
   const { width } = useWindowSize();
@@ -71,17 +73,29 @@ export default function DialogAdvancedFilter<TData>({
   });
 
   const onSubmit = (data: z.infer<typeof advcanceSearchFormSchema>) => {
+    const newSearchParams = new URLSearchParams();
     Object.entries(data).forEach(([key, value]) => {
+      // console.log({ [key]: value });
       if (value) {
         if (key === "date") {
-          return table.getColumn(key)?.setFilterValue(value);
+          const formatFrom = lightFormat((value as any).from, "yyyy-MM-dd");
+          const formatTo = lightFormat((value as any).to, "yyyy-MM-dd");
+          table.getColumn(key)?.setFilterValue(value);
+          newSearchParams.set("from", formatFrom);
+          return newSearchParams.set("to", formatTo);
         }
         table.getColumn(key)?.setFilterValue(value);
+        newSearchParams.set(key, value as string);
       } else {
         table.getColumn(key)?.setFilterValue("");
+        newSearchParams.delete(key);
       }
     });
     form.reset();
+
+    router.push(
+      `${pathname}?${new URLSearchParams(newSearchParams).toString()}`
+    );
     setShowAdvancedFilter(false);
   };
 

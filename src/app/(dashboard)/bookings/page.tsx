@@ -3,7 +3,7 @@ import React from "react";
 import DataTable from "@/components/bookings/data-table/index";
 import Headings from "@/components/ui/headings";
 import { getUser } from "@/lib/actions/auth";
-import { SelectBooking } from "@/lib/types";
+import { BookingStatus, SelectBooking } from "@/lib/types";
 
 export default async function BookingsPage({
   params,
@@ -29,6 +29,8 @@ export default async function BookingsPage({
       pageNumber,
       getPageCount: true,
       sort: { field: sortField, direction: sortDirection },
+      dateRange: { start: searchParams?.from, end: searchParams?.to },
+      status: searchParams?.status as BookingStatus,
     },
   });
 

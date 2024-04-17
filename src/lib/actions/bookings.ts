@@ -1,8 +1,13 @@
 "use server";
 
 import { db } from "@/db";
-import { SelectBooking, UpdateBooking, UserRoles } from "../types";
-import { and, count, eq, lt } from "drizzle-orm";
+import {
+  BookingStatus,
+  SelectBooking,
+  UpdateBooking,
+  UserRoles,
+} from "../types";
+import { and, count, eq, gt, gte, lt, lte } from "drizzle-orm";
 import { bookings } from "@/db/schema";
 import { revalidatePath } from "next/cache";
 
@@ -51,6 +56,7 @@ export const getBookings = async ({
           field: keyof SelectBooking;
           direction: "asc" | "desc";
         };
+        status?: BookingStatus;
       } & {
         getPageCount?: false;
         limit?: number;
@@ -63,6 +69,7 @@ export const getBookings = async ({
           field: keyof SelectBooking;
           direction: "asc" | "desc";
         };
+        status?: BookingStatus;
       })
     | {
         getPageCount: true;
@@ -77,60 +84,81 @@ export const getBookings = async ({
           field: keyof SelectBooking;
           direction: "asc" | "desc";
         };
+        status?: BookingStatus;
       };
 }): Promise<{ count?: number; data: SelectBooking[] }> => {
-  console.log(filters.sort);
   if (testRole === "staff") {
-    const dataLength = await db
-      .select({ totalCount: count() })
-      .from(bookings)
-      .where(eq(bookings.handler, handlerId));
-    const totalCount = Math.ceil(dataLength[0].totalCount / 10);
-    return {
-      data: await db.query.bookings.findMany({
-        where: (bookings, { eq }) => eq(bookings.handler, handlerId),
-        limit: filters.getPageCount ? 10 : undefined,
-        offset: filters.getPageCount
-          ? (filters.pageNumber - 1) * 10
-          : undefined,
-      }),
-      count: totalCount,
-    };
-  }
-  if (role !== "staff") {
-    if (filters) {
-      if (filters.dateRange) {
-        // console.log("fetching dateranges");
-        const { start, end } = filters.dateRange;
-        const data = await db.query.bookings.findMany({
-          where: (bookings, { and, gte, lte, eq }) =>
+    if (filters.dateRange?.start && filters.dateRange?.end) {
+      const dataLength = await db
+        .select({ totalCount: count() })
+        .from(bookings)
+        .where(
+          and(
+            eq(bookings.handler, handlerId),
+            gte(bookings.selectedDate, filters.dateRange.start),
+            lte(bookings.selectedDate, filters.dateRange.end)
+          )
+        );
+      const totalCount = Math.ceil(dataLength[0].totalCount / 10);
+      return {
+        data: await db.query.bookings.findMany({
+          where: (bookings, { eq, and, gte, lte }) =>
             and(
-              gte(bookings.selectedDate, start),
-              lte(bookings.handler, end),
-              filters.id ? eq(bookings.handler, filters.id) : undefined
+              eq(bookings.handler, handlerId),
+              gte(bookings.selectedDate, filters.dateRange!.start),
+              lte(bookings.selectedDate, filters.dateRange!.end)
             ),
-          with: {
-            handler: { columns: { displayname: true } },
-          },
           limit: filters.getPageCount ? 10 : undefined,
           offset: filters.getPageCount
             ? (filters.pageNumber - 1) * 10
             : undefined,
-        });
-        console.log(data);
-        const formattedData = data.map((dat) => ({
-          ...dat,
-          handler: dat.handler?.displayname,
-        }));
-        const dataLength = await db
-          .select({ totalCount: count() })
-          .from(bookings);
-        const totalCount = Math.ceil(dataLength[0].totalCount / 10);
-        return { data: formattedData, count: totalCount };
-      }
+          orderBy: filters.sort?.direction
+            ? (bookings, { asc, desc }) =>
+                filters.sort?.direction === "asc"
+                  ? [asc(bookings[filters.sort!.field])]
+                  : [desc(bookings[filters.sort!.field])]
+            : undefined,
+        }),
+        count: totalCount,
+      };
+    } else {
+      const dataLength = await db
+        .select({ totalCount: count() })
+        .from(bookings)
+        .where(eq(bookings.handler, handlerId));
+      const totalCount = Math.ceil(dataLength[0].totalCount / 10);
+      return {
+        data: await db.query.bookings.findMany({
+          where: (bookings, { eq, and, gte, lte }) =>
+            eq(bookings.handler, handlerId),
+          limit: filters.getPageCount ? 10 : undefined,
+          offset: filters.getPageCount
+            ? (filters.pageNumber - 1) * 10
+            : undefined,
+          orderBy: filters.sort?.direction
+            ? (bookings, { asc, desc }) =>
+                filters.sort?.direction === "asc"
+                  ? [asc(bookings[filters.sort!.field])]
+                  : [desc(bookings[filters.sort!.field])]
+            : undefined,
+        }),
+        count: totalCount,
+      };
     }
-
+  }
+  if (role !== "staff") {
     const data = await db.query.bookings.findMany({
+      where: (bookings, { and, eq }) =>
+        and(
+          filters.dateRange?.start
+            ? gte(bookings.selectedDate, filters.dateRange?.start)
+            : undefined,
+          filters.dateRange?.end
+            ? lte(bookings.selectedDate, filters.dateRange?.end)
+            : undefined,
+          filters.id ? eq(bookings.handler, filters.id) : undefined,
+          filters.status ? eq(bookings.status, filters.status) : undefined
+        ),
       with: {
         handler: { columns: { displayname: true } },
       },
@@ -143,7 +171,21 @@ export const getBookings = async ({
               : [desc(bookings[filters.sort!.field])]
         : undefined,
     });
-    const dataLength = await db.select({ totalCount: count() }).from(bookings);
+    const dataLength = await db
+      .select({ totalCount: count() })
+      .from(bookings)
+      .where(
+        and(
+          filters.dateRange?.start
+            ? gte(bookings.selectedDate, filters.dateRange?.start)
+            : undefined,
+          filters.dateRange?.end
+            ? lte(bookings.selectedDate, filters.dateRange?.end)
+            : undefined,
+          filters.id ? eq(bookings.handler, filters.id) : undefined,
+          filters.status ? eq(bookings.status, filters.status) : undefined
+        )
+      );
     const totalCount = Math.ceil(dataLength[0].totalCount / 10);
     const formattedData = data.map((dat) => ({
       ...dat,
@@ -151,21 +193,63 @@ export const getBookings = async ({
     }));
     return { data: formattedData, count: totalCount };
   } else {
-    const dataLength = await db
-      .select({ totalCount: count() })
-      .from(bookings)
-      .where(eq(bookings.handler, handlerId));
-    const totalCount = Math.ceil(dataLength[0].totalCount / 10);
-    return {
-      data: await db.query.bookings.findMany({
-        where: (bookings, { eq }) => eq(bookings.handler, handlerId),
-        limit: filters.getPageCount ? 10 : undefined,
-        offset: filters.getPageCount
-          ? (filters.pageNumber - 1) * 10
-          : undefined,
-      }),
-      count: totalCount,
-    };
+    if (filters.dateRange?.start && filters.dateRange?.end) {
+      const dataLength = await db
+        .select({ totalCount: count() })
+        .from(bookings)
+        .where(
+          and(
+            eq(bookings.handler, handlerId),
+            gte(bookings.selectedDate, filters.dateRange.start),
+            lte(bookings.selectedDate, filters.dateRange.end)
+          )
+        );
+      const totalCount = Math.ceil(dataLength[0].totalCount / 10);
+      return {
+        data: await db.query.bookings.findMany({
+          where: (bookings, { eq, and, gte, lte }) =>
+            and(
+              eq(bookings.handler, handlerId),
+              gte(bookings.selectedDate, filters.dateRange!.start),
+              lte(bookings.selectedDate, filters.dateRange!.end)
+            ),
+          limit: filters.getPageCount ? 10 : undefined,
+          offset: filters.getPageCount
+            ? (filters.pageNumber - 1) * 10
+            : undefined,
+          orderBy: filters.sort?.direction
+            ? (bookings, { asc, desc }) =>
+                filters.sort?.direction === "asc"
+                  ? [asc(bookings[filters.sort!.field])]
+                  : [desc(bookings[filters.sort!.field])]
+            : undefined,
+        }),
+        count: totalCount,
+      };
+    } else {
+      const dataLength = await db
+        .select({ totalCount: count() })
+        .from(bookings)
+        .where(eq(bookings.handler, handlerId));
+      const totalCount = Math.ceil(dataLength[0].totalCount / 10);
+      return {
+        data: await db.query.bookings.findMany({
+          where: (bookings, { eq, and, gte, lte }) =>
+            eq(bookings.handler, handlerId),
+          limit: filters.getPageCount ? 10 : undefined,
+          offset: filters.getPageCount
+            ? (filters.pageNumber - 1) * 10
+            : undefined,
+          orderBy: filters.sort?.direction
+            ? (bookings, { asc, desc }) =>
+                filters.sort?.direction === "asc"
+                  ? [asc(bookings[filters.sort!.field])]
+                  : [desc(bookings[filters.sort!.field])]
+            : undefined,
+        }),
+        count: totalCount,
+      };
+    }
   }
 };
 

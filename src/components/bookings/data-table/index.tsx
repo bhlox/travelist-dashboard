@@ -94,6 +94,7 @@ export default function DateTable<TData>({
     pageCount,
     manualPagination: true,
     manualSorting: true,
+    manualFiltering: true,
     columns: bookingsColumns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
@@ -231,11 +232,11 @@ export default function DateTable<TData>({
           id={editStatusDialog?.id}
           name={editStatusDialog?.name}
         /> */}
-        {/* <DialogAdvancedFilter
+        <DialogAdvancedFilter
           showAdvancedFilter={showAdvancedFilter}
           setShowAdvancedFilter={setShowAdvancedFilter}
           table={table}
-        /> */}
+        />
       </div>
       <PaginationControls table={table} />
     </>
