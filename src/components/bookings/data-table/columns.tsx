@@ -15,13 +15,22 @@ import { ArrowUpDown, MoreHorizontal } from "lucide-react";
 import { BOOKING_STATUSES } from "@/lib/constants";
 import { Checkbox } from "@/components/ui/checkbox";
 import Link from "next/link";
+import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 
 export const generateBookingsColumns = ({
   role,
   windowWidth,
+  pathname,
+  router,
+  searchParams,
 }: {
   role: UserRoles;
   windowWidth: number;
+  router: AppRouterInstance;
+  pathname: string;
+  searchParams: {
+    [key: string]: string;
+  };
 }): ColumnDef<SelectBooking>[] => {
   return [
     {
@@ -81,11 +90,19 @@ export const generateBookingsColumns = ({
     {
       accessorKey: "selectedDate",
       id: "date",
-      header: ({ column }) => {
+      header: ({ column, table, header }) => {
         return (
           <Button
             variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            onClick={() => {
+              column.toggleSorting(column.getIsSorted() === "asc");
+              const newSearchParams = new URLSearchParams(searchParams);
+              newSearchParams.set(
+                "sort",
+                `selectedDate.${column.getIsSorted()}`
+              );
+              router.push(`${pathname}?${newSearchParams.toString()}`);
+            }}
           >
             Date
             <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -99,19 +116,7 @@ export const generateBookingsColumns = ({
       accessorKey: "selectedTime",
       id: "time",
       header: ({ column }) => {
-        return (
-          <div className="flex justify-center">
-            <Button
-              variant="ghost"
-              onClick={() =>
-                column.toggleSorting(column.getIsSorted() === "asc")
-              }
-            >
-              Time
-              <ArrowUpDown className="ml-2 h-4 w-4" />
-            </Button>
-          </div>
-        );
+        return <div className="flex justify-center">Time</div>;
       },
       cell: ({ row }) => {
         const time = row.original.selectedTime;
@@ -124,18 +129,26 @@ export const generateBookingsColumns = ({
       accessorKey: "status",
       header: ({ column }) => {
         return (
-          <Button variant="ghost" onClick={() => column.toggleSorting()}>
+          <Button
+            variant="ghost"
+            onClick={() => {
+              column.toggleSorting(column.getIsSorted() === "asc");
+              const newSearchParams = new URLSearchParams(searchParams);
+              newSearchParams.set("sort", `status.${column.getIsSorted()}`);
+              router.push(`${pathname}?${newSearchParams.toString()}`);
+            }}
+          >
             Status
             <ArrowUpDown className="ml-2 h-4 w-4" />
           </Button>
         );
       },
-      sortingFn: (rowA, rowB, columnId) => {
-        return (
-          BOOKING_STATUSES.indexOf(rowA.original.status!) -
-          BOOKING_STATUSES.indexOf(rowB.original.status!)
-        );
-      },
+      // sortingFn: (rowA, rowB, columnId) => {
+      //   return (
+      //     BOOKING_STATUSES.indexOf(rowA.original.status!) -
+      //     BOOKING_STATUSES.indexOf(rowB.original.status!)
+      //   );
+      // },
       cell: ({ row }) => {
         const status = row.original.status;
         if (status === "pending") {

@@ -33,9 +33,7 @@ import DialogAdvancedFilter from "../../dialog/advanced-filter";
 import { useUserDetailsContext } from "@/components/providers/user-details-provider";
 import { generateBookingsColumns } from "./columns";
 import { useWindowSize } from "@uidotdev/usehooks";
-import { useQuery } from "@tanstack/react-query";
-import { useIsFirstRender } from "@uidotdev/usehooks";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 export default function DateTable<TData>({
   data,
@@ -43,14 +41,20 @@ export default function DateTable<TData>({
   pageCount,
 }: DataTableProps<TData>) {
   const router = useRouter();
-  const isFirstRender = useIsFirstRender();
-  // const searchParams = useSearchParams();
+  const pathname = usePathname();
+  // const searchParamsHook = useSearchParams();
   const { role, id } = useUserDetailsContext();
   const { width } = useWindowSize();
 
   const bookingsColumns: ColumnDef<SelectBooking>[] = useMemo(() => {
-    return generateBookingsColumns({ role, windowWidth: width || 0 });
-  }, [role, width]);
+    return generateBookingsColumns({
+      role,
+      windowWidth: width || 0,
+      router,
+      pathname,
+      searchParams,
+    });
+  }, [role, width, router, pathname, searchParams]);
 
   const [currentPageIndex, setCurrentPageIndex] = useState(1);
   const [editStatusDialog, setEditStatusDialog] = useState(false);
@@ -89,6 +93,7 @@ export default function DateTable<TData>({
     data,
     pageCount,
     manualPagination: true,
+    manualSorting: true,
     columns: bookingsColumns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
@@ -115,7 +120,7 @@ export default function DateTable<TData>({
       columnFilters,
       globalFilter,
       rowSelection,
-      pagination: { pageIndex: +searchParams.page, pageSize: 10 },
+      pagination: { pageIndex: +searchParams.page - 1, pageSize: 10 },
     },
     // meta: {
     //   handleEditStatusDialog: (data: {
@@ -125,15 +130,6 @@ export default function DateTable<TData>({
     //   }) => handleEditStatusDialog(data),
     // },
   });
-
-  // const currentPageNumber = table.getState().pagination.pageIndex;
-  // console.log({ currentPageNumber });
-  // useEffect(() => {
-  //   // console.log("pushing route");
-  //   router.push(`?page=${currentPageNumber}`);
-  //   table.setPageIndex(currentPageNumber);
-  //   // setCurrentPageIndex(currentPageNumber);
-  // }, [currentPageNumber, router, table]);
 
   // code below is only concerned with column visibility for screen width
   useEffect(() => {

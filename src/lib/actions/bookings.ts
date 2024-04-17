@@ -47,6 +47,10 @@ export const getBookings = async ({
           start: string;
           end: string;
         };
+        sort?: {
+          field: keyof SelectBooking;
+          direction: "asc" | "desc";
+        };
       } & {
         getPageCount?: false;
         limit?: number;
@@ -54,6 +58,10 @@ export const getBookings = async ({
         dateRange?: {
           start: string;
           end: string;
+        };
+        sort?: {
+          field: keyof SelectBooking;
+          direction: "asc" | "desc";
         };
       })
     | {
@@ -65,8 +73,13 @@ export const getBookings = async ({
           start: string;
           end: string;
         };
+        sort?: {
+          field: keyof SelectBooking;
+          direction: "asc" | "desc";
+        };
       };
 }): Promise<{ count?: number; data: SelectBooking[] }> => {
+  console.log(filters.sort);
   if (testRole === "staff") {
     const dataLength = await db
       .select({ totalCount: count() })
@@ -123,6 +136,12 @@ export const getBookings = async ({
       },
       limit: filters.getPageCount ? 10 : undefined,
       offset: filters.getPageCount ? (filters.pageNumber - 1) * 10 : undefined,
+      orderBy: filters.sort?.direction
+        ? (bookings, { asc, desc }) =>
+            filters.sort?.direction === "asc"
+              ? [asc(bookings[filters.sort!.field])]
+              : [desc(bookings[filters.sort!.field])]
+        : undefined,
     });
     const dataLength = await db.select({ totalCount: count() }).from(bookings);
     const totalCount = Math.ceil(dataLength[0].totalCount / 10);

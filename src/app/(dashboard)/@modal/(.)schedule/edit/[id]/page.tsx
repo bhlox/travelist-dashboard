@@ -52,7 +52,7 @@ export default async function ModesEditingPage({
       id: user.user.id,
     },
   });
-  console.log(bookings);
+  // console.log(bookings);
   return (
     <ModalEditingBlockedSchedule
       blockedSchedules={mappedblockedSchedules}
