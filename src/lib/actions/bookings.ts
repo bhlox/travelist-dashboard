@@ -32,99 +32,73 @@ export const getBookingsForDate = async ({
   });
 };
 
+type BaseFilter = {
+  id?: string;
+  dateRange?: {
+    start: string;
+    end: string;
+  };
+  sort?: {
+    field: keyof SelectBooking;
+    direction: "asc" | "desc";
+  };
+  status?: BookingStatus[];
+  name?: string;
+  phone?: string;
+} & (
+  | {
+      getPageCount: false;
+      limit?: number;
+    }
+  | { getPageCount: true; pageNumber: number; limit?: number }
+);
+
 export const getBookings = async ({
   handlerId,
   role,
   testRole,
-  filters = { pageNumber: 1 },
+  filters,
 }: {
   // handlerId is the ID of the current user who is requesting the data. while filters.id indicates which userID are we requesting. this can be the current user or another user
   handlerId: string;
   role: UserRoles;
   testRole?: UserRoles;
-  filters?:
-    | ({
-        getPageCount?: boolean;
-        pageNumber?: number;
-        limit?: number;
-        id?: string;
-        dateRange?: {
-          start: string;
-          end: string;
-        };
-        sort?: {
-          field: keyof SelectBooking;
-          direction: "asc" | "desc";
-        };
-        status?: BookingStatus[];
-        name?: string;
-        phone?: string;
-      } & {
-        getPageCount?: false;
-        limit?: number;
-        id?: string;
-        dateRange?: {
-          start: string;
-          end: string;
-        };
-        sort?: {
-          field: keyof SelectBooking;
-          direction: "asc" | "desc";
-        };
-        status?: BookingStatus[];
-        name?: string;
-        phone?: string;
-      })
-    | {
-        getPageCount: true;
-        pageNumber: number;
-        limit?: number;
-        id?: string;
-        dateRange?: {
-          start: string;
-          end: string;
-        };
-        sort?: {
-          field: keyof SelectBooking;
-          direction: "asc" | "desc";
-        };
-        status?: BookingStatus[];
-        name?: string;
-        phone?: string;
-      };
+  filters?: BaseFilter;
 }): Promise<{ count?: number; data: SelectBooking[] }> => {
   if (role !== "staff") {
     const data = await db.query.bookings.findMany({
       where: (bookings, { and, eq, ilike, inArray }) =>
         and(
-          filters.dateRange?.start
+          filters?.dateRange?.start
             ? gte(bookings.selectedDate, filters.dateRange?.start)
             : undefined,
-          filters.dateRange?.end
+          filters?.dateRange?.end
             ? lte(bookings.selectedDate, filters.dateRange?.end)
             : undefined,
-          filters.id ? eq(bookings.handler, filters.id) : undefined,
-          filters.status ? inArray(bookings.status, filters.status) : undefined,
-          filters.name
+          filters?.id ? eq(bookings.handler, filters.id) : undefined,
+          filters?.status
+            ? inArray(bookings.status, filters.status)
+            : undefined,
+          filters?.name
             ? ilike(bookings.customerName, `%${filters.name}%`)
             : undefined,
-          filters.phone
+          filters?.phone
             ? ilike(bookings.phoneNumber, `%${filters.phone}%`)
             : undefined
         ),
       with: {
         handler: { columns: { displayname: true } },
       },
-      limit: filters.getPageCount ? 10 : undefined,
-      offset: filters.getPageCount ? (filters.pageNumber - 1) * 10 : undefined,
-      orderBy: filters.sort?.direction
+      limit: filters?.getPageCount ? 10 : undefined,
+      offset: filters?.getPageCount ? (filters.pageNumber - 1) * 10 : undefined,
+      orderBy: filters?.sort?.direction
         ? (bookings, { asc, desc }) =>
             filters.sort?.direction === "asc"
               ? [asc(bookings[filters.sort!.field])]
               : [desc(bookings[filters.sort!.field])]
         : undefined,
     });
-    const dataLength = filters.getPageCount
+    const dataLength = filters?.getPageCount
       ? await db
           .select({ totalCount: count() })
           .from(bookings)
@@ -149,7 +123,7 @@ export const getBookings = async ({
             )
           )
       : undefined;
-    const totalCount = filters.getPageCount
+    const totalCount = filters?.getPageCount
       ? Math.ceil(dataLength![0].totalCount / 10)
       : 0;
     const formattedData = data.map((dat) => ({
@@ -158,7 +132,7 @@ export const getBookings = async ({
     }));
     return { data: formattedData, count: totalCount };
   } else {
-    const dataLength = filters.getPageCount
+    const dataLength = filters?.getPageCount
       ? await db
           .select({ totalCount: count() })
           .from(bookings)
@@ -183,32 +157,34 @@ export const getBookings = async ({
             )
           )
       : undefined;
-    const totalCount = filters.getPageCount
+    const totalCount = filters?.getPageCount
       ? Math.ceil(dataLength![0].totalCount / 10)
       : 0;
     const data = await db.query.bookings.findMany({
       where: (bookings, { eq, and, gte, lte }) =>
         and(
           eq(bookings.handler, handlerId),
-          filters.dateRange?.start
+          filters?.dateRange?.start
             ? gte(bookings.selectedDate, filters.dateRange.start)
             : undefined,
-          filters.dateRange?.end
+          filters?.dateRange?.end
             ? lte(bookings.selectedDate, filters.dateRange.end)
             : undefined,
-          filters.status ? inArray(bookings.status, filters.status) : undefined,
-          filters.name
+          filters?.status
+            ? inArray(bookings.status, filters.status)
+            : undefined,
+          filters?.name
             ? ilike(bookings.customerName, `%${filters.name}%`)
             : undefined,
-          filters.phone
+          filters?.phone
             ? ilike(bookings.phoneNumber, `%${filters.phone}%`)
             : undefined
         ),
-      limit: filters.getPageCount ? 10 : undefined,
-      offset: filters.getPageCount ? (filters.pageNumber - 1) * 10 : undefined,
-      orderBy: filters.sort?.direction
+      limit: filters?.getPageCount ? 10 : undefined,
+      offset: filters?.getPageCount ? (filters.pageNumber - 1) * 10 : undefined,
+      orderBy: filters?.sort?.direction
         ? (bookings, { asc, desc }) =>
-            filters.sort?.direction === "asc"
+            filters?.sort?.direction === "asc"
               ? [asc(bookings[filters.sort!.field])]
               : [desc(bookings[filters.sort!.field])]
         : undefined,

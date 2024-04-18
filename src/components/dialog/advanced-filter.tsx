@@ -130,6 +130,7 @@ export default function DialogAdvancedFilter<TData>({
           if (key === "to") {
             filterValue = { ...filterValue, to: new Date(value) };
           }
+          console.log(filterValue);
           table.getColumn("date")?.setFilterValue(filterValue);
         } else {
           table.getColumn(key)?.setFilterValue(value);

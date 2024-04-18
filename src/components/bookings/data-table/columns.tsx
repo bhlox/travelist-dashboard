@@ -102,7 +102,7 @@ export const generateBookingsColumns = ({
             value: "desc",
           },
         ];
-        const sortExists = searchParams.sort.split(".")[0] === "selectedDate";
+        const sortExists = searchParams.sort?.split(".")[0] === "selectedDate";
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -168,7 +168,7 @@ export const generateBookingsColumns = ({
             value: "desc",
           },
         ];
-        const sortExists = searchParams.sort.split(".")[0] === "status";
+        const sortExists = searchParams.sort?.split(".")[0] === "status";
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

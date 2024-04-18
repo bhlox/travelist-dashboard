@@ -118,7 +118,8 @@ export const BOOKING_STATUS_ADVANCE_OPTIONS: Option[] = [
 
 export const BOOKING_URL_QUERYPARAM_FILTERS = [
   "status",
-  "date",
+  "from",
+  "to",
   "name",
   "phone",
 ] as const;
