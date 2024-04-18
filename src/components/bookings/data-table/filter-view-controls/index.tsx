@@ -45,19 +45,14 @@ export default function FilterViewControls<TData>({
   );
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
-  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(event.target.value);
-    if (event.target.value.trim() === "") {
-      const newSearchParams = new URLSearchParams(searchParams);
-      newSearchParams.delete("name");
-      router.replace(`${pathname}?${newSearchParams.toString()}`);
-    }
-  };
-
   useEffect(() => {
     if (debouncedSearchTerm.trim() !== "") {
       const newSearchParams = new URLSearchParams(searchParams);
       newSearchParams.set("name", debouncedSearchTerm.trim());
+      router.replace(`${pathname}?${newSearchParams.toString()}`);
+    } else {
+      const newSearchParams = new URLSearchParams(searchParams);
+      newSearchParams.delete("name");
       router.replace(`${pathname}?${newSearchParams.toString()}`);
     }
   }, [debouncedSearchTerm, pathname, router, searchParams]);
@@ -67,7 +62,7 @@ export default function FilterViewControls<TData>({
         <Input
           placeholder="Search name"
           value={searchTerm}
-          onChange={handleSearch}
+          onChange={(e) => setSearchTerm(e.target.value)}
           className="max-w-2xl w-full flex-1 block"
         />
 

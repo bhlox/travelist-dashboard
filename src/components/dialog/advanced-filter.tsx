@@ -54,17 +54,6 @@ export default function DialogAdvancedFilter<TData>({
   const { width } = useWindowSize();
   const [disableBtns, setDisableBtns] = useState(false);
 
-  const handleOnOpenChangeSelectInput = (open: boolean) => {
-    if (width && width < 640) {
-      if (open) {
-        setDisableBtns(true);
-      } else {
-        setTimeout(() => {
-          setDisableBtns(false);
-        }, 1000);
-      }
-    }
-  };
   const form = useForm<z.infer<typeof advcanceSearchFormSchema>>({
     resolver: zodResolver(advcanceSearchFormSchema),
   });
