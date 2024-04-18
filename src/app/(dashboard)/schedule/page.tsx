@@ -48,6 +48,7 @@ export default async function SchedulePage() {
     role: user.user.role,
     testRole: user.user.testRole,
     filters: {
+      getPageCount: false,
       dateRange: {
         start: new Date().toISOString(),
         end: addDays(new Date(), 31).toISOString(),

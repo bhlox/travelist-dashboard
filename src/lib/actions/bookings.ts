@@ -45,6 +45,9 @@ type BaseFilter = {
   status?: BookingStatus[];
   name?: string;
   phone?: string;
+  getPageCount?: boolean;
+  pageNumber?: number;
+  limit?: number;
 } & (
   | {
       getPageCount: false;
