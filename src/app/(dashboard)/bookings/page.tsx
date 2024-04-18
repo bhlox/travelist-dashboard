@@ -6,10 +6,8 @@ import { getUser } from "@/lib/actions/auth";
 import { BookingStatus, SelectBooking } from "@/lib/types";
 
 export default async function BookingsPage({
-  params,
   searchParams,
 }: {
-  params: { slug: string };
   searchParams: { [key: string]: string };
 }) {
   const user = await getUser();
@@ -23,14 +21,14 @@ export default async function BookingsPage({
   searchParams.page = pageNumber.toString();
   const bookings = await getBookings({
     handlerId: user.user.id,
-    role: "staff",
+    role: "admin",
     testRole: user.user.testRole,
     filters: {
       pageNumber,
       getPageCount: true,
       sort: { field: sortField, direction: sortDirection },
       dateRange: { start: searchParams?.from, end: searchParams?.to },
-      status: searchParams?.status as BookingStatus,
+      status: searchParams?.status?.split(".") as BookingStatus[],
       name: searchParams?.name,
       phone: searchParams?.phone,
     },

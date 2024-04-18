@@ -35,12 +35,16 @@ import {
 import { cn } from "@/lib/utils";
 import { CalendarIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
-import { BOOKING_STATUSES } from "@/lib/constants";
+import {
+  BOOKING_STATUSES,
+  BOOKING_STATUS_ADVANCE_OPTIONS,
+} from "@/lib/constants";
 import CustomPhoneInput from "@/components/ui/phone-input";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { advcanceSearchFormSchema } from "@/lib/forms-schema";
+import MultipleSelector from "@/components/ui/multiple-selector";
 
 export default function DialogAdvancedFilter<TData>({
   setShowAdvancedFilter,
@@ -85,6 +89,18 @@ export default function DialogAdvancedFilter<TData>({
           table.getColumn(key)?.setFilterValue(value);
           newSearchParams.set("from", formatFrom);
           newSearchParams.set("to", formatTo);
+        } else if (key === "status") {
+          const ar = value as {
+            value: string;
+            label: string;
+            disable?: boolean | undefined;
+          }[];
+          const formattedString = ar.reduce((acc, curr, i) => {
+            if (!i) return acc + curr.value;
+            return acc + "." + curr.value;
+          }, "");
+          table.getColumn(key)?.setFilterValue(formattedString);
+          newSearchParams.set("status", formattedString);
         } else {
           table.getColumn(key)?.setFilterValue(value);
           newSearchParams.set(key, value as string);
@@ -94,6 +110,9 @@ export default function DialogAdvancedFilter<TData>({
         newSearchParams.delete(key);
       }
     });
+    // console.log(
+    //   `${pathname}?${new URLSearchParams(newSearchParams).toString()}`
+    // );
     form.reset();
 
     router.push(
@@ -256,7 +275,20 @@ export default function DialogAdvancedFilter<TData>({
                     return (
                       <FormItem className="flex flex-col">
                         <FormLabel>Status</FormLabel>
-                        <Select
+                        <FormControl>
+                          <MultipleSelector
+                            value={field.value}
+                            onChange={field.onChange}
+                            defaultOptions={BOOKING_STATUS_ADVANCE_OPTIONS}
+                            placeholder="Select frameworks you like..."
+                            emptyIndicator={
+                              <p className="text-center text-lg leading-10 text-gray-600 dark:text-gray-400 dark:bg-black bg-white">
+                                no results found.
+                              </p>
+                            }
+                          />
+                        </FormControl>
+                        {/* <Select
                           onValueChange={field.onChange}
                           onOpenChange={handleOnOpenChangeSelectInput}
                         >
@@ -270,7 +302,7 @@ export default function DialogAdvancedFilter<TData>({
                               </SelectItem>
                             ))}
                           </SelectContent>
-                        </Select>
+                        </Select> */}
                       </FormItem>
                     );
                   }}

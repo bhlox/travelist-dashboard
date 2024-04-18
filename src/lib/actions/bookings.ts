@@ -7,7 +7,7 @@ import {
   UpdateBooking,
   UserRoles,
 } from "../types";
-import { and, count, eq, gt, gte, ilike, lt, lte } from "drizzle-orm";
+import { and, count, eq, gt, gte, ilike, inArray, lt, lte } from "drizzle-orm";
 import { bookings } from "@/db/schema";
 import { revalidatePath } from "next/cache";
 
@@ -56,7 +56,7 @@ export const getBookings = async ({
           field: keyof SelectBooking;
           direction: "asc" | "desc";
         };
-        status?: BookingStatus;
+        status?: BookingStatus[];
         name?: string;
         phone?: string;
       } & {
@@ -71,7 +71,7 @@ export const getBookings = async ({
           field: keyof SelectBooking;
           direction: "asc" | "desc";
         };
-        status?: BookingStatus;
+        status?: BookingStatus[];
         name?: string;
         phone?: string;
       })
@@ -88,14 +88,14 @@ export const getBookings = async ({
           field: keyof SelectBooking;
           direction: "asc" | "desc";
         };
-        status?: BookingStatus;
+        status?: BookingStatus[];
         name?: string;
         phone?: string;
       };
 }): Promise<{ count?: number; data: SelectBooking[] }> => {
   if (role !== "staff") {
     const data = await db.query.bookings.findMany({
-      where: (bookings, { and, eq, ilike }) =>
+      where: (bookings, { and, eq, ilike, inArray }) =>
         and(
           filters.dateRange?.start
             ? gte(bookings.selectedDate, filters.dateRange?.start)
@@ -104,7 +104,7 @@ export const getBookings = async ({
             ? lte(bookings.selectedDate, filters.dateRange?.end)
             : undefined,
           filters.id ? eq(bookings.handler, filters.id) : undefined,
-          filters.status ? eq(bookings.status, filters.status) : undefined,
+          filters.status ? inArray(bookings.status, filters.status) : undefined,
           filters.name
             ? ilike(bookings.customerName, `%${filters.name}%`)
             : undefined,
@@ -137,7 +137,9 @@ export const getBookings = async ({
                 ? lte(bookings.selectedDate, filters.dateRange?.end)
                 : undefined,
               filters.id ? eq(bookings.handler, filters.id) : undefined,
-              filters.status ? eq(bookings.status, filters.status) : undefined,
+              filters.status
+                ? inArray(bookings.status, filters.status)
+                : undefined,
               filters.name
                 ? ilike(bookings.customerName, `%${filters.name}%`)
                 : undefined,
@@ -169,7 +171,9 @@ export const getBookings = async ({
               filters.dateRange?.end
                 ? lte(bookings.selectedDate, filters.dateRange.end)
                 : undefined,
-              filters.status ? eq(bookings.status, filters.status) : undefined,
+              filters.status
+                ? inArray(bookings.status, filters.status)
+                : undefined,
               filters.name
                 ? ilike(bookings.customerName, `%${filters.name}%`)
                 : undefined,
@@ -192,7 +196,7 @@ export const getBookings = async ({
           filters.dateRange?.end
             ? lte(bookings.selectedDate, filters.dateRange.end)
             : undefined,
-          filters.status ? eq(bookings.status, filters.status) : undefined,
+          filters.status ? inArray(bookings.status, filters.status) : undefined,
           filters.name
             ? ilike(bookings.customerName, `%${filters.name}%`)
             : undefined,

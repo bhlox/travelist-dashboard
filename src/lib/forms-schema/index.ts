@@ -82,11 +82,18 @@ export const signupFormSchema = z
     path: ["confirm"],
   });
 
+export const advanceSearchSelectSchema = z.object({
+  label: z.string(),
+  value: z.string(),
+  disable: z.boolean().optional(),
+});
+
 export const advcanceSearchFormSchema = z.object({
   name: z.string().optional(),
   phone: z.string().optional(),
   date: z.object({ from: z.date(), to: z.date() }).optional(),
-  status: z
-    .enum(BOOKING_STATUSES, { invalid_type_error: "Invalid status" })
-    .optional(),
+  status: z.array(advanceSearchSelectSchema).optional(),
+  // status: z
+  //   .enum(BOOKING_STATUSES, { invalid_type_error: "Invalid status" })
+  //   .optional(),
 });
