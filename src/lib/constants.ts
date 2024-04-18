@@ -115,3 +115,10 @@ export const BOOKING_STATUS_ADVANCE_OPTIONS: Option[] = [
   { label: "Cancelled", value: "cancelled" },
   { label: "Complete", value: "complete" },
 ];
+
+export const BOOKING_URL_QUERYPARAM_FILTERS = [
+  "status",
+  "date",
+  "name",
+  "phone",
+] as const;

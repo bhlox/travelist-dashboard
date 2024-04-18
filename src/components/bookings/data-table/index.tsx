@@ -35,6 +35,8 @@ import { generateBookingsColumns } from "./columns";
 import { useWindowSize } from "@uidotdev/usehooks";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
+// #BUG UI indicator for sorting when URL Query params has the sort param. passing an initial state doesn't work. Need to look into it
+
 export default function DateTable<TData>({
   data,
   searchParams,
@@ -110,6 +112,7 @@ export default function DateTable<TData>({
       fuzzy: fuzzyFilter,
       dateBetweenFilterFn: dateBetweenFilterFn,
     },
+    initialState: { sorting },
     state: {
       columnVisibility: {
         ID: false,

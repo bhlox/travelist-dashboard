@@ -1,6 +1,10 @@
 import { blockedSchedules, bookings, user } from "@/db/schema";
 import { InferInsertModel, InferSelectModel } from "drizzle-orm";
-import { BOOKING_STATUSES, USER_ROLES } from "./constants";
+import {
+  BOOKING_STATUSES,
+  BOOKING_URL_QUERYPARAM_FILTERS,
+  USER_ROLES,
+} from "./constants";
 import { ColumnDef, Table } from "@tanstack/react-table";
 
 export interface DatabaseUserAttributes {
@@ -124,3 +128,6 @@ export type GetSchedulesProps = {
   handlerId?: string;
   filters?: { pendingStatus?: true };
 } & ({ all: true } | { all?: false; handlerId: string });
+
+export type BookingURLQueryParamFilters =
+  (typeof BOOKING_URL_QUERYPARAM_FILTERS)[number];

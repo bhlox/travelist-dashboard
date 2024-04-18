@@ -2,7 +2,7 @@ import { Table } from "@tanstack/react-table";
 import { useWindowSize } from "@uidotdev/usehooks";
 import { format, lightFormat, toDate } from "date-fns";
 import React, { useEffect, useState } from "react";
-import { SubmitHandler, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import {
   Dialog,
   DialogContent,
@@ -11,21 +11,12 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -36,8 +27,8 @@ import { cn } from "@/lib/utils";
 import { CalendarIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import {
-  BOOKING_STATUSES,
   BOOKING_STATUS_ADVANCE_OPTIONS,
+  BOOKING_URL_QUERYPARAM_FILTERS,
 } from "@/lib/constants";
 import CustomPhoneInput from "@/components/ui/phone-input";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -45,6 +36,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { advcanceSearchFormSchema } from "@/lib/forms-schema";
 import MultipleSelector from "@/components/ui/multiple-selector";
+import { BookingURLQueryParamFilters } from "@/lib/types";
 
 export default function DialogAdvancedFilter<TData>({
   setShowAdvancedFilter,
@@ -123,7 +115,12 @@ export default function DialogAdvancedFilter<TData>({
 
   useEffect(() => {
     searchParams.forEach((value, key) => {
-      if (key && value) {
+      if (
+        BOOKING_URL_QUERYPARAM_FILTERS.includes(
+          key as BookingURLQueryParamFilters
+        ) &&
+        value
+      ) {
         if (key === "name") return;
         if (key === "to" || key === "from") {
           let filterValue = {};
@@ -280,7 +277,7 @@ export default function DialogAdvancedFilter<TData>({
                             value={field.value}
                             onChange={field.onChange}
                             defaultOptions={BOOKING_STATUS_ADVANCE_OPTIONS}
-                            placeholder="Select frameworks you like..."
+                            placeholder="Select status(es)"
                             emptyIndicator={
                               <p className="text-center text-lg leading-10 text-gray-600 dark:text-gray-400 dark:bg-black bg-white">
                                 no results found.
@@ -288,21 +285,6 @@ export default function DialogAdvancedFilter<TData>({
                             }
                           />
                         </FormControl>
-                        {/* <Select
-                          onValueChange={field.onChange}
-                          onOpenChange={handleOnOpenChangeSelectInput}
-                        >
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {BOOKING_STATUSES.map((stats) => (
-                              <SelectItem key={`status-${stats}`} value={stats}>
-                                {stats}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select> */}
                       </FormItem>
                     );
                   }}
