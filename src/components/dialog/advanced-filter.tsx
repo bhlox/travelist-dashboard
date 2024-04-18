@@ -1,6 +1,6 @@
 import { Table } from "@tanstack/react-table";
 import { useWindowSize } from "@uidotdev/usehooks";
-import { format, lightFormat } from "date-fns";
+import { format, lightFormat, toDate } from "date-fns";
 import React, { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import {
@@ -20,6 +20,7 @@ import {
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -78,14 +79,16 @@ export default function DialogAdvancedFilter<TData>({
       // console.log({ [key]: value });
       if (value) {
         if (key === "date") {
+          console.log(value);
           const formatFrom = lightFormat((value as any).from, "yyyy-MM-dd");
           const formatTo = lightFormat((value as any).to, "yyyy-MM-dd");
           table.getColumn(key)?.setFilterValue(value);
           newSearchParams.set("from", formatFrom);
-          return newSearchParams.set("to", formatTo);
+          newSearchParams.set("to", formatTo);
+        } else {
+          table.getColumn(key)?.setFilterValue(value);
+          newSearchParams.set(key, value as string);
         }
-        table.getColumn(key)?.setFilterValue(value);
-        newSearchParams.set(key, value as string);
       } else {
         table.getColumn(key)?.setFilterValue("");
         newSearchParams.delete(key);
@@ -102,7 +105,19 @@ export default function DialogAdvancedFilter<TData>({
   useEffect(() => {
     searchParams.forEach((value, key) => {
       if (key && value) {
-        table.getColumn(key)?.setFilterValue(value);
+        if (key === "name") return;
+        if (key === "to" || key === "from") {
+          let filterValue = {};
+          if (key === "from") {
+            filterValue = { ...filterValue, from: new Date(value) };
+          }
+          if (key === "to") {
+            filterValue = { ...filterValue, to: new Date(value) };
+          }
+          table.getColumn("date")?.setFilterValue(filterValue);
+        } else {
+          table.getColumn(key)?.setFilterValue(value);
+        }
       }
     });
   }, [searchParams, table]);
@@ -121,7 +136,7 @@ export default function DialogAdvancedFilter<TData>({
                 onSubmit={form.handleSubmit(onSubmit)}
                 className="space-y-6"
               >
-                <FormField
+                {/* <FormField
                   control={form.control}
                   name="name"
                   render={({ field }) => (
@@ -134,9 +149,10 @@ export default function DialogAdvancedFilter<TData>({
                           className="max-w-sm"
                         />
                       </FormControl>
+                      <FormDescription>This is case sensitive.</FormDescription>
                     </FormItem>
                   )}
-                />
+                /> */}
                 <FormField
                   control={form.control}
                   name="phone"

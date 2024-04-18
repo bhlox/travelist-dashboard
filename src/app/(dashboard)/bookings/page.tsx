@@ -23,7 +23,7 @@ export default async function BookingsPage({
   searchParams.page = pageNumber.toString();
   const bookings = await getBookings({
     handlerId: user.user.id,
-    role: user.user.role,
+    role: "staff",
     testRole: user.user.testRole,
     filters: {
       pageNumber,
@@ -31,6 +31,8 @@ export default async function BookingsPage({
       sort: { field: sortField, direction: sortDirection },
       dateRange: { start: searchParams?.from, end: searchParams?.to },
       status: searchParams?.status as BookingStatus,
+      name: searchParams?.name,
+      phone: searchParams?.phone,
     },
   });
 

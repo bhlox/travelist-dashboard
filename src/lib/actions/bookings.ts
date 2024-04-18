@@ -7,7 +7,7 @@ import {
   UpdateBooking,
   UserRoles,
 } from "../types";
-import { and, count, eq, gt, gte, lt, lte } from "drizzle-orm";
+import { and, count, eq, gt, gte, ilike, lt, lte } from "drizzle-orm";
 import { bookings } from "@/db/schema";
 import { revalidatePath } from "next/cache";
 
@@ -57,6 +57,8 @@ export const getBookings = async ({
           direction: "asc" | "desc";
         };
         status?: BookingStatus;
+        name?: string;
+        phone?: string;
       } & {
         getPageCount?: false;
         limit?: number;
@@ -70,6 +72,8 @@ export const getBookings = async ({
           direction: "asc" | "desc";
         };
         status?: BookingStatus;
+        name?: string;
+        phone?: string;
       })
     | {
         getPageCount: true;
@@ -85,70 +89,13 @@ export const getBookings = async ({
           direction: "asc" | "desc";
         };
         status?: BookingStatus;
+        name?: string;
+        phone?: string;
       };
 }): Promise<{ count?: number; data: SelectBooking[] }> => {
-  if (testRole === "staff") {
-    if (filters.dateRange?.start && filters.dateRange?.end) {
-      const dataLength = await db
-        .select({ totalCount: count() })
-        .from(bookings)
-        .where(
-          and(
-            eq(bookings.handler, handlerId),
-            gte(bookings.selectedDate, filters.dateRange.start),
-            lte(bookings.selectedDate, filters.dateRange.end)
-          )
-        );
-      const totalCount = Math.ceil(dataLength[0].totalCount / 10);
-      return {
-        data: await db.query.bookings.findMany({
-          where: (bookings, { eq, and, gte, lte }) =>
-            and(
-              eq(bookings.handler, handlerId),
-              gte(bookings.selectedDate, filters.dateRange!.start),
-              lte(bookings.selectedDate, filters.dateRange!.end)
-            ),
-          limit: filters.getPageCount ? 10 : undefined,
-          offset: filters.getPageCount
-            ? (filters.pageNumber - 1) * 10
-            : undefined,
-          orderBy: filters.sort?.direction
-            ? (bookings, { asc, desc }) =>
-                filters.sort?.direction === "asc"
-                  ? [asc(bookings[filters.sort!.field])]
-                  : [desc(bookings[filters.sort!.field])]
-            : undefined,
-        }),
-        count: totalCount,
-      };
-    } else {
-      const dataLength = await db
-        .select({ totalCount: count() })
-        .from(bookings)
-        .where(eq(bookings.handler, handlerId));
-      const totalCount = Math.ceil(dataLength[0].totalCount / 10);
-      return {
-        data: await db.query.bookings.findMany({
-          where: (bookings, { eq, and, gte, lte }) =>
-            eq(bookings.handler, handlerId),
-          limit: filters.getPageCount ? 10 : undefined,
-          offset: filters.getPageCount
-            ? (filters.pageNumber - 1) * 10
-            : undefined,
-          orderBy: filters.sort?.direction
-            ? (bookings, { asc, desc }) =>
-                filters.sort?.direction === "asc"
-                  ? [asc(bookings[filters.sort!.field])]
-                  : [desc(bookings[filters.sort!.field])]
-            : undefined,
-        }),
-        count: totalCount,
-      };
-    }
-  }
   if (role !== "staff") {
     const data = await db.query.bookings.findMany({
-      where: (bookings, { and, eq }) =>
+      where: (bookings, { and, eq, ilike }) =>
         and(
           filters.dateRange?.start
             ? gte(bookings.selectedDate, filters.dateRange?.start)
@@ -157,7 +104,13 @@ export const getBookings = async ({
             ? lte(bookings.selectedDate, filters.dateRange?.end)
             : undefined,
           filters.id ? eq(bookings.handler, filters.id) : undefined,
-          filters.status ? eq(bookings.status, filters.status) : undefined
+          filters.status ? eq(bookings.status, filters.status) : undefined,
+          filters.name
+            ? ilike(bookings.customerName, `%${filters.name}%`)
+            : undefined,
+          filters.phone
+            ? ilike(bookings.phoneNumber, `%${filters.phone}%`)
+            : undefined
         ),
       with: {
         handler: { columns: { displayname: true } },
@@ -171,85 +124,95 @@ export const getBookings = async ({
               : [desc(bookings[filters.sort!.field])]
         : undefined,
     });
-    const dataLength = await db
-      .select({ totalCount: count() })
-      .from(bookings)
-      .where(
-        and(
-          filters.dateRange?.start
-            ? gte(bookings.selectedDate, filters.dateRange?.start)
-            : undefined,
-          filters.dateRange?.end
-            ? lte(bookings.selectedDate, filters.dateRange?.end)
-            : undefined,
-          filters.id ? eq(bookings.handler, filters.id) : undefined,
-          filters.status ? eq(bookings.status, filters.status) : undefined
-        )
-      );
-    const totalCount = Math.ceil(dataLength[0].totalCount / 10);
+    const dataLength = filters.getPageCount
+      ? await db
+          .select({ totalCount: count() })
+          .from(bookings)
+          .where(
+            and(
+              filters.dateRange?.start
+                ? gte(bookings.selectedDate, filters.dateRange?.start)
+                : undefined,
+              filters.dateRange?.end
+                ? lte(bookings.selectedDate, filters.dateRange?.end)
+                : undefined,
+              filters.id ? eq(bookings.handler, filters.id) : undefined,
+              filters.status ? eq(bookings.status, filters.status) : undefined,
+              filters.name
+                ? ilike(bookings.customerName, `%${filters.name}%`)
+                : undefined,
+              filters.phone
+                ? ilike(bookings.phoneNumber, `%${filters.phone}%`)
+                : undefined
+            )
+          )
+      : undefined;
+    const totalCount = filters.getPageCount
+      ? Math.ceil(dataLength![0].totalCount / 10)
+      : 0;
     const formattedData = data.map((dat) => ({
       ...dat,
       handler: dat.handler?.displayname,
     }));
     return { data: formattedData, count: totalCount };
   } else {
-    if (filters.dateRange?.start && filters.dateRange?.end) {
-      const dataLength = await db
-        .select({ totalCount: count() })
-        .from(bookings)
-        .where(
-          and(
-            eq(bookings.handler, handlerId),
-            gte(bookings.selectedDate, filters.dateRange.start),
-            lte(bookings.selectedDate, filters.dateRange.end)
-          )
-        );
-      const totalCount = Math.ceil(dataLength[0].totalCount / 10);
-      return {
-        data: await db.query.bookings.findMany({
-          where: (bookings, { eq, and, gte, lte }) =>
+    const dataLength = filters.getPageCount
+      ? await db
+          .select({ totalCount: count() })
+          .from(bookings)
+          .where(
             and(
               eq(bookings.handler, handlerId),
-              gte(bookings.selectedDate, filters.dateRange!.start),
-              lte(bookings.selectedDate, filters.dateRange!.end)
-            ),
-          limit: filters.getPageCount ? 10 : undefined,
-          offset: filters.getPageCount
-            ? (filters.pageNumber - 1) * 10
+              filters.dateRange?.start
+                ? gte(bookings.selectedDate, filters.dateRange.start)
+                : undefined,
+              filters.dateRange?.end
+                ? lte(bookings.selectedDate, filters.dateRange.end)
+                : undefined,
+              filters.status ? eq(bookings.status, filters.status) : undefined,
+              filters.name
+                ? ilike(bookings.customerName, `%${filters.name}%`)
+                : undefined,
+              filters.phone
+                ? ilike(bookings.phoneNumber, `%${filters.phone}%`)
+                : undefined
+            )
+          )
+      : undefined;
+    const totalCount = filters.getPageCount
+      ? Math.ceil(dataLength![0].totalCount / 10)
+      : 0;
+    const data = await db.query.bookings.findMany({
+      where: (bookings, { eq, and, gte, lte }) =>
+        and(
+          eq(bookings.handler, handlerId),
+          filters.dateRange?.start
+            ? gte(bookings.selectedDate, filters.dateRange.start)
             : undefined,
-          orderBy: filters.sort?.direction
-            ? (bookings, { asc, desc }) =>
-                filters.sort?.direction === "asc"
-                  ? [asc(bookings[filters.sort!.field])]
-                  : [desc(bookings[filters.sort!.field])]
+          filters.dateRange?.end
+            ? lte(bookings.selectedDate, filters.dateRange.end)
             : undefined,
-        }),
-        count: totalCount,
-      };
-    } else {
-      const dataLength = await db
-        .select({ totalCount: count() })
-        .from(bookings)
-        .where(eq(bookings.handler, handlerId));
-      const totalCount = Math.ceil(dataLength[0].totalCount / 10);
-      return {
-        data: await db.query.bookings.findMany({
-          where: (bookings, { eq, and, gte, lte }) =>
-            eq(bookings.handler, handlerId),
-          limit: filters.getPageCount ? 10 : undefined,
-          offset: filters.getPageCount
-            ? (filters.pageNumber - 1) * 10
+          filters.status ? eq(bookings.status, filters.status) : undefined,
+          filters.name
+            ? ilike(bookings.customerName, `%${filters.name}%`)
             : undefined,
-          orderBy: filters.sort?.direction
-            ? (bookings, { asc, desc }) =>
-                filters.sort?.direction === "asc"
-                  ? [asc(bookings[filters.sort!.field])]
-                  : [desc(bookings[filters.sort!.field])]
-            : undefined,
-        }),
-        count: totalCount,
-      };
-    }
+          filters.phone
+            ? ilike(bookings.phoneNumber, `%${filters.phone}%`)
+            : undefined
+        ),
+      limit: filters.getPageCount ? 10 : undefined,
+      offset: filters.getPageCount ? (filters.pageNumber - 1) * 10 : undefined,
+      orderBy: filters.sort?.direction
+        ? (bookings, { asc, desc }) =>
+            filters.sort?.direction === "asc"
+              ? [asc(bookings[filters.sort!.field])]
+              : [desc(bookings[filters.sort!.field])]
+        : undefined,
+    });
+    return {
+      data,
+      count: totalCount,
+    };
   }
 };
 
