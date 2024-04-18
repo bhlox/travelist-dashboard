@@ -1,9 +1,8 @@
-import { IAdvancedSearchForm } from "@/lib/types";
 import { Table } from "@tanstack/react-table";
 import { useWindowSize } from "@uidotdev/usehooks";
-import { format, lightFormat } from "date-fns";
+import { format, lightFormat, toDate } from "date-fns";
 import React, { useEffect, useState } from "react";
-import { SubmitHandler, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import {
   Dialog,
   DialogContent,
@@ -12,20 +11,12 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   Form,
   FormControl,
   FormField,
   FormItem,
   FormLabel,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -35,9 +26,17 @@ import {
 import { cn } from "@/lib/utils";
 import { CalendarIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
-import { BOOKING_STATUSES } from "@/lib/constants";
+import {
+  BOOKING_STATUS_ADVANCE_OPTIONS,
+  BOOKING_URL_QUERYPARAM_FILTERS,
+} from "@/lib/constants";
 import CustomPhoneInput from "@/components/ui/phone-input";
-import { useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { advcanceSearchFormSchema } from "@/lib/forms-schema";
+import MultipleSelector from "@/components/ui/multiple-selector";
+import { BookingURLQueryParamFilters } from "@/lib/types";
 
 export default function DialogAdvancedFilter<TData>({
   setShowAdvancedFilter,
@@ -48,45 +47,83 @@ export default function DialogAdvancedFilter<TData>({
   setShowAdvancedFilter: React.Dispatch<React.SetStateAction<boolean>>;
   table: Table<TData>;
 }) {
+  const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const [calendarOpen, setCalendarOpen] = useState(false);
   const { width } = useWindowSize();
   const [disableBtns, setDisableBtns] = useState(false);
 
-  const handleOnOpenChangeSelectInput = (open: boolean) => {
-    if (width && width < 640) {
-      if (open) {
-        setDisableBtns(true);
-      } else {
-        setTimeout(() => {
-          setDisableBtns(false);
-        }, 1000);
-      }
-    }
-  };
-  const form = useForm<IAdvancedSearchForm>();
+  const form = useForm<z.infer<typeof advcanceSearchFormSchema>>({
+    resolver: zodResolver(advcanceSearchFormSchema),
+  });
 
-  const onSubmit: SubmitHandler<IAdvancedSearchForm> = (data) => {
+  const onSubmit = (data: z.infer<typeof advcanceSearchFormSchema>) => {
+    const newSearchParams = new URLSearchParams();
     Object.entries(data).forEach(([key, value]) => {
+      // console.log({ [key]: value });
       if (value) {
         if (key === "date") {
-          return table
-            .getColumn(key)
-            ?.setFilterValue(lightFormat(value, "yyyy-MM-dd"));
+          console.log(value);
+          const formatFrom = lightFormat((value as any).from, "yyyy-MM-dd");
+          const formatTo = lightFormat((value as any).to, "yyyy-MM-dd");
+          table.getColumn(key)?.setFilterValue(value);
+          newSearchParams.set("from", formatFrom);
+          newSearchParams.set("to", formatTo);
+        } else if (key === "status") {
+          const ar = value as {
+            value: string;
+            label: string;
+            disable?: boolean | undefined;
+          }[];
+          const formattedString = ar.reduce((acc, curr, i) => {
+            if (!i) return acc + curr.value;
+            return acc + "." + curr.value;
+          }, "");
+          table.getColumn(key)?.setFilterValue(formattedString);
+          newSearchParams.set("status", formattedString);
+        } else {
+          table.getColumn(key)?.setFilterValue(value);
+          newSearchParams.set(key, value as string);
         }
-        table.getColumn(key)?.setFilterValue(value);
       } else {
         table.getColumn(key)?.setFilterValue("");
+        newSearchParams.delete(key);
       }
     });
+    // console.log(
+    //   `${pathname}?${new URLSearchParams(newSearchParams).toString()}`
+    // );
     form.reset();
+
+    router.push(
+      `${pathname}?${new URLSearchParams(newSearchParams).toString()}`
+    );
     setShowAdvancedFilter(false);
   };
 
   useEffect(() => {
     searchParams.forEach((value, key) => {
-      if (key && value) {
-        table.getColumn(key)?.setFilterValue(value);
+      if (
+        BOOKING_URL_QUERYPARAM_FILTERS.includes(
+          key as BookingURLQueryParamFilters
+        ) &&
+        value
+      ) {
+        if (key === "name") return;
+        if (key === "to" || key === "from") {
+          let filterValue = {};
+          if (key === "from") {
+            filterValue = { ...filterValue, from: new Date(value) };
+          }
+          if (key === "to") {
+            filterValue = { ...filterValue, to: new Date(value) };
+          }
+          console.log(filterValue);
+          table.getColumn("date")?.setFilterValue(filterValue);
+        } else {
+          table.getColumn(key)?.setFilterValue(value);
+        }
       }
     });
   }, [searchParams, table]);
@@ -105,7 +142,7 @@ export default function DialogAdvancedFilter<TData>({
                 onSubmit={form.handleSubmit(onSubmit)}
                 className="space-y-6"
               >
-                <FormField
+                {/* <FormField
                   control={form.control}
                   name="name"
                   render={({ field }) => (
@@ -118,9 +155,10 @@ export default function DialogAdvancedFilter<TData>({
                           className="max-w-sm"
                         />
                       </FormControl>
+                      <FormDescription>This is case sensitive.</FormDescription>
                     </FormItem>
                   )}
-                />
+                /> */}
                 <FormField
                   control={form.control}
                   name="phone"
@@ -184,8 +222,11 @@ export default function DialogAdvancedFilter<TData>({
                                   !field.value && "text-muted-foreground"
                                 )}
                               >
-                                {field.value ? (
-                                  format(field.value, "PPP")
+                                {field.value?.to ? (
+                                  <span>
+                                    {format(field.value.from, "PPP")} -{" "}
+                                    {format(field.value.to, "PPP")}
+                                  </span>
                                 ) : (
                                   <span>Pick a date</span>
                                 )}
@@ -193,13 +234,19 @@ export default function DialogAdvancedFilter<TData>({
                               </Button>
                             </FormControl>
                           </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="start">
+                          <PopoverContent
+                            className="w-auto p-0"
+                            align="start"
+                            side="bottom"
+                          >
                             <Calendar
-                              mode="single"
+                              mode="range"
                               selected={field.value}
                               onSelect={(date) => {
                                 field.onChange(date);
-                                setCalendarOpen(false);
+                                // if (date?.to) {
+                                //   setCalendarOpen(false);
+                                // }
                               }}
                             />
                           </PopoverContent>
@@ -215,21 +262,19 @@ export default function DialogAdvancedFilter<TData>({
                     return (
                       <FormItem className="flex flex-col">
                         <FormLabel>Status</FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          onOpenChange={handleOnOpenChangeSelectInput}
-                        >
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {BOOKING_STATUSES.map((stats) => (
-                              <SelectItem key={`status-${stats}`} value={stats}>
-                                {stats}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <FormControl>
+                          <MultipleSelector
+                            value={field.value}
+                            onChange={field.onChange}
+                            defaultOptions={BOOKING_STATUS_ADVANCE_OPTIONS}
+                            placeholder="Select status(es)"
+                            emptyIndicator={
+                              <p className="text-center text-lg leading-10 text-gray-600 dark:text-gray-400 dark:bg-black bg-white">
+                                no results found.
+                              </p>
+                            }
+                          />
+                        </FormControl>
                       </FormItem>
                     );
                   }}

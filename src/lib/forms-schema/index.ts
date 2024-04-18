@@ -1,6 +1,7 @@
 import { z } from "zod";
 import {
   ACCEPTED_IMAGE_TYPES,
+  BOOKING_STATUSES,
   MAX_IMAGE_SIZE,
   OPENING_HOURS,
   SIZE_IN_MB,
@@ -11,7 +12,7 @@ export const dateSchema = z.object({
   selectedDate: z.date({
     required_error: "date is required.",
   }),
-  comment: z.string().optional(),
+  comment: z.string({ invalid_type_error: "invalid comment" }).optional(),
 });
 
 export const timeSchema = z.object({
@@ -80,3 +81,19 @@ export const signupFormSchema = z
     message: "Passwords are not matching",
     path: ["confirm"],
   });
+
+export const advanceSearchSelectSchema = z.object({
+  label: z.string(),
+  value: z.string(),
+  disable: z.boolean().optional(),
+});
+
+export const advcanceSearchFormSchema = z.object({
+  name: z.string().optional(),
+  phone: z.string().optional(),
+  date: z.object({ from: z.date(), to: z.date() }).optional(),
+  status: z.array(advanceSearchSelectSchema).optional(),
+  // status: z
+  //   .enum(BOOKING_STATUSES, { invalid_type_error: "Invalid status" })
+  //   .optional(),
+});

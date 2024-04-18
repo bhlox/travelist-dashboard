@@ -26,22 +26,39 @@ import {
   DialogEditStatusProps,
   SelectBooking,
 } from "@/lib/types";
-import { cn, fuzzyFilter } from "@/lib/utils";
+import { dateBetweenFilterFn, fuzzyFilter } from "@/lib/utils";
 import PaginationControls from "./pagination-controls";
 import FilterViewControls from "./filter-view-controls";
 import DialogAdvancedFilter from "../../dialog/advanced-filter";
 import { useUserDetailsContext } from "@/components/providers/user-details-provider";
 import { generateBookingsColumns } from "./columns";
 import { useWindowSize } from "@uidotdev/usehooks";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-export default function DateTable<TData>({ data }: DataTableProps<TData>) {
-  const { role } = useUserDetailsContext();
+// #BUG UI indicator for sorting when URL Query params has the sort param. passing an initial state doesn't work. Need to look into it
+
+export default function DateTable<TData>({
+  data,
+  searchParams,
+  pageCount,
+}: DataTableProps<TData>) {
+  const router = useRouter();
+  const pathname = usePathname();
+  // const searchParamsHook = useSearchParams();
+  const { role, id } = useUserDetailsContext();
   const { width } = useWindowSize();
 
   const bookingsColumns: ColumnDef<SelectBooking>[] = useMemo(() => {
-    return generateBookingsColumns({ role, windowWidth: width || 0 });
-  }, [role, width]);
+    return generateBookingsColumns({
+      role,
+      windowWidth: width || 0,
+      router,
+      pathname,
+      searchParams,
+    });
+  }, [role, width, router, pathname, searchParams]);
 
+  const [currentPageIndex, setCurrentPageIndex] = useState(1);
   const [editStatusDialog, setEditStatusDialog] = useState(false);
   const [showAdvancedFilter, setShowAdvancedFilter] = useState(false);
   const [sorting, setSorting] = React.useState<SortingState>([
@@ -58,16 +75,28 @@ export default function DateTable<TData>({ data }: DataTableProps<TData>) {
   const [globalFilter, setGlobalFilter] = React.useState("");
   const [rowSelection, setRowSelection] = React.useState({});
 
-  // const handleEditStatusDialog = (data: {
-  //   currentStatus: BookingStatus;
-  //   name: string;
-  //   id: number;
-  // }) => {
-  //   setEditStatusDialog({ ...data });
-  // };
+  // const query = useQuery({
+  //   queryKey: ["bookingsQuery", currentPageIndex],
+  //   initialData: data as SelectBooking[],
+  //   queryFn: async () => {
+  //     console.log("fetching newBookings" + searchParams.get("page"));
+  //     return await getBookings({
+  //       role,
+  //       handlerId: id,
+  //       filters: { pageNumber: +searchParams.get("page")! },
+  //     });
+  //   },
+  //   enabled: !isFirstRender,
+  // });
+
+  // console.log(query.data[0]);
 
   const table = useReactTable({
     data,
+    pageCount,
+    manualPagination: true,
+    manualSorting: true,
+    manualFiltering: true,
     columns: bookingsColumns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
@@ -81,7 +110,9 @@ export default function DateTable<TData>({ data }: DataTableProps<TData>) {
     globalFilterFn: fuzzyFilter,
     filterFns: {
       fuzzy: fuzzyFilter,
+      dateBetweenFilterFn: dateBetweenFilterFn,
     },
+    initialState: { sorting },
     state: {
       columnVisibility: {
         ID: false,
@@ -93,6 +124,7 @@ export default function DateTable<TData>({ data }: DataTableProps<TData>) {
       columnFilters,
       globalFilter,
       rowSelection,
+      pagination: { pageIndex: +searchParams.page - 1, pageSize: 10 },
     },
     // meta: {
     //   handleEditStatusDialog: (data: {
@@ -103,6 +135,7 @@ export default function DateTable<TData>({ data }: DataTableProps<TData>) {
     // },
   });
 
+  // code below is only concerned with column visibility for screen width
   useEffect(() => {
     if (width && width > 640 && width < 768) {
       setColumnVisibility((c) => {

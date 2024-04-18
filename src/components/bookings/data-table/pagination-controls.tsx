@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { Table } from "@tanstack/react-table";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import React from "react";
 import { FaChevronRight } from "react-icons/fa";
 import { FaAnglesLeft, FaAnglesRight, FaChevronLeft } from "react-icons/fa6";
@@ -21,6 +22,9 @@ export default function PaginationControls<TData>({
   table: Table<TData>;
 }) {
   const { role } = useUserDetailsContext();
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   return (
     <div
       className={cn("flex items-start px-2", null, {
@@ -71,7 +75,12 @@ export default function PaginationControls<TData>({
           <Button
             variant="outline"
             className="hidden size-8 p-0 lg:flex"
-            onClick={() => table.setPageIndex(0)}
+            onClick={() => {
+              table.setPageIndex(0);
+              const newSearchParams = new URLSearchParams(searchParams);
+              newSearchParams.set("page", "1");
+              router.push(`${pathname}?${newSearchParams.toString()}`);
+            }}
             disabled={!table.getCanPreviousPage()}
           >
             <span className="sr-only">Go to first page</span>
@@ -80,7 +89,14 @@ export default function PaginationControls<TData>({
           <Button
             variant="outline"
             className="size-8 p-0"
-            onClick={() => table.previousPage()}
+            onClick={() => {
+              table.previousPage();
+              const currentPageNumber =
+                table.getState().pagination.pageIndex + 1;
+              const newSearchParams = new URLSearchParams(searchParams);
+              newSearchParams.set("page", `${currentPageNumber - 1}`);
+              router.push(`${pathname}?${newSearchParams.toString()}`);
+            }}
             disabled={!table.getCanPreviousPage()}
           >
             <span className="sr-only">Go to previous page</span>
@@ -89,7 +105,14 @@ export default function PaginationControls<TData>({
           <Button
             variant="outline"
             className="h-8 w-8 p-0"
-            onClick={() => table.nextPage()}
+            onClick={() => {
+              table.nextPage();
+              const newSearchParams = new URLSearchParams(searchParams);
+              const currentPageNumber =
+                table.getState().pagination.pageIndex + 1;
+              newSearchParams.set("page", `${currentPageNumber + 1}`);
+              router.push(`${pathname}?${newSearchParams.toString()}`);
+            }}
             disabled={!table.getCanNextPage()}
           >
             <span className="sr-only">Go to next page</span>
@@ -98,7 +121,12 @@ export default function PaginationControls<TData>({
           <Button
             variant="outline"
             className="hidden size-8 p-0 lg:flex"
-            onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+            onClick={() => {
+              table.setPageIndex(table.getPageCount() - 1);
+              const newSearchParams = new URLSearchParams(searchParams);
+              newSearchParams.set("page", `${table.getPageCount()}`);
+              router.push(`${pathname}?${newSearchParams.toString()}`);
+            }}
             disabled={!table.getCanNextPage()}
           >
             <span className="sr-only">Go to last page</span>

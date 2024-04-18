@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Table } from "@tanstack/react-table";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ActiveFiltersList from "./active-filters";
 import VisibilityColumn from "./visibility-column";
 import { Input } from "@/components/ui/input";
@@ -20,6 +20,8 @@ import { BookingStatus, SelectBooking } from "@/lib/types";
 import { toast } from "react-toastify";
 import { updateBookings } from "@/lib/actions/bookings";
 import { GrDocumentUpdate } from "react-icons/gr";
+import { useDebounce } from "@uidotdev/usehooks";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 export default function FilterViewControls<TData>({
   table,
@@ -30,24 +32,46 @@ export default function FilterViewControls<TData>({
   setShowAdvancedFilter: (value: React.SetStateAction<boolean>) => void;
   setGlobalFilter: (value: React.SetStateAction<string>) => void;
 }) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const selectedRows = table.getFilteredSelectedRowModel().rows.length;
   const activeFilters = table
     .getState()
     .columnFilters.map((filter) => filter.id);
+
+  const [searchTerm, setSearchTerm] = React.useState(
+    searchParams.get("name") || ""
+  );
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
+
+  useEffect(() => {
+    if (debouncedSearchTerm.trim() !== "") {
+      const newSearchParams = new URLSearchParams(searchParams);
+      newSearchParams.set("name", debouncedSearchTerm.trim());
+      router.replace(`${pathname}?${newSearchParams.toString()}`);
+    } else {
+      const newSearchParams = new URLSearchParams(searchParams);
+      newSearchParams.delete("name");
+      router.replace(`${pathname}?${newSearchParams.toString()}`);
+    }
+  }, [debouncedSearchTerm, pathname, router, searchParams]);
   return (
     <div className="flex items-start py-4 justify-between gap-6">
-      {activeFilters.length ? (
-        <div className="flex flex-col md:flex-row gap-4">
-          <ActiveFiltersList table={table} activeFilters={activeFilters} />
-        </div>
-      ) : (
+      <div className="flex flex-col md:flex-row gap-3 md:gap-4">
         <Input
-          placeholder="Search"
-          // value={globalFilter}
-          onChange={(event) => setGlobalFilter(event.target.value)}
-          className="max-w-lg w-full flex-1 block"
+          placeholder="Search name"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="max-w-2xl w-full flex-1 block"
         />
-      )}
+
+        {activeFilters.length ? (
+          <div className="flex flex-col md:flex-row gap-4">
+            <ActiveFiltersList table={table} activeFilters={activeFilters} />
+          </div>
+        ) : null}
+      </div>
 
       <div className="flex flex-col-reverse md:flex-row gap-2">
         {selectedRows ? <MultiRowAction table={table} /> : null}

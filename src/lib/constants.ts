@@ -5,6 +5,7 @@ import { DateAfter, DateBefore, Matcher } from "react-day-picker";
 import { addDays, eachHourOfInterval, lightFormat } from "date-fns";
 import { UserRoles } from "./types";
 import { IconType } from "react-icons/lib";
+import { Option } from "@/components/ui/multiple-selector";
 
 export const SIDEBAR_ITEMS = [
   // {
@@ -107,3 +108,18 @@ export const ROLE_ICONS: { role: UserRoles; icon: IconType }[] = [
   { role: "staff", icon: BsPersonFill },
   { role: "developer", icon: FaHammer },
 ];
+
+export const BOOKING_STATUS_ADVANCE_OPTIONS: Option[] = [
+  { label: "Pending", value: "pending" },
+  { label: "Overdue", value: "overdue" },
+  { label: "Cancelled", value: "cancelled" },
+  { label: "Complete", value: "complete" },
+];
+
+export const BOOKING_URL_QUERYPARAM_FILTERS = [
+  "status",
+  "from",
+  "to",
+  "name",
+  "phone",
+] as const;

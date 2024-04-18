@@ -13,26 +13,24 @@ export default function ActiveFiltersList<TData>({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const params = new URLSearchParams(searchParams);
+  const newSearchParams = new URLSearchParams(searchParams);
 
   const handleRemoveFilter = (filter: string) => {
     table.getColumn(filter)?.setFilterValue("");
-    if (params.size) {
-      let urlString = `${pathname}?`;
-      params.forEach((value, key) => {
-        if (key) {
-          if (key === filter) {
-            return params.delete(key);
-          }
-          urlString += `${key}=${value}&`;
-        }
-      });
-      urlString = urlString.slice(0, -1);
-      router.replace(urlString);
+    if (filter === "date") {
+      newSearchParams.delete("from");
+      newSearchParams.delete("to");
+    } else {
+      newSearchParams.delete(filter);
     }
+    if (activeFilters.length === 1) {
+      newSearchParams.delete("page");
+      newSearchParams.delete("sort");
+    }
+    router.push(`${pathname}?${newSearchParams.toString()}`);
   };
   return activeFilters.length ? (
-    <div className="grid grid-cols-2 md:flex gap-2 place-items-center">
+    <div className="grid grid-cols-2 md:flex gap-4">
       {activeFilters.map((filt) => (
         <Button
           variant={"secondary"}

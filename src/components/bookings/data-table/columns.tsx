@@ -15,13 +15,23 @@ import { ArrowUpDown, MoreHorizontal } from "lucide-react";
 import { BOOKING_STATUSES } from "@/lib/constants";
 import { Checkbox } from "@/components/ui/checkbox";
 import Link from "next/link";
+import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
+import { FaArrowDown, FaArrowUp } from "react-icons/fa";
 
 export const generateBookingsColumns = ({
   role,
   windowWidth,
+  pathname,
+  router,
+  searchParams,
 }: {
   role: UserRoles;
   windowWidth: number;
+  router: AppRouterInstance;
+  pathname: string;
+  searchParams: {
+    [key: string]: string;
+  };
 }): ColumnDef<SelectBooking>[] => {
   return [
     {
@@ -81,36 +91,62 @@ export const generateBookingsColumns = ({
     {
       accessorKey: "selectedDate",
       id: "date",
-      header: ({ column }) => {
+      header: ({ column, table, header }) => {
+        const sortItems = [
+          {
+            label: "Asc",
+            value: "asc",
+          },
+          {
+            label: "Desc",
+            value: "desc",
+          },
+        ];
+        const sortExists = searchParams.sort?.split(".")[0] === "selectedDate";
         return (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          >
-            Date
-            <ArrowUpDown className="ml-2 h-4 w-4" />
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost">
+                Date
+                {sortExists ? (
+                  column.getIsSorted() === "asc" ? (
+                    <FaArrowUp className="ml-2 h-4 w-4" />
+                  ) : (
+                    <FaArrowDown className="ml-2 h-4 w-4" />
+                  )
+                ) : (
+                  <ArrowUpDown className="ml-2 h-4 w-4" />
+                )}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuLabel>Sort</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              {sortItems.map((item) => (
+                <DropdownMenuItem
+                  key={item.value}
+                  onClick={() => {
+                    column.toggleSorting(item.value !== "asc");
+                    const newSearchParams = new URLSearchParams(searchParams);
+                    newSearchParams.set("sort", `selectedDate.${item.value}`);
+                    router.push(`${pathname}?${newSearchParams.toString()}`);
+                  }}
+                >
+                  {item.label}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
         );
       },
+      filterFn: "dateBetweenFilterFn" as any,
       size: 12,
     },
     {
       accessorKey: "selectedTime",
       id: "time",
       header: ({ column }) => {
-        return (
-          <div className="flex justify-center">
-            <Button
-              variant="ghost"
-              onClick={() =>
-                column.toggleSorting(column.getIsSorted() === "asc")
-              }
-            >
-              Time
-              <ArrowUpDown className="ml-2 h-4 w-4" />
-            </Button>
-          </div>
-        );
+        return <div className="flex justify-center">Time</div>;
       },
       cell: ({ row }) => {
         const time = row.original.selectedTime;
@@ -122,19 +158,59 @@ export const generateBookingsColumns = ({
     {
       accessorKey: "status",
       header: ({ column }) => {
+        const sortItems = [
+          {
+            label: "Asc",
+            value: "asc",
+          },
+          {
+            label: "Desc",
+            value: "desc",
+          },
+        ];
+        const sortExists = searchParams.sort?.split(".")[0] === "status";
         return (
-          <Button variant="ghost" onClick={() => column.toggleSorting()}>
-            Status
-            <ArrowUpDown className="ml-2 h-4 w-4" />
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost">
+                Status
+                {sortExists ? (
+                  column.getIsSorted() === "asc" ? (
+                    <FaArrowUp className="ml-2 h-4 w-4" />
+                  ) : (
+                    <FaArrowDown className="ml-2 h-4 w-4" />
+                  )
+                ) : (
+                  <ArrowUpDown className="ml-2 h-4 w-4" />
+                )}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuLabel>Sort</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              {sortItems.map((item) => (
+                <DropdownMenuItem
+                  key={item.value}
+                  onClick={() => {
+                    column.toggleSorting(item.value !== "asc");
+                    const newSearchParams = new URLSearchParams(searchParams);
+                    newSearchParams.set("sort", `status.${item.value}`);
+                    router.push(`${pathname}?${newSearchParams.toString()}`);
+                  }}
+                >
+                  {item.label}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
         );
       },
-      sortingFn: (rowA, rowB, columnId) => {
-        return (
-          BOOKING_STATUSES.indexOf(rowA.original.status!) -
-          BOOKING_STATUSES.indexOf(rowB.original.status!)
-        );
-      },
+      // sortingFn: (rowA, rowB, columnId) => {
+      //   return (
+      //     BOOKING_STATUSES.indexOf(rowA.original.status!) -
+      //     BOOKING_STATUSES.indexOf(rowB.original.status!)
+      //   );
+      // },
       cell: ({ row }) => {
         const status = row.original.status;
         if (status === "pending") {

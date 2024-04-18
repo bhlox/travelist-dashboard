@@ -8,7 +8,7 @@ import {
   UpdateUser,
 } from "../types";
 import { revalidatePath } from "next/cache";
-import { user } from "@/db/schema";
+import { emailVerificationCodes, passwordResetTokens, user } from "@/db/schema";
 import { eq, sql } from "drizzle-orm";
 import { Argon2id } from "oslo/password";
 import { lucia } from "@/auth";
@@ -162,6 +162,14 @@ export const globalSearchUser = async (searchTerm: string) => {
 };
 
 export const deleteUser = async (id: string) => {
+  await db
+    .delete(emailVerificationCodes)
+    .where(eq(emailVerificationCodes.userId, id));
+
+  await db
+    .delete(passwordResetTokens)
+    .where(eq(passwordResetTokens.userId, id));
+
   const deletedUser = await db
     .delete(user)
     .where(eq(user.id, id))

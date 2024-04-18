@@ -39,6 +39,7 @@ export default async function EditBlockSchedulePage({
     role: user.user.role,
     testRole: user.user.testRole,
     filters: {
+      getPageCount: false,
       dateRange: {
         start: new Date().toISOString(),
         end: addDays(new Date(), 31).toISOString(),
@@ -52,7 +53,7 @@ export default async function EditBlockSchedulePage({
       toBeEditedBlockedSchedule={toBeEditedBlockedSchedule}
       blockedSchedules={mappedData}
       editId={params.id}
-      bookings={bookings}
+      bookings={bookings.data}
     />
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { isSameDay, lightFormat } from "date-fns";
+import { format, isSameDay, lightFormat } from "date-fns";
 import UpdateScheduleForm from "@/components/forms/update schedule";
 import ApprovedBlockedScheduleCard from "@/components/schedule/blocked-schedule-card";
 import {
@@ -34,6 +34,8 @@ import { useQuery } from "@tanstack/react-query";
 import { getBookingsForDate } from "@/lib/actions/bookings";
 import Link from "next/link";
 import { useUserDetailsContext } from "@/components/providers/user-details-provider";
+import DialogDeleteConfirmation from "@/components/dialog/delete-confirmation";
+import { deleteSchedule } from "@/lib/actions/schedule";
 
 export default function ScheduleClient({
   blockedSchedules,
@@ -217,6 +219,7 @@ function PendingScheduleAccordionItem({
   i: number;
 }) {
   const { id, role } = useUserDetailsContext();
+  const [deleteDialog, setDeleteDialog] = useState(false);
   const { data, isFetching, isError } = useQuery({
     queryKey: ["customers", schedule.date],
     queryFn: () =>
@@ -226,6 +229,13 @@ function PendingScheduleAccordionItem({
       }),
     staleTime: Infinity,
   });
+
+  const formattedDate = format(schedule.date, "MMMM dd, yyyy");
+  const formattedTimeRange =
+    schedule.type === "time"
+      ? `From ${schedule.timeRanges[0]} to 
+  ${schedule.timeRanges.at(-1)}`
+      : "";
 
   const conflictList =
     data?.filter((cust) => {
@@ -289,13 +299,36 @@ function PendingScheduleAccordionItem({
             )}
           </div>
         </div>
-        <div>
+        <div className="space-y-4">
           {role === "staff" || id === schedule.handlerID ? (
-            <Button className="w-full" asChild>
-              <Link scroll={false} href={`/schedule/edit/${schedule.id}`}>
-                Edit Schedule
-              </Link>
-            </Button>
+            <>
+              <Button
+                className="w-full"
+                variant={"destructive"}
+                onClick={() => setDeleteDialog(true)}
+              >
+                Delete Schedule
+              </Button>
+              <Button className="w-full" asChild>
+                <Link scroll={false} href={`/schedule/edit/${schedule.id}`}>
+                  Edit Schedule
+                </Link>
+              </Button>
+              {deleteDialog && (
+                <DialogDeleteConfirmation
+                  deleteFn={deleteSchedule}
+                  dialogDescription={`You are about to delete this blocked schedule (${formattedDate} ${formattedTimeRange})`}
+                  dialogTitle="Confirm Schedule Block deletion"
+                  idToBeDeleted={schedule.id}
+                  errorMsg="Failed to delete schedule"
+                  sucessMsg={{
+                    title: "Schedule deleted",
+                    description: `${formattedDate} ${formattedTimeRange}`,
+                  }}
+                  setDeleteDialog={setDeleteDialog}
+                />
+              )}
+            </>
           ) : (
             <Button className="w-full" asChild>
               <Link scroll={false} href={`/schedule/approval/${schedule.id}`}>
