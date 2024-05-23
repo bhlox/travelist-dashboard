@@ -41,6 +41,7 @@ export default function DateTable<TData>({
   data,
   searchParams,
   pageCount,
+  pageSize,
 }: DataTableProps<TData>) {
   const router = useRouter();
   const pathname = usePathname();
@@ -124,7 +125,7 @@ export default function DateTable<TData>({
       columnFilters,
       globalFilter,
       rowSelection,
-      pagination: { pageIndex: +searchParams.page - 1, pageSize: 10 },
+      pagination: { pageIndex: +searchParams.page - 1, pageSize },
     },
     // meta: {
     //   handleEditStatusDialog: (data: {

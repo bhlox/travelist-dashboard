@@ -50,6 +50,9 @@ export default function PaginationControls<TData>({
             value={`${table.getState().pagination.pageSize}`}
             onValueChange={(value) => {
               table.setPageSize(Number(value));
+              const newSearchParams = new URLSearchParams(searchParams);
+              newSearchParams.set("pageSize", value);
+              router.push(`${pathname}?${newSearchParams.toString()}`);
             }}
           >
             <SelectTrigger className="h-8 sm:w-[70px]">

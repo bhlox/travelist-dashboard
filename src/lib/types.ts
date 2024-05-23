@@ -96,6 +96,7 @@ export interface DataTableProps<TData> {
   data: TData[];
   searchParams: { [key: string]: string };
   pageCount: number;
+  pageSize: number;
 }
 
 export type UserRoles = (typeof USER_ROLES)[number];

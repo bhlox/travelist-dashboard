@@ -16,6 +16,7 @@ export default async function BookingsPage({
   }
 
   const pageNumber = searchParams.page ? +searchParams.page : 1;
+  const pageSize = +searchParams.pageSize || 10;
   const sortField = searchParams.sort?.split(".")[0] as keyof SelectBooking;
   const sortDirection = searchParams.sort?.split(".")[1] as "asc" | "desc";
   searchParams.page = pageNumber.toString();
@@ -25,6 +26,7 @@ export default async function BookingsPage({
     testRole: user.user.testRole,
     filters: {
       pageNumber,
+      limit: pageSize,
       getPageCount: true,
       sort: { field: sortField, direction: sortDirection },
       dateRange: { start: searchParams?.from, end: searchParams?.to },
@@ -41,6 +43,7 @@ export default async function BookingsPage({
         data={bookings.data}
         searchParams={searchParams}
         pageCount={bookings.count ?? 1}
+        pageSize={pageSize}
       />
     </>
   );

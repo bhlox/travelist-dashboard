@@ -92,8 +92,10 @@ export const getBookings = async ({
       with: {
         handler: { columns: { displayname: true } },
       },
-      limit: filters?.getPageCount ? 10 : undefined,
-      offset: filters?.getPageCount ? (filters.pageNumber - 1) * 10 : undefined,
+      limit: filters?.getPageCount ? filters.limit || 10 : undefined,
+      offset: filters?.getPageCount
+        ? (filters.pageNumber - 1) * (filters.limit || 10)
+        : undefined,
       orderBy: filters?.sort?.direction
         ? (bookings, { asc, desc }) =>
             filters.sort?.direction === "asc"
@@ -127,7 +129,7 @@ export const getBookings = async ({
           )
       : undefined;
     const totalCount = filters?.getPageCount
-      ? Math.ceil(dataLength![0].totalCount / 10)
+      ? Math.ceil(dataLength![0].totalCount / (filters.limit || 10))
       : 0;
     const formattedData = data.map((dat) => ({
       ...dat,
@@ -161,7 +163,7 @@ export const getBookings = async ({
           )
       : undefined;
     const totalCount = filters?.getPageCount
-      ? Math.ceil(dataLength![0].totalCount / 10)
+      ? Math.ceil(dataLength![0].totalCount / (filters.limit || 10))
       : 0;
     const data = await db.query.bookings.findMany({
       where: (bookings, { eq, and, gte, lte }) =>
@@ -183,8 +185,10 @@ export const getBookings = async ({
             ? ilike(bookings.phoneNumber, `%${filters.phone}%`)
             : undefined
         ),
-      limit: filters?.getPageCount ? 10 : undefined,
-      offset: filters?.getPageCount ? (filters.pageNumber - 1) * 10 : undefined,
+      limit: filters?.getPageCount ? filters.limit || 10 : undefined,
+      offset: filters?.getPageCount
+        ? (filters.pageNumber - 1) * (filters.limit || 10)
+        : undefined,
       orderBy: filters?.sort?.direction
         ? (bookings, { asc, desc }) =>
             filters?.sort?.direction === "asc"
