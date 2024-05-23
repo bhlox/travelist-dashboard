@@ -25,7 +25,7 @@ import {
   updateBooking,
 } from "@/lib/actions/bookings";
 import { BOOKING_STATUSES } from "@/lib/constants";
-import { SelectBooking } from "@/lib/types";
+import { SelectBookingWithHandlerInfo } from "@/lib/types";
 import { useMutation } from "@tanstack/react-query";
 import { useWindowSize } from "@uidotdev/usehooks";
 import { useRouter } from "next/navigation";
@@ -36,7 +36,7 @@ export default function BookingActionPageClient({
   bookingDetails,
   action,
 }: {
-  bookingDetails: SelectBooking;
+  bookingDetails: SelectBookingWithHandlerInfo;
   action: "edit" | "delete";
 }) {
   return (
@@ -51,7 +51,11 @@ export default function BookingActionPageClient({
   );
 }
 
-function EditUI({ bookingDetails }: { bookingDetails: SelectBooking }) {
+function EditUI({
+  bookingDetails,
+}: {
+  bookingDetails: SelectBookingWithHandlerInfo;
+}) {
   const router = useRouter();
   const { width } = useWindowSize();
   const [editStatus, setEditStatus] = useState(bookingDetails.status!);
@@ -94,7 +98,7 @@ function EditUI({ bookingDetails }: { bookingDetails: SelectBooking }) {
         <CardDescription>
           <ul className="list-disc list-inside">
             <li>Status: {bookingDetails.status}</li>
-            <li>Handler: {bookingDetails.handler}</li>
+            <li>Handler: {bookingDetails.handler.displayname}</li>
             <li>Date: {bookingDetails.selectedDate}</li>
             <li>Time: {bookingDetails.selectedTime}</li>
           </ul>
@@ -132,7 +136,11 @@ function EditUI({ bookingDetails }: { bookingDetails: SelectBooking }) {
   );
 }
 
-function DeleteUI({ bookingDetails }: { bookingDetails: SelectBooking }) {
+function DeleteUI({
+  bookingDetails,
+}: {
+  bookingDetails: SelectBookingWithHandlerInfo;
+}) {
   const router = useRouter();
   const { mutate, isPending } = useMutation({
     mutationFn: () => deleteBooking(bookingDetails.id),
@@ -159,7 +167,7 @@ function DeleteUI({ bookingDetails }: { bookingDetails: SelectBooking }) {
         <CardContent>
           <ul className="list-disc list-inside">
             <li>Status: {bookingDetails.status}</li>
-            <li>Handler: {bookingDetails.handler}</li>
+            <li>Handler: {bookingDetails.handler.displayname}</li>
             <li>Date: {bookingDetails.selectedDate}</li>
             <li>Time: {bookingDetails.selectedTime}</li>
           </ul>

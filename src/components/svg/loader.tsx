@@ -3,15 +3,17 @@ import React from "react";
 export default function LoadingSpinner({
   height = "24",
   width = "24",
+  stroke = "#000",
 }: {
   width?: string;
   height?: string;
+  stroke?: string;
 }) {
   return (
     <svg
       width={width}
       height={height}
-      stroke="#000"
+      stroke={stroke}
       viewBox="0 0 24 24"
       xmlns="http://www.w3.org/2000/svg"
     >

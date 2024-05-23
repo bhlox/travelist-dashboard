@@ -15,7 +15,6 @@ export const getBooking = async (id: number) => {
   return await db.query.bookings.findFirst({
     where: (bookings, { eq }) => eq(bookings.id, id),
     with: { handler: { columns: { id: true, displayname: true } } },
-    // columns: { status: true, customerName: true },
   });
 };
 

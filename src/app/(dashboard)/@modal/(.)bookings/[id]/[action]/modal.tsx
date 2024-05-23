@@ -3,7 +3,11 @@
 import DialogDeleteConfirmation from "@/components/dialog/delete-confirmation";
 import DialogEditStatus from "@/components/dialog/edit-status";
 import { deleteBooking } from "@/lib/actions/bookings";
-import { BookingStatus, BookingsSlugAction, SelectBooking } from "@/lib/types";
+import {
+  BookingStatus,
+  BookingsSlugAction,
+  SelectBookingWithHandlerInfo,
+} from "@/lib/types";
 import { useSearchParams } from "next/navigation";
 import React from "react";
 
@@ -13,11 +17,12 @@ export default function BookingActionModal({
   action,
 }: {
   bookingId: number;
-  bookingDetails: SelectBooking;
+  bookingDetails: SelectBookingWithHandlerInfo;
   action: BookingsSlugAction;
 }) {
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get("redirect");
+  console.log(bookingDetails);
   return (
     <>
       {action === "edit" ? (
@@ -34,7 +39,7 @@ export default function BookingActionModal({
             <>
               <p>Details are as follows:</p>
               <ul className="list-disc list-inside">
-                <li>Handler: {bookingDetails.handler}</li>
+                <li>Handler: {bookingDetails.handler.displayname}</li>
                 <li>Date: {bookingDetails.selectedDate}</li>
                 <li>Time: {bookingDetails.selectedTime}</li>
                 <li>Status: {bookingDetails.status}</li>

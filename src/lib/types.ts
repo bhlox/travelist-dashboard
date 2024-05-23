@@ -23,6 +23,12 @@ export interface ISidebarContext {
 }
 
 export type SelectBooking = InferSelectModel<typeof bookings>;
+export type SelectBookingWithHandlerInfo = SelectBooking & {
+  handler: {
+    id: string;
+    displayname: string;
+  };
+};
 export type InsertBooking = InferInsertModel<typeof bookings>;
 export type UpdateBooking = {
   id: SelectBooking["id"];

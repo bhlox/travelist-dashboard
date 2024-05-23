@@ -9,8 +9,6 @@ import PasswordForm from "@/components/forms/profile/password";
 import TestRoleForm from "@/components/forms/profile/test-role";
 import DescriptionForm from "@/components/forms/profile/description";
 
-// #BUG something weird when zooming with scrolls. this only happens here not others pages
-
 export default function ClientProfilePage({
   userDetails,
 }: {

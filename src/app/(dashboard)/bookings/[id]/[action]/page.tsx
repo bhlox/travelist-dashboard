@@ -1,4 +1,3 @@
-
 import { getBooking } from "@/lib/actions/bookings";
 import React, { useState } from "react";
 import BookingActionPageClient from "./client";
