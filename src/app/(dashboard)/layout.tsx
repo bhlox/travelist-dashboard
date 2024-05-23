@@ -36,7 +36,7 @@ export default async function RootLayoutHome({
   }
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={cn("overflow-hidden", inter.className)}>
+      <body className={cn("overflow-y-hidden", inter.className)}>
         <NextTopLoader showSpinner={false} />
         <ThemeProvider
           defaultTheme="system"
@@ -57,7 +57,7 @@ export default async function RootLayoutHome({
               <SidebarProvider>
                 <MainContainer>
                   <Sidebar />
-                  <div className="flex flex-col flex-1 w-full ">
+                  <div className="flex flex-col flex-1 w-full">
                     <Navbar />
                     <main className="h-[100dvh] overflow-y-auto">
                       <div className="p-4">
